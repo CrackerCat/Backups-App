@@ -1,3 +1,38 @@
 <resources>
+    <!-- Greeting Section -->
     <string name="app_name">Backups</string>
+    <!-- Greeting Section End -->
+
+    <!-- Tabs -->
+
+    <!-- Apps -->
+    <string name="apps_tab_name">Apps</string>
+    <string name="no_apps_installed">Hmm… Seems like you don\'t have any applications installed</string>
+    <!-- Used in case app-package does not contain label -->
+    <string name="default_app_label">App</string>
+    <!-- Apps End -->
+
+    <!-- Queue -->
+    <string name="queue_tab_name">Queue</string>
+    <string name="no_apps_in_queue">No backups in queue</string>
+    <!-- Queue End -->
+
+    <!-- Settings -->
+    <string name="settings_tab_name">Settings</string>
+
+    <string name="backup_naming_scheme_setting">Backup Name</string>
+    <string name="default_naming_scheme">%s-backup.apk</string>
+
+    <string name="show_system_apps_setting">Show system apps</string>
+
+    <string name="output_directory_setting">Backups Directory</string>
+    <string name="no_directory_selected">Click me to select a backups directory</string>
+
+    <string name="current_theme_setting">Theme</string>
+    <string name="light_theme">Light</string>
+    <string name="dark_theme">Dark</string>
+    <!-- Settings End -->
+
+    <!-- Tabs End -->
+
 </resources>

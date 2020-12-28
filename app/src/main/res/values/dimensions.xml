@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="header_text_size">34sp</dimen>
+    <dimen name="label_text_size">16sp</dimen>
+    <dimen name="tab_indicator_height">4dp</dimen>
+    <dimen name="tab_item_text_size">20sp</dimen>
+</resources>
