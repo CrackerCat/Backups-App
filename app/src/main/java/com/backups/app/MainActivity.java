@@ -2,27 +2,38 @@ package com.backups.app;
 
 import androidx.documentfile.provider.DocumentFile;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.backups.app.filehandling.APKFileOperations;
+import com.backups.app.tabs.TabAdapter;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 public class MainActivity extends AppCompatActivity {
-    TextView mTextView;
-    Button mButton;
+
+    TabAdapter mTabAdapter;
+    TabLayout mTabLayout;
+    ViewPager2 mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextView = findViewById(R.id.main_tv);
-        mButton = findViewById(R.id.main_btn);
+        mViewPager = findViewById(R.id.pager);
+        mTabLayout = findViewById(R.id.tab_layout);
+        mTabAdapter = new TabAdapter(this);
+
+        mViewPager.setAdapter(mTabAdapter);
+
+        new TabLayoutMediator(mTabLayout, mViewPager,
+                (tab, position) -> tab.setText(mTabAdapter.getTabName(this, position))
+        ).attach();
     }
 
     @Override
@@ -36,8 +47,7 @@ public class MainActivity extends AppCompatActivity {
                 if (resultData != null) {
                     newDirectoryUri = resultData.getData();
                     DocumentFile pickedDirectory = DocumentFile.fromTreeUri(this, newDirectoryUri);
-                    DocumentFile newDirectory = pickedDirectory.createDirectory(APKFileOperations.OUTPUT_DIRECTORY);
-                    mTextView.setText(String.format("Apk Backups Directory: %s/%s", pickedDirectory.getName(), newDirectory.getName()));
+                    pickedDirectory.createDirectory(APKFileOperations.OUTPUT_DIRECTORY);
                 }
             }
         }
