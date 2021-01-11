@@ -1,13 +1,11 @@
-package com.backups.app.fileoperations;
+package com.backups.app.data;
 
 import android.content.pm.PackageManager;
-
-import com.backups.app.data.APKFile;
 
 import java.util.ArrayList;
 
 interface IAPKFileRepository {
-    ArrayList<APKFile> getInstalledAppFiles(PackageManager packageManager);
+    ArrayList<APKFile> getInstalledApps(PackageManager packageManager);
 
     boolean makeBackups(ArrayList<APKFile> apps);
 }
