@@ -1,4 +1,4 @@
-package com.backups.app.ui;
+package com.backups.app.ui.adapters;
 
 import android.content.Context;
 
