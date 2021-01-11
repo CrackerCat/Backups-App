@@ -1,15 +1,15 @@
-package com.backups.app.filehandling;
+package com.backups.app.fileoperations;
 
 import android.graphics.drawable.Drawable;
 
-public class AppFile {
+public class APKFile {
     private final String m_Name;
     private final String m_PackageName;
     private final String m_PackagePath;
     private final long m_AppSize;
     private final Drawable m_Icon;
 
-    AppFile(final String name, final String packageName, final String packagePath, final long appSize, final Drawable icon) {
+    APKFile(final String name, final String packageName, final String packagePath, final long appSize, final Drawable icon) {
         m_Name = name;
         m_PackageName = packageName;
         m_PackagePath = packagePath;
@@ -39,12 +39,12 @@ public class AppFile {
 
     @Override
     public String toString() {
-        return "AppFile{" +
-                "m_Name='" + m_Name + '\'' +
-                ", m_PackageName='" + m_PackageName + '\'' +
-                ", m_PackagePath='" + m_PackagePath + '\'' +
-                ", m_AppSize=" + m_AppSize +
-                ", m_Icon=" + m_Icon +
-                '}';
+        return "ApkFile {\n" +
+                " name: " + m_Name +
+                ",\n packageName: " + m_PackageName +
+                ",\n packagePath: " + m_PackagePath +
+                ",\n appSize: " + m_AppSize +
+                ",\n icon: " + m_Icon +
+                "\n}";
     }
 }

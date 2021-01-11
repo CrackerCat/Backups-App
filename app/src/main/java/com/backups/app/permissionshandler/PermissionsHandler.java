@@ -1,11 +1,11 @@
-package com.backups.app.permissionshandling;
+package com.backups.app;
 
 
 import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.backups.app.filehandling.APKFileOperations;
+import com.backups.app.fileoperations.APKFileOperations;
 
 public class PermissionsHandler {
     protected static boolean checkExternalFilesystemPermissions() {

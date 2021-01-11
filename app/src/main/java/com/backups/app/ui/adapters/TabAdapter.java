@@ -1,4 +1,4 @@
-package com.backups.app.tabs;
+package com.backups.app.ui;
 
 import android.content.Context;
 
@@ -8,14 +8,13 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.backups.app.R;
-import com.backups.app.fragments.AppListFragment;
-import com.backups.app.fragments.AppQueueFragment;
-import com.backups.app.fragments.SettingsFragment;
+import com.backups.app.ui.fragments.AppListFragment;
+import com.backups.app.ui.fragments.AppQueueFragment;
+import com.backups.app.ui.fragments.SettingsFragment;
 
 public class TabAdapter extends FragmentStateAdapter {
-
-    private static final int[] TABS = {R.string.apps_tab_name, R.string.queue_tab_name, R.string.settings_tab_name};
-    private final Fragment[] FRAGMENTS = {new AppListFragment(), new AppQueueFragment(), new SettingsFragment()};
+    private final int[] TABS = {R.string.apps_tab_name, R.string.queue_tab_name, R.string.settings_tab_name};
+    private final Fragment[] mFragments = {new AppListFragment(), new AppQueueFragment(), new SettingsFragment()};
 
     public TabAdapter(@NonNull FragmentActivity fragment) {
         super(fragment);
@@ -31,7 +30,7 @@ public class TabAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return FRAGMENTS[position];
+        return mFragments[position];
     }
 
     @Override
