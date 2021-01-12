@@ -2,4 +2,4 @@
 
 Android app for creating backups of installed apk files
 
-![app screenshot](github_res/app.png)
+![app screenshot](github-res/app.png)
