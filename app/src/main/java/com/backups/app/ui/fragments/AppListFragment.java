@@ -1,4 +1,4 @@
-package com.backups.app.fragments;
+package com.backups.app.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,27 +12,29 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.backups.app.R;
+import com.backups.app.data.APKFile;
 import com.backups.app.data.APKFileRepository;
-import com.backups.app.data.AppListFragmentViewModel;
+import com.backups.app.data.ApkListViewModel;
 import com.backups.app.data.ViewModelFactory;
-import com.backups.app.fileoperations.APKFile;
+import com.backups.app.ui.adapters.AppListAdapter;
 
-import java.util.concurrent.Executor;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 public class AppListFragment extends Fragment {
-    private final APKFileRepository mApkFileRepository;
 
-    private TextView mAppTextView;
+    private ApkListViewModel mAppListViewModel;
+
+    private LinearLayoutManager mLayoutManager;
+    private RecyclerView mAppRecyclerView;
+    private AppListAdapter mAppListAdapter;
+
     private ProgressBar mProgressBar;
-
-    public AppListFragment() {
-        super();
-        Executor mExecutor = Executors.newSingleThreadExecutor();
-        mApkFileRepository = new APKFileRepository(mExecutor);
-    }
+    private TextView mTextView;
 
     @Nullable
     @Override
@@ -45,40 +47,50 @@ public class AppListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         FragmentActivity activity = requireActivity();
-        mAppTextView = view.findViewById(R.id.appTextView);
-        mProgressBar = view.findViewById(R.id.progressBar);
-        showProgressBar();
+        mAppRecyclerView = view.findViewById(R.id.recyclerview);
+        mProgressBar = view.findViewById(R.id.progressbar);
+        mTextView = view.findViewById(R.id.no_apps_tv);
 
-        AppListFragmentViewModel mViewModel = new ViewModelProvider(activity, new ViewModelFactory(activity.getPackageManager(), mApkFileRepository)).get(AppListFragmentViewModel.class);
+        APKFileRepository mApkFileRepository = new APKFileRepository(Executors.newSingleThreadExecutor());
+        mAppListViewModel = new ViewModelProvider(activity, new ViewModelFactory(activity.getPackageManager(), mApkFileRepository)).get(ApkListViewModel.class);
 
-        if (mViewModel.getAppList() == null) {
+        if (!mAppListViewModel.hasRecievedApkList()) {
             showProgressBar();
         }
 
-        mViewModel.getApks().observe(getViewLifecycleOwner(), apkFiles -> {
+        mAppListViewModel.getApkData().observe(getViewLifecycleOwner(), apkFiles -> {
             if (!apkFiles.isEmpty()) {
 
-                if (mViewModel.getAppList() == null) {
-                    mViewModel.storeAppList(apkFiles);
+                if (!mAppListViewModel.hasRecievedApkList()) {
+                    mAppListViewModel.recievedApkList(true);
                 }
-
-                for (APKFile apkFile : apkFiles) {
-                    mAppTextView.append(String.format("%s\n\n\n", apkFile.getName()));
-                }
+                initRecyclerView(activity, apkFiles);
+                showCompletion();
             } else {
-                mAppTextView.setText(R.string.no_apps_installed_message);
+                showErrorMessage();
             }
-            showCompletion();
         });
+    }
+
+    private void initRecyclerView(FragmentActivity activity, List<APKFile> data) {
+        mLayoutManager = new LinearLayoutManager(activity);
+        mAppListAdapter = new AppListAdapter(data);
+        mAppRecyclerView.setLayoutManager(mLayoutManager);
+        mAppRecyclerView.setAdapter(mAppListAdapter);
     }
 
     private void showProgressBar() {
         mProgressBar.setVisibility(View.VISIBLE);
-        mAppTextView.setVisibility(View.INVISIBLE);
+        mAppRecyclerView.setVisibility(View.INVISIBLE);
+    }
+
+    private void showErrorMessage() {
+        mProgressBar.setVisibility(ViewGroup.INVISIBLE);
+        mTextView.setVisibility(View.VISIBLE);
     }
 
     private void showCompletion() {
         mProgressBar.setVisibility(View.INVISIBLE);
-        mAppTextView.setVisibility(View.VISIBLE);
+        mAppRecyclerView.setVisibility(View.VISIBLE);
     }
 }

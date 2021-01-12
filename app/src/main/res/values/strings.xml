@@ -31,6 +31,7 @@
     <string name="current_theme_setting">Theme</string>
     <string name="light_theme">Light</string>
     <string name="dark_theme">Dark</string>
+    <string name="no_apps_installed_message">No apps installed</string>
     <!-- Settings End -->
 
     <!-- Tabs End -->
