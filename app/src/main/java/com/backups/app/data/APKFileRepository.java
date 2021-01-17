@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -27,12 +28,8 @@ public class APKFileRepository implements IAPKFileRepository {
         return OUTPUT_DIRECTORY;
     }
 
-    public static void willDisplaySystemApps(boolean choice) {
+    public static void displaySystemApps(boolean choice) {
         mDisplaySystemApps = choice;
-    }
-
-    public static boolean displaySystemApps() {
-        return mDisplaySystemApps;
     }
 
     public interface Callback<T> {
@@ -46,7 +43,6 @@ public class APKFileRepository implements IAPKFileRepository {
         });
     }
 
-
     @Override
     public ArrayList<APKFile> getInstalledApps(PackageManager packageManager) {
         ArrayList<APKFile> installedApps = new ArrayList<>();
@@ -56,7 +52,15 @@ public class APKFileRepository implements IAPKFileRepository {
             if (!isSystemApp(applicationInfo) && !mDisplaySystemApps || isSystemApp(applicationInfo) && mDisplaySystemApps) {
 
                 String name = applicationInfo.loadLabel(packageManager).toString();
-                String packageName = applicationInfo.packageName;
+
+                String packageName;
+                if (TextUtils.containsPackageNamePrefix(name)) {
+                    packageName = name;
+                    name = TextUtils.extractHumanReadableName(name);
+                } else {
+                    packageName = applicationInfo.packageName;
+                }
+
                 String apkPath = applicationInfo.sourceDir;
                 long apkSize = new File(applicationInfo.sourceDir).length();
                 Drawable icon = packageManager.getApplicationIcon(applicationInfo);
@@ -64,12 +68,9 @@ public class APKFileRepository implements IAPKFileRepository {
                 installedApps.add(new APKFile(name, packageName, apkPath, apkSize, icon));
             }
         }
+
+        Collections.sort(installedApps, (o1, o2) -> o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase()));
+
         return installedApps;
     }
-
-    @Override
-    public boolean makeBackups(ArrayList<APKFile> apps) {
-        return false;
-    }
-
 }
