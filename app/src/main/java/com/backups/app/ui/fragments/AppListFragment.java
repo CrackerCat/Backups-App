@@ -25,11 +25,9 @@ import com.backups.app.ui.adapters.AppListAdapter;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class AppListFragment extends Fragment {
-
+public class AppListFragment extends Fragment implements AppListAdapter.ItemClickListener {
     private ApkListViewModel mAppListViewModel;
 
-    private LinearLayoutManager mLayoutManager;
     private RecyclerView mAppRecyclerView;
     private AppListAdapter mAppListAdapter;
 
@@ -51,18 +49,18 @@ public class AppListFragment extends Fragment {
         mProgressBar = view.findViewById(R.id.progressbar);
         mTextView = view.findViewById(R.id.no_apps_tv);
 
-        APKFileRepository mApkFileRepository = new APKFileRepository(Executors.newSingleThreadExecutor());
-        mAppListViewModel = new ViewModelProvider(activity, new ViewModelFactory(activity.getPackageManager(), mApkFileRepository)).get(ApkListViewModel.class);
+        APKFileRepository apkFileRepository = new APKFileRepository(Executors.newSingleThreadExecutor());
+        mAppListViewModel = new ViewModelProvider(activity, new ViewModelFactory(activity.getPackageManager(), apkFileRepository)).get(ApkListViewModel.class);
 
-        if (!mAppListViewModel.hasRecievedApkList()) {
+        if (mAppListViewModel.hasNotReceivedApkList()) {
             showProgressBar();
         }
 
         mAppListViewModel.getApkData().observe(getViewLifecycleOwner(), apkFiles -> {
             if (!apkFiles.isEmpty()) {
 
-                if (!mAppListViewModel.hasRecievedApkList()) {
-                    mAppListViewModel.recievedApkList(true);
+                if (mAppListViewModel.hasNotReceivedApkList()) {
+                    mAppListViewModel.receivedApkList(true);
                 }
                 initRecyclerView(activity, apkFiles);
                 showCompletion();
@@ -73,8 +71,9 @@ public class AppListFragment extends Fragment {
     }
 
     private void initRecyclerView(FragmentActivity activity, List<APKFile> data) {
-        mLayoutManager = new LinearLayoutManager(activity);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(activity);
         mAppListAdapter = new AppListAdapter(data);
+        mAppListAdapter.setClickListener(this);
         mAppRecyclerView.setLayoutManager(mLayoutManager);
         mAppRecyclerView.setAdapter(mAppListAdapter);
     }
@@ -92,5 +91,9 @@ public class AppListFragment extends Fragment {
     private void showCompletion() {
         mProgressBar.setVisibility(View.INVISIBLE);
         mAppRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
     }
 }
