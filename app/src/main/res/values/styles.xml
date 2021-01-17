@@ -3,7 +3,6 @@
 
     <style name="Widget.App.TabLayout" parent="Widget.MaterialComponents.TabLayout">
         <item name="android:textSize">@dimen/tab_item_text_size</item>
-        <item name="android:textAllCaps">true</item>
         <item name="tabIndicatorColor">@color/secondaryDarkColor</item>
         <item name="tabIndicatorFullWidth">false</item>
         <item name="android:textColor">@color/secondaryTextColor</item>
