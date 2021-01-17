@@ -26,12 +26,11 @@ public class ApkListViewModel extends ViewModel {
         mAPKFileRepository.deliverInstalledApps(mPackageManager, mAppListMutableLiveData::postValue);
     }
 
-
-    public boolean hasRecievedApkList() {
-        return mHasReceivedApbList;
+    public boolean hasNotReceivedApkList() {
+        return !mHasReceivedApbList;
     }
 
-    public void recievedApkList(boolean choice) {
+    public void receivedApkList(boolean choice) {
         mHasReceivedApbList = choice;
     }
 
