@@ -7,5 +7,4 @@ import java.util.ArrayList;
 interface IAPKFileRepository {
     ArrayList<APKFile> getInstalledApps(PackageManager packageManager);
 
-    boolean makeBackups(ArrayList<APKFile> apps);
 }
