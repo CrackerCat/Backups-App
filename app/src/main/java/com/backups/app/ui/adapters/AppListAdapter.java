@@ -18,6 +18,7 @@ import java.util.List;
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHolder> {
 
     private final List<APKFile> mDataSet;
+    private ItemClickListener mClickListener;
 
     public AppListAdapter(List<APKFile> dataSet) {
         mDataSet = dataSet;
@@ -43,12 +44,16 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
         holder.setAppIcon(appIcon);
     }
 
+    public final APKFile getItem(final int position) {
+        return mDataSet.get(position);
+    }
+
     @Override
     public int getItemCount() {
         return mDataSet.size();
     }
 
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final TextView mAppName;
         private final TextView mPackageName;
         private final ImageView mAppIcon;
@@ -58,6 +63,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
             mAppName = view.findViewById(R.id.app_name);
             mPackageName = view.findViewById(R.id.package_name);
             mAppIcon = view.findViewById(R.id.app_icon);
+            view.setOnClickListener(this);
         }
 
         public void setAppName(String appName) {
@@ -71,6 +77,20 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
         public void setAppIcon(Drawable icon) {
             mAppIcon.setImageDrawable(icon);
         }
+
+        @Override
+        public void onClick(View view) {
+            if (mClickListener != null) {
+                mClickListener.onItemClick(view, getAdapterPosition());
+            }
+        }
     }
 
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public void setClickListener(ItemClickListener itemClickListener) {
+        mClickListener = itemClickListener;
+    }
 }
