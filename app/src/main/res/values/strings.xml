@@ -36,4 +36,8 @@
 
     <!-- Tabs End -->
 
+    <!-- Class Related -->
+    <string name="fragment_listener_cast_error">Unable to cast to onFragmentListener</string>
+    <!-- Class Related End -->
+
 </resources>
