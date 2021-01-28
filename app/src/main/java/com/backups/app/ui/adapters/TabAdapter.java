@@ -1,40 +1,42 @@
 package com.backups.app.ui.adapters;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.backups.app.R;
-import com.backups.app.ui.fragments.AppListFragment;
-import com.backups.app.ui.fragments.AppQueueFragment;
-import com.backups.app.ui.fragments.SettingsFragment;
+import java.util.LinkedList;
 
 public class TabAdapter extends FragmentStateAdapter {
-    private final int[] TABS = {R.string.apps_tab_name, R.string.queue_tab_name, R.string.settings_tab_name};
-    private final Fragment[] mFragments = {new AppListFragment(), new AppQueueFragment(), new SettingsFragment()};
+    private final LinkedList<String> mTabNames;
+    private final LinkedList<Fragment> mTabs;
 
     public TabAdapter(@NonNull FragmentActivity fragment) {
         super(fragment);
+        mTabNames = new LinkedList<>();
+        mTabs = new LinkedList<>();
     }
 
-    public CharSequence getTabName(Context context, int position) {
-        if (position < TABS.length) {
-            return context.getResources().getString(TABS[position]);
+    public void addTab(final String name, final Fragment fragment) {
+        mTabNames.add(name);
+        mTabs.add(fragment);
+    }
+
+    public CharSequence getTabName(int position) {
+        if (position < mTabs.size()) {
+            return mTabNames.get(position);
         }
-        return "";
+        return  "";
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return mFragments[position];
+        return mTabs.get(position);
     }
 
     @Override
     public int getItemCount() {
-        return TABS.length;
+        return mTabs.size();
     }
 }
