@@ -1,5 +1,6 @@
 package com.backups.app.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,9 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 public class AppListFragment extends Fragment implements AppListAdapter.ItemClickListener {
+
+    private OnFragmentInteractionListener mListener;
+
     private ApkListViewModel mAppListViewModel;
 
     private RecyclerView mAppRecyclerView;
@@ -95,5 +99,22 @@ public class AppListFragment extends Fragment implements AppListAdapter.ItemClic
 
     @Override
     public void onItemClick(View view, int position) {
+        mListener.onCall();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new ClassCastException(context.getString(R.string.fragment_listener_cast_error));
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        mListener = null;
+        super.onDestroy();
     }
 }
