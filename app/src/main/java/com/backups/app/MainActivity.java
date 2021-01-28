@@ -22,7 +22,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener {
     private long sSelectedAppsCounter = 0;
-    private static final int sInitialCapacity = 0;
+    private static final int sInitialCapacity = 3;
     private final StringBuffer sSelectedAppsStringBuffer = new StringBuffer(sInitialCapacity);
 
     private TextView mSelectedApps;
@@ -36,8 +36,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSelectedApps = (TextView) findViewById(R.id.apps_count_label);
-
+        initializeViews();
         initializeTabLayout();
     }
 
@@ -66,13 +65,18 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         tabAdapter.addTab(getString(R.string.settings_tab_name), new SettingsFragment());
     }
 
-    private void initializeTabLayout() {
+    private void initializeViews() {
+        mSelectedApps = (TextView) findViewById(R.id.apps_count_label);
+
         mTabLayout = findViewById(R.id.tab_layout);
+        mViewPager = findViewById(R.id.pager);
+    }
+
+    private void initializeTabLayout() {
         mTabAdapter = new TabAdapter(this);
 
         addTabs(mTabAdapter);
 
-        mViewPager = findViewById(R.id.pager);
         mViewPager.setAdapter(mTabAdapter);
 
         new TabLayoutMediator(mTabLayout, mViewPager,
