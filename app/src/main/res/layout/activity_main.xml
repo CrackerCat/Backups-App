@@ -41,9 +41,7 @@
             android:id="@+id/tab_layout"
             style="@style/Widget.App.TabLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@color/secondaryDarkColor" />
+            android:layout_height="wrap_content" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/pager"
