@@ -21,6 +21,7 @@ import com.backups.app.data.APKFile;
 import com.backups.app.data.APKFileRepository;
 import com.backups.app.data.ApkListViewModel;
 import com.backups.app.data.AppQueueViewModel;
+import com.backups.app.data.SelectedAPK;
 import com.backups.app.data.ViewModelFactory;
 import com.backups.app.ui.adapters.AppListAdapter;
 
@@ -111,6 +112,8 @@ public class AppListFragment extends Fragment implements AppListAdapter.ItemClic
 
     @Override
     public void onItemClick(View view, int position) {
+        APKFile selected = mAppListAdapter.getItem(position);
+        mAppQueueViewModel.push(new SelectedAPK(selected.getName(), selected.getAppSize()));
         mListener.onCall();
     }
 
