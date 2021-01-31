@@ -2,6 +2,7 @@ package com.backups.app;
 
 import androidx.documentfile.provider.DocumentFile;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.app.Activity;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.backups.app.data.APKFileRepository;
+import com.backups.app.data.AppQueueViewModel;
 import com.backups.app.permissionshandler.PermissionsHandler;
 import com.backups.app.ui.adapters.TabAdapter;
 import com.backups.app.ui.fragments.AppListFragment;
@@ -21,9 +23,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener {
-    private long sSelectedAppsCounter = 0;
-    private static final int sInitialCapacity = 3;
-    private final StringBuffer sSelectedAppsStringBuffer = new StringBuffer(sInitialCapacity);
+    private AppQueueViewModel mAppQueueViewModel;
 
     private TextView mSelectedApps;
 
@@ -36,7 +36,10 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mAppQueueViewModel = new ViewModelProvider(this).get(AppQueueViewModel.class);
+
         initializeViews();
+
         initializeTabLayout();
     }
 
@@ -84,18 +87,8 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         ).attach();
     }
 
-    private void updateSelectedAppsCounter() {
-        sSelectedAppsCounter += 1;
-
-        sSelectedAppsStringBuffer.append(sSelectedAppsCounter);
-
-        mSelectedApps.setText(sSelectedAppsStringBuffer.toString());
-
-        sSelectedAppsStringBuffer.delete(0, sSelectedAppsStringBuffer.length());
-    }
-
     @Override
     public void onCall() {
-        updateSelectedAppsCounter();
+        mSelectedApps.setText(mAppQueueViewModel.getTotal());
     }
 }
