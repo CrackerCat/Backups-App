@@ -20,6 +20,7 @@ import com.backups.app.R;
 import com.backups.app.data.APKFile;
 import com.backups.app.data.APKFileRepository;
 import com.backups.app.data.ApkListViewModel;
+import com.backups.app.data.AppQueueViewModel;
 import com.backups.app.data.ViewModelFactory;
 import com.backups.app.ui.adapters.AppListAdapter;
 
@@ -31,6 +32,7 @@ public class AppListFragment extends Fragment implements AppListAdapter.ItemClic
     private OnFragmentInteractionListener mListener;
 
     private ApkListViewModel mAppListViewModel;
+    private AppQueueViewModel mAppQueueViewModel;
 
     private RecyclerView mAppRecyclerView;
     private AppListAdapter mAppListAdapter;
@@ -49,12 +51,10 @@ public class AppListFragment extends Fragment implements AppListAdapter.ItemClic
         super.onViewCreated(view, savedInstanceState);
 
         FragmentActivity activity = requireActivity();
-        mAppRecyclerView = view.findViewById(R.id.recyclerview);
-        mProgressBar = view.findViewById(R.id.progressbar);
-        mTextView = view.findViewById(R.id.no_apps_tv);
 
-        APKFileRepository apkFileRepository = new APKFileRepository(Executors.newSingleThreadExecutor());
-        mAppListViewModel = new ViewModelProvider(activity, new ViewModelFactory(activity.getPackageManager(), apkFileRepository)).get(ApkListViewModel.class);
+        initializeViews(view);
+
+        initializeViewModels(activity);
 
         if (mAppListViewModel.hasNotReceivedApkList()) {
             showProgressBar();
@@ -66,7 +66,7 @@ public class AppListFragment extends Fragment implements AppListAdapter.ItemClic
                 if (mAppListViewModel.hasNotReceivedApkList()) {
                     mAppListViewModel.receivedApkList(true);
                 }
-                initRecyclerView(activity, apkFiles);
+                initializeRecyclerView(activity, apkFiles);
                 showCompletion();
             } else {
                 showErrorMessage();
@@ -74,7 +74,19 @@ public class AppListFragment extends Fragment implements AppListAdapter.ItemClic
         });
     }
 
-    private void initRecyclerView(FragmentActivity activity, List<APKFile> data) {
+    private void initializeViews(View view) {
+        mAppRecyclerView = view.findViewById(R.id.recyclerview);
+        mProgressBar = view.findViewById(R.id.progressbar);
+        mTextView = view.findViewById(R.id.no_apps_tv);
+    }
+
+    private void initializeViewModels(FragmentActivity activity) {
+        APKFileRepository apkFileRepository = new APKFileRepository(Executors.newSingleThreadExecutor());
+        mAppListViewModel = new ViewModelProvider(activity, new ViewModelFactory(activity.getPackageManager(), apkFileRepository)).get(ApkListViewModel.class);
+        mAppQueueViewModel = new ViewModelProvider(activity).get(AppQueueViewModel.class);
+    }
+
+    private void initializeRecyclerView(FragmentActivity activity, List<APKFile> data) {
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(activity);
         mAppListAdapter = new AppListAdapter(data);
         mAppListAdapter.setClickListener(this);
