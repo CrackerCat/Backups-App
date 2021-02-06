@@ -8,9 +8,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
     private final PackageManager mPackageManager;
-    private final APKFileRepository mApkFileRepository;
+    private final IAPKFileRepository mApkFileRepository;
 
-    public ViewModelFactory(PackageManager packageManager, APKFileRepository apkFileRepository) {
+    public ViewModelFactory(final PackageManager packageManager, final IAPKFileRepository apkFileRepository) {
         mPackageManager = packageManager;
         mApkFileRepository = apkFileRepository;
     }
