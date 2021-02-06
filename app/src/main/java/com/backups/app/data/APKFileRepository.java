@@ -5,47 +5,30 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 public class APKFileRepository implements IAPKFileRepository {
 
-    private static final String OUTPUT_DIRECTORY = "Backups";
-    private static boolean mDisplaySystemApps = false;
     private final Executor mExecutor;
+    private boolean mDisplaySystemApps = false;
 
-    private static boolean isSystemApp(ApplicationInfo applicationInfo) {
-        return ((applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
-    }
-
-    public APKFileRepository(Executor executor) {
+    public APKFileRepository(final Executor executor) {
         mExecutor = executor;
     }
 
-    public static String getOutputDirectory() {
-        return OUTPUT_DIRECTORY;
+    private boolean isSystemApp(final ApplicationInfo applicationInfo) {
+        return ((applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
     }
 
-    public static void displaySystemApps(boolean choice) {
+    public void displaySystemApps(boolean choice) {
         mDisplaySystemApps = choice;
     }
 
-    public interface Callback<T> {
-        void onComplete(T result);
-    }
-
-    public void deliverInstalledApps(PackageManager packageManager, Callback<ArrayList<APKFile>> callback) {
-        mExecutor.execute(() -> {
-            ArrayList<APKFile> apkFiles = getInstalledApps(packageManager);
-            callback.onComplete(apkFiles);
-        });
-    }
-
-    @Override
-    public ArrayList<APKFile> getInstalledApps(PackageManager packageManager) {
-        ArrayList<APKFile> installedApps = new ArrayList<>();
+    private List<APKFile> getInstalledApps(final PackageManager packageManager) {
+        LinkedList<APKFile> installedApps = new LinkedList<>();
         List<ApplicationInfo> packages = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
 
         for (ApplicationInfo applicationInfo : packages) {
@@ -65,12 +48,32 @@ public class APKFileRepository implements IAPKFileRepository {
                 long apkSize = new File(applicationInfo.sourceDir).length();
                 Drawable icon = packageManager.getApplicationIcon(applicationInfo);
 
-                installedApps.add(new APKFile(name, packageName, apkPath, apkSize, icon));
+                installedApps.addLast(new APKFile(name, packageName, apkPath, apkSize, icon));
             }
         }
 
         Collections.sort(installedApps, (o1, o2) -> o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase()));
 
         return installedApps;
+    }
+
+    private List<APKFile> searchForIn(final String query, final List<APKFile> apps) {
+        return null;
+    }
+
+    @Override
+    public void fetchInstalledApps(final PackageManager packageManager, final Callback<List<APKFile>> callback) {
+        mExecutor.execute(() -> {
+            List<APKFile> apkFiles = getInstalledApps(packageManager);
+            callback.onComplete(apkFiles);
+        });
+    }
+
+    @Override
+    public void fetchSearchResult(final String query, final List<APKFile> apps, final Callback<List<APKFile>> callback) {
+        mExecutor.execute(() -> {
+            List<APKFile> foundApps = searchForIn(query, apps);
+            callback.onComplete(foundApps);
+        });
     }
 }
