@@ -1,40 +1,41 @@
 package com.backups.app.data;
 
 import android.content.pm.PackageManager;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class ApkListViewModel extends ViewModel {
-    private final APKFileRepository mAPKFileRepository;
-    private final PackageManager mPackageManager;
-    private boolean mHasReceivedApbList = false;
-    private final MutableLiveData<List<APKFile>> mAppListMutableLiveData;
+  private final IAPKFileRepository mAPKFileRepository =
+      new APKFileRepository(Executors.newSingleThreadExecutor());
+  private final MutableLiveData<List<APKFile>> mAppListMutableLiveData =
+      new MutableLiveData<>();
+  private boolean mHasSuccessfullyFetchedData = false;
 
-
-    public ApkListViewModel(PackageManager packageManager, APKFileRepository apkFileRepository) {
-        mAPKFileRepository = apkFileRepository;
-        mPackageManager = packageManager;
-        mAppListMutableLiveData = new MutableLiveData<>();
-        receiveInstalledApps();
+  public void fetchInstalledApps(final PackageManager packageManager) {
+    if (mAppListMutableLiveData.getValue() == null) {
+      mAPKFileRepository.fetchInstalledApps(packageManager, result -> {
+        if (result != null) {
+          mAppListMutableLiveData.postValue(result);
+        } else {
+          mAppListMutableLiveData.postValue(new ArrayList<>());
+        }
+      });
     }
+  }
 
-    private void receiveInstalledApps() {
-        mAPKFileRepository.deliverInstalledApps(mPackageManager, mAppListMutableLiveData::postValue);
-    }
+  public void hasFetchedData(boolean flag) {
+    mHasSuccessfullyFetchedData = flag;
+  }
 
-    public boolean hasNotReceivedApkList() {
-        return !mHasReceivedApbList;
-    }
+  public boolean hasSuccessfullyFetchedData() {
+    return mHasSuccessfullyFetchedData;
+  }
 
-    public void receivedApkList(boolean choice) {
-        mHasReceivedApbList = choice;
-    }
-
-    public LiveData<List<APKFile>> getApkData() {
-        return mAppListMutableLiveData;
-    }
+  public final LiveData<List<APKFile>> getApkListLiveData() {
+    return mAppListMutableLiveData;
+  }
 }
