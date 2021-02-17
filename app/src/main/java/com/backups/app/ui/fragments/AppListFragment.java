@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,121 +14,122 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
-import com.backups.app.data.APKFileRepository;
 import com.backups.app.data.ApkListViewModel;
 import com.backups.app.data.AppQueueViewModel;
-import com.backups.app.data.SelectedAPK;
-import com.backups.app.data.ViewModelFactory;
+import com.backups.app.ui.actions.ActionPresenter;
 import com.backups.app.ui.adapters.AppListAdapter;
-
+import com.backups.app.ui.adapters.ItemClickListener;
 import java.util.List;
-import java.util.concurrent.Executors;
 
-public class AppListFragment extends Fragment implements AppListAdapter.ItemClickListener {
+public class AppListFragment extends Fragment implements ItemClickListener {
+  private ApkListViewModel mAppListViewModel;
+  private AppQueueViewModel mAppQueueViewModel;
 
-    private OnFragmentInteractionListener mListener;
+  private OnFragmentInteractionListener mListener;
+  private ActionPresenter.IActionAvailability mActionNotifier;
+  private AppListAdapter mAppListAdapter;
+  private RecyclerView mAppListRecyclerView;
 
-    private ApkListViewModel mAppListViewModel;
-    private AppQueueViewModel mAppQueueViewModel;
+  private ProgressBar mProgressBar;
+  private TextView mTextView;
 
-    private RecyclerView mAppRecyclerView;
-    private AppListAdapter mAppListAdapter;
+  @Nullable
+  @Override
+  public View onCreateView(@NonNull LayoutInflater inflater,
+                           @Nullable ViewGroup container,
+                           @Nullable Bundle savedInstanceState) {
+    return inflater.inflate(R.layout.app_list_fragment, container, false);
+  }
 
-    private ProgressBar mProgressBar;
-    private TextView mTextView;
+  @Override
+  public void onViewCreated(@NonNull View view,
+                            @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.app_list_fragment, container, false);
-    }
+    FragmentActivity activity = requireActivity();
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    initializeViews(view);
 
-        FragmentActivity activity = requireActivity();
+    initializeViewModels(activity);
 
-        initializeViews(view);
+    mAppListViewModel.getApkListLiveData().observe(
+        getViewLifecycleOwner(), apkFiles -> {
+          if (apkFiles != null) {
+            setupRecyclerView(activity, apkFiles);
 
-        initializeViewModels(activity);
+            showCompletion();
 
-        if (mAppListViewModel.hasNotReceivedApkList()) {
-            showProgressBar();
-        }
-
-        mAppListViewModel.getApkData().observe(getViewLifecycleOwner(), apkFiles -> {
-            if (!apkFiles.isEmpty()) {
-
-                if (mAppListViewModel.hasNotReceivedApkList()) {
-                    mAppListViewModel.receivedApkList(true);
-                }
-                initializeRecyclerView(activity, apkFiles);
-                showCompletion();
-            } else {
-                showErrorMessage();
+            int available =  mActionNotifier.totalAvailableActions();
+            if(available != 0) {
+              int actionToMakeAvailable = 0;
+              mActionNotifier.makeActionAvailable(actionToMakeAvailable, true);
             }
+
+          } else {
+            showErrorMessage();
+          }
         });
-    }
+  }
 
-    private void initializeViews(View view) {
-        mAppRecyclerView = view.findViewById(R.id.recyclerview);
-        mProgressBar = view.findViewById(R.id.progressbar);
-        mTextView = view.findViewById(R.id.no_apps_tv);
-    }
+  private void initializeViews(View view) {
+    mProgressBar = view.findViewById(R.id.progressbar);
+    mTextView = view.findViewById(R.id.no_apps_tv);
+    mAppListRecyclerView = view.findViewById(R.id.recyclerview);
+  }
 
-    private void initializeViewModels(FragmentActivity activity) {
-        APKFileRepository apkFileRepository = new APKFileRepository(Executors.newSingleThreadExecutor());
-        mAppListViewModel = new ViewModelProvider(activity, new ViewModelFactory(activity.getPackageManager(), apkFileRepository)).get(ApkListViewModel.class);
-        mAppQueueViewModel = new ViewModelProvider(activity).get(AppQueueViewModel.class);
-    }
+  private void initializeViewModels(FragmentActivity activity) {
+    mAppListViewModel =
+        new ViewModelProvider(activity).get(ApkListViewModel.class);
+    mAppQueueViewModel =
+        new ViewModelProvider(activity).get(AppQueueViewModel.class);
+  }
 
-    private void initializeRecyclerView(FragmentActivity activity, List<APKFile> data) {
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(activity);
-        mAppListAdapter = new AppListAdapter(data);
-        mAppListAdapter.setClickListener(this);
-        mAppRecyclerView.setLayoutManager(mLayoutManager);
-        mAppRecyclerView.setAdapter(mAppListAdapter);
-    }
+  private void setupRecyclerView(FragmentActivity activity,
+                                 List<APKFile> data) {
+    LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+    mAppListAdapter = new AppListAdapter(data);
+    mAppListAdapter.setClickListener(this);
+    mAppListRecyclerView.setLayoutManager(layoutManager);
+    mAppListRecyclerView.setAdapter(mAppListAdapter);
+  }
 
-    private void showProgressBar() {
-        mProgressBar.setVisibility(View.VISIBLE);
-        mAppRecyclerView.setVisibility(View.INVISIBLE);
-    }
+  private void showErrorMessage() {
+    mProgressBar.setVisibility(View.GONE);
+    mTextView.setVisibility(View.VISIBLE);
+  }
 
-    private void showErrorMessage() {
-        mProgressBar.setVisibility(ViewGroup.INVISIBLE);
-        mTextView.setVisibility(View.VISIBLE);
-    }
+  private void showCompletion() {
+    mProgressBar.setVisibility(View.GONE);
+    mAppListRecyclerView.setVisibility(View.VISIBLE);
+  }
 
-    private void showCompletion() {
-        mProgressBar.setVisibility(View.INVISIBLE);
-        mAppRecyclerView.setVisibility(View.VISIBLE);
-    }
+  @Override
+  public void onItemClick(View view, int position) {
+    APKFile selected = mAppListAdapter.getItem(position);
+    mAppQueueViewModel.push(selected);
+    mListener.onCall();
+  }
 
-    @Override
-    public void onItemClick(View view, int position) {
-        APKFile selected = mAppListAdapter.getItem(position);
-        mAppQueueViewModel.push(new SelectedAPK(selected.getName(), selected.getAppSize()));
-        mListener.onCall();
+  @Override
+  public void onAttach(@NonNull Context context) {
+    super.onAttach(context);
+    if (context instanceof OnFragmentInteractionListener) {
+      mListener = (OnFragmentInteractionListener)context;
     }
+    if (context instanceof ActionPresenter.IActionAvailability) {
+      mActionNotifier  = (ActionPresenter.IActionAvailability) context;
+    } else {
+      throw new ClassCastException(
+              context.getString(R.string.listener_cast_error_message));
+    }
+  }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new ClassCastException(context.getString(R.string.fragment_listener_cast_error));
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        mListener = null;
-        super.onDestroy();
-    }
+  @Override
+  public void onDestroy() {
+    mListener = null;
+    mActionNotifier = null;
+    super.onDestroy();
+  }
 }
