@@ -3,71 +3,106 @@ package com.backups.app.ui.actions;
 import android.content.res.ColorStateList;
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.annotation.IdRes;
 import androidx.fragment.app.FragmentActivity;
-
 import com.backups.app.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ActionButton implements IAction {
 
-    private final TextView mActionLabel;
-    private final FloatingActionButton mActionButton;
-    private final int mInactiveColor;
-    private boolean mIsActive;
-    private boolean mHasAssignedView = false;
-    private boolean mHasCallback = false;
+  private View.OnClickListener mActiveCallback = null;
+  private View.OnClickListener mInactiveCallback = null;
+  private IPresentor mParent = null;
+  private final TextView mActionLabel;
+  private final FloatingActionButton mActionButton;
+  private final int mActiveColor;
+  private final int mInactiveColor;
+  private boolean mIsActive = false;
+  private boolean mHasAssignedViews = false;
 
-    public ActionButton(final FragmentActivity activity,
-                        final @IdRes int[] layoutIDs,
-                        final boolean active) {
+  public ActionButton(final IPresentor presenter,
+                      final FragmentActivity activity,
+                      final @IdRes int[] layoutIDs, final boolean active) {
 
-        mActionLabel = activity.findViewById(layoutIDs[0]);
-        mActionButton = activity.findViewById(layoutIDs[1]);
-        mInactiveColor = activity.getResources().getColor(R.color.primaryDarkColor);
+    mActionLabel = activity.findViewById(layoutIDs[0]);
+    mActionButton = activity.findViewById(layoutIDs[1]);
+    mActiveColor = activity.getResources().getColor(R.color.secondaryColor);
+    mInactiveColor = activity.getResources().getColor(R.color.primaryDarkColor);
+    mIsActive = active;
 
-        if (mActionLabel != null && mActionButton != null) {
-            mHasAssignedView = true;
-            mIsActive = active;
-        }
-
+    if (mActionLabel != null && mActionButton != null) {
+      mHasAssignedViews = true;
+      mParent = presenter;
     }
+  }
 
-    @Override
-    public void assignCallback(View.OnClickListener callback) {
-        mActionButton.setOnClickListener(callback);
-        mHasCallback = true;
+  private void updateState() {
+    if (!mIsActive) {
+      inactive();
+    } else {
+      active();
     }
+  }
 
-    @Override
-    public void inactive() {
-        mActionLabel.setVisibility(View.INVISIBLE);
-        mActionButton.setBackgroundTintList(ColorStateList.valueOf(mInactiveColor));
+  @Override
+  public void assignActiveCallback(View.OnClickListener callback) {
+    mActiveCallback = callback;
+  }
+
+  @Override
+  public void assignInactiveCallback(View.OnClickListener callback) {
+    mInactiveCallback = callback;
+  }
+
+  @Override
+  public void inactive() {
+    if(mActionButton.isShown()) {
+      mActionLabel.setVisibility(View.GONE);
+      mActionButton.setBackgroundTintList(ColorStateList.valueOf(mInactiveColor));
     }
+  }
 
-    @Override
-    public void availability(boolean flag) {
-        mIsActive = flag;
+
+  @Override
+  public void active() {
+    if(mActionButton.isShown()) {
+      mActionLabel.setVisibility(View.VISIBLE);
+      mActionButton.setBackgroundTintList(ColorStateList.valueOf(mActiveColor));
     }
+  }
 
-    @Override
-    public void display(boolean on) {
-        if (!on) {
-            mActionLabel.setVisibility(View.INVISIBLE);
-            mActionButton.hide();
+  @Override
+  public void availability(boolean flag) {
+    mIsActive = flag;
+    updateState();
+  }
+
+  @Override
+  public void display(boolean on) {
+    if (!on) {
+      mActionLabel.setVisibility(View.GONE);
+      mActionButton.hide();
+    } else {
+      mActionButton.show();
+      updateState();
+    }
+  }
+
+  @Override
+  public boolean canBeDisplayed() {
+    boolean canBeDisplayed = mActiveCallback != null && mInactiveCallback != null && mHasAssignedViews;
+
+    if(canBeDisplayed) {
+      mActionButton.setOnClickListener(v -> {
+        if(!mIsActive) {
+          mInactiveCallback.onClick(v);
         } else {
-            if (!mIsActive) {
-                inactive();
-            } else {
-                mActionLabel.setVisibility(View.VISIBLE);
-            }
-            mActionButton.show();
+          mActiveCallback.onClick(v);
         }
+        mParent.hideActions();
+      });
     }
 
-    @Override
-    public boolean canBeDisplayed() {
-        return (mHasCallback && mHasAssignedView);
-    }
+    return canBeDisplayed;
+  }
 }
