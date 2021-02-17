@@ -3,13 +3,17 @@ package com.backups.app.ui.actions;
 import android.view.View;
 
 public interface IAction {
-    void assignCallback(View.OnClickListener callback);
+  void assignActiveCallback(View.OnClickListener callback);
 
-    void inactive();
+  void assignInactiveCallback(View.OnClickListener callback);
 
-    void availability(boolean flag);
+  void inactive();
 
-    void display(boolean flag);
+  void active();
 
-    boolean canBeDisplayed();
+  void availability(boolean flag);
+
+  void display(boolean flag);
+
+  boolean canBeDisplayed();
 }
