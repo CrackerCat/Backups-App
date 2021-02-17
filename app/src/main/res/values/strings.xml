@@ -37,7 +37,13 @@
     <!-- Tabs End -->
 
     <!-- Class Related -->
-    <string name="fragment_listener_cast_error">Unable to cast to onFragmentListener</string>
+    <string name="listener_cast_error_message" translatable="false">Unable to cast to a required listener</string>
     <!-- Class Related End -->
 
+
+    <!-- SearchView Related -->
+    <string name="search_hint">Search for an app</string>
+    <string name="fetching_data_message">Fetching apk data…</string>
+    <string name="no_matches_found">Could not find a match…</string>
+    <!-- SearchView Related End -->
 </resources>
