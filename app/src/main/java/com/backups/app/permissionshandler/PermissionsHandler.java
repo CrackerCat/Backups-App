@@ -12,7 +12,8 @@ public class PermissionsHandler {
 
   protected static void promptUserForPermissions() {}
 
-  protected static void askForExternalFilesystemPermissions(FragmentActivity activity) {
+  protected static void
+  askForExternalFilesystemPermissions(FragmentActivity activity) {
     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
     intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
     activity.startActivityForResult(intent, CREATE_DIRECTORY_CODE);
