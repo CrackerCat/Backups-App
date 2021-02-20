@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.backups.app.data.ApkListViewModel;
 import com.backups.app.data.AppQueueViewModel;
 import com.backups.app.data.BackupCreator;
@@ -27,8 +26,9 @@ import com.backups.app.ui.fragments.SettingsFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-public class MainActivity extends AppCompatActivity
-    implements OnFragmentInteractionListener, ActionPresenter.IActionAvailability {
+public class MainActivity
+    extends AppCompatActivity implements OnFragmentInteractionListener,
+                                         ActionPresenter.IActionAvailability {
   private ApkListViewModel mApkListViewModel;
   private AppQueueViewModel mAppQueueViewModel;
 
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity
     mAppQueueViewModel =
         new ViewModelProvider(this).get(AppQueueViewModel.class);
 
-    mApkListViewModel.fetchInstalledApps(getPackageManager());
+    mApkListViewModel.fetchInstalledApps(getPackageManager(), true);
 
     initializeViews();
 
@@ -88,10 +88,10 @@ public class MainActivity extends AppCompatActivity
   }
 
   private void initializeViews() {
-    mBackupCounterView = findViewById(R.id.apps_count_label);
+    mBackupCounterView = findViewById(R.id.main_backup_count_label);
 
-    mTabLayout = findViewById(R.id.tab_layout);
-    mViewPager = findViewById(R.id.pager);
+    mTabLayout = findViewById(R.id.main_tab_layout);
+    mViewPager = findViewById(R.id.main_pager);
   }
 
   private void initializeTabLayout() {
@@ -108,13 +108,25 @@ public class MainActivity extends AppCompatActivity
   }
 
   private void initializeFAButton() {
-    int[] searchButtonLayoutIds = new int[]{R.id.search_button_label, R.id.search_button};
-    ActionButton searchButton = new ActionButton(mActionPresenter,this, searchButtonLayoutIds, false);
-    searchButton.assignActiveCallback(v -> mAppSearchDialogFragment.show(
+
+    mActionPresenter =
+        new ActionPresenter(this, R.id.main_floating_action_button);
+
+    int[] searchButtonLayoutIds =
+        new int[] {R.id.main_search_button_label, R.id.main_search_button};
+    ActionButton searchButton =
+        new ActionButton(mActionPresenter, this, searchButtonLayoutIds, false);
+    searchButton.assignActiveCallback(
+        v
+        -> mAppSearchDialogFragment.show(
             getSupportFragmentManager(),
             (mAppSearchDialogFragment.getClass().getSimpleName())));
-    searchButton.assignInactiveCallback(v -> Toast.makeText(this, R.string.fetching_data_message, Toast.LENGTH_SHORT)
-            .show());
+    searchButton.assignInactiveCallback(
+        v
+        -> Toast
+               .makeText(this, R.string.fetching_data_message,
+                         Toast.LENGTH_SHORT)
+               .show());
 
     IAction[] actions = {searchButton};
 
@@ -125,8 +137,10 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onCall() {
-    String quantityString = getResources().getQuantityString(R.plurals.amount_of_backups, mAppQueueViewModel.getSelectedAppCount());
-    mBackupCounterView.setText(String.format(quantityString, mAppQueueViewModel.getSelectedAppCount()));
+    String quantityString = getResources().getQuantityString(
+        R.plurals.amount_of_backups, mAppQueueViewModel.getSelectedAppCount());
+    mBackupCounterView.setText(String.format(
+        quantityString, mAppQueueViewModel.getSelectedAppCount()));
   }
 
   @Override
