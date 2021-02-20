@@ -63,9 +63,9 @@ public class AppListAdapter
     public ApkDataViewHolder(View view) {
       super(view);
 
-      mAppName = view.findViewById(R.id.app_name);
-      mPackageName = view.findViewById(R.id.package_name);
-      mAppIcon = view.findViewById(R.id.app_icon);
+      mAppName = view.findViewById(R.id.app_list_item_name_tv);
+      mPackageName = view.findViewById(R.id.app_list_item_package_name_tv);
+      mAppIcon = view.findViewById(R.id.app_list_item_iv);
 
       view.setOnClickListener(this);
     }
