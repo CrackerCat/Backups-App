@@ -7,13 +7,13 @@
     android:padding="5dp">
 
     <androidx.appcompat.widget.SearchView
-        android:id="@+id/search_form"
+        android:id="@+id/search_dialog_sv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:iconifiedByDefault="false" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/search_dialog_recyclerview"
+        android:id="@+id/search_dialog_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
