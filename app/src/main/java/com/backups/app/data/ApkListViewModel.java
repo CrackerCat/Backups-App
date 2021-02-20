@@ -9,14 +9,15 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 public class ApkListViewModel extends ViewModel {
-  private final IAPKFileRepository mAPKFileRepository =
+  private final APKFileRepository mAPKFileRepository =
       new APKFileRepository(Executors.newSingleThreadExecutor());
   private final MutableLiveData<List<APKFile>> mAppListMutableLiveData =
       new MutableLiveData<>();
-  private boolean mHasSuccessfullyFetchedData = false;
 
-  public void fetchInstalledApps(final PackageManager packageManager) {
+  public void fetchInstalledApps(final PackageManager packageManager,
+                                 boolean showSystemApps) {
     if (mAppListMutableLiveData.getValue() == null) {
+      mAPKFileRepository.displaySystemApps(showSystemApps);
       mAPKFileRepository.fetchInstalledApps(packageManager, result -> {
         if (result != null) {
           mAppListMutableLiveData.postValue(result);
@@ -25,14 +26,6 @@ public class ApkListViewModel extends ViewModel {
         }
       });
     }
-  }
-
-  public void hasFetchedData(boolean flag) {
-    mHasSuccessfullyFetchedData = flag;
-  }
-
-  public boolean hasSuccessfullyFetchedData() {
-    return mHasSuccessfullyFetchedData;
   }
 
   public final LiveData<List<APKFile>> getApkListLiveData() {
