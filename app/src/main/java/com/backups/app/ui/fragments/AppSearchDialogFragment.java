@@ -23,7 +23,8 @@ import com.backups.app.ui.adapters.SearchAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.List;
 
-public class AppSearchDialogFragment extends DialogFragment implements ItemClickListener {
+public class AppSearchDialogFragment
+    extends DialogFragment implements ItemClickListener {
 
   private AppQueueViewModel mAppQueueViewModel;
   private ApkListViewModel mApkListViewModel;
@@ -41,10 +42,11 @@ public class AppSearchDialogFragment extends DialogFragment implements ItemClick
 
     mApkListViewModel =
         new ViewModelProvider(parent).get(ApkListViewModel.class);
-    mAppQueueViewModel = new ViewModelProvider(parent).get(AppQueueViewModel.class);
+    mAppQueueViewModel =
+        new ViewModelProvider(parent).get(AppQueueViewModel.class);
 
     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(parent);
-    View dialogLayout = inflater.inflate(R.layout.search_dialog, null);
+    View dialogLayout = inflater.inflate(R.layout.search_dialog_fragment, null);
     initializeViews(dialogLayout);
     setupRecyclerView(parent);
     initializeSearchView();
@@ -57,7 +59,7 @@ public class AppSearchDialogFragment extends DialogFragment implements ItemClick
   public void onAttach(@NonNull Context context) {
     super.onAttach(context);
     if (context instanceof OnFragmentInteractionListener) {
-      mListener = (OnFragmentInteractionListener) context;
+      mListener = (OnFragmentInteractionListener)context;
     } else {
       throw new ClassCastException(
           context.getString(R.string.listener_cast_error_message));
@@ -71,9 +73,8 @@ public class AppSearchDialogFragment extends DialogFragment implements ItemClick
   }
 
   private void initializeViews(View view) {
-    mSearchResultsRecyclerView =
-        view.findViewById(R.id.search_dialog_recyclerview);
-    mSearchView = view.findViewById(R.id.search_form);
+    mSearchResultsRecyclerView = view.findViewById(R.id.search_dialog_rv);
+    mSearchView = view.findViewById(R.id.search_dialog_sv);
   }
 
   private void setupRecyclerView(FragmentActivity activity) {
@@ -107,7 +108,9 @@ public class AppSearchDialogFragment extends DialogFragment implements ItemClick
   @Override
   public void onItemClick(View view, int position) {
     APKFile selected = mSearchAdapter.getItem(position);
-    mAppQueueViewModel.push(selected);
+    mAppQueueViewModel.addApp(new APKFile(
+        selected.getName(), selected.getPackageName(),
+        selected.getPackagePath(), selected.getAppSize(), selected.getIcon()));
     mListener.onCall();
   }
 }

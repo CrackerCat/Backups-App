@@ -61,8 +61,8 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
             showCompletion();
 
-            int available =  mActionNotifier.totalAvailableActions();
-            if(available != 0) {
+            int available = mActionNotifier.totalAvailableActions();
+            if (available != 0) {
               int actionToMakeAvailable = 0;
               mActionNotifier.makeActionAvailable(actionToMakeAvailable, true);
             }
@@ -74,9 +74,9 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   }
 
   private void initializeViews(View view) {
-    mProgressBar = view.findViewById(R.id.progressbar);
-    mTextView = view.findViewById(R.id.no_apps_tv);
-    mAppListRecyclerView = view.findViewById(R.id.recyclerview);
+    mProgressBar = view.findViewById(R.id.app_list_pb);
+    mTextView = view.findViewById(R.id.app_list_no_apps_tv);
+    mAppListRecyclerView = view.findViewById(R.id.app_list_rv);
   }
 
   private void initializeViewModels(FragmentActivity activity) {
@@ -108,7 +108,9 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   @Override
   public void onItemClick(View view, int position) {
     APKFile selected = mAppListAdapter.getItem(position);
-    mAppQueueViewModel.push(selected);
+    mAppQueueViewModel.addApp(new APKFile(
+        selected.getName(), selected.getPackageName(),
+        selected.getPackagePath(), selected.getAppSize(), selected.getIcon()));
     mListener.onCall();
   }
 
@@ -119,10 +121,10 @@ public class AppListFragment extends Fragment implements ItemClickListener {
       mListener = (OnFragmentInteractionListener)context;
     }
     if (context instanceof ActionPresenter.IActionAvailability) {
-      mActionNotifier  = (ActionPresenter.IActionAvailability) context;
+      mActionNotifier = (ActionPresenter.IActionAvailability)context;
     } else {
       throw new ClassCastException(
-              context.getString(R.string.listener_cast_error_message));
+          context.getString(R.string.listener_cast_error_message));
     }
   }
 

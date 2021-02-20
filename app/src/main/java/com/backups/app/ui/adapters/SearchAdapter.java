@@ -12,8 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
-import com.backups.app.ui.fragments.OnFragmentInteractionListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +83,7 @@ public class SearchAdapter
       List<APKFile> searchResults = (List<APKFile>)results.values;
 
       mSearchResults.clear();
-      if(!searchResults.isEmpty()) {
+      if (!searchResults.isEmpty()) {
         mSearchResults.addAll(searchResults);
       }
       notifyDataSetChanged();
@@ -105,8 +103,8 @@ public class SearchAdapter
     public SearchResultViewHolder(View view) {
       super(view);
 
-      mAppName = view.findViewById(R.id.app_name);
-      mAppIcon = view.findViewById(R.id.app_icon);
+      mAppName = view.findViewById(R.id.search_item_name_tv);
+      mAppIcon = view.findViewById(R.id.search_item_iv);
 
       view.setOnClickListener(this);
     }

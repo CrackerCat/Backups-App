@@ -16,25 +16,25 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@+id/app_icon"
+            app:layout_constraintBottom_toBottomOf="@+id/app_list_item_iv"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/app_icon">
+            app:layout_constraintTop_toTopOf="@+id/app_list_item_iv">
 
             <TextView
-                android:id="@+id/app_name"
-                android:layout_width="match_parent"
+                android:id="@+id/app_list_item_name_tv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLength="25"
                 android:paddingStart="0dp"
                 android:paddingEnd="48dp"
                 android:textColor="@color/primaryTextColor"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/package_name"
-                android:layout_width="match_parent"
+                android:id="@+id/app_list_item_package_name_tv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLength="45"
                 android:paddingStart="0dp"
@@ -43,7 +43,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/app_icon"
+            android:id="@+id/app_list_item_iv"
             android:layout_width="48dip"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
