@@ -20,7 +20,7 @@ public final class ActionPresenter implements IPresentor {
   public interface IActionAvailability {
     int totalAvailableActions();
     void makeActionAvailable(int actionID, boolean flag);
-  };
+  }
 
   @Override
   public void addActions(IAction[] actions) {
@@ -84,5 +84,4 @@ public final class ActionPresenter implements IPresentor {
   public int totalAvailableActions() {
     return (mCurrentActions != null ? mCurrentActions.length : 0);
   }
-
 }

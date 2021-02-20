@@ -56,16 +56,16 @@ public class ActionButton implements IAction {
 
   @Override
   public void inactive() {
-    if(mActionButton.isShown()) {
+    if (mActionButton.isShown()) {
       mActionLabel.setVisibility(View.GONE);
-      mActionButton.setBackgroundTintList(ColorStateList.valueOf(mInactiveColor));
+      mActionButton.setBackgroundTintList(
+          ColorStateList.valueOf(mInactiveColor));
     }
   }
 
-
   @Override
   public void active() {
-    if(mActionButton.isShown()) {
+    if (mActionButton.isShown()) {
       mActionLabel.setVisibility(View.VISIBLE);
       mActionButton.setBackgroundTintList(ColorStateList.valueOf(mActiveColor));
     }
@@ -90,11 +90,12 @@ public class ActionButton implements IAction {
 
   @Override
   public boolean canBeDisplayed() {
-    boolean canBeDisplayed = mActiveCallback != null && mInactiveCallback != null && mHasAssignedViews;
+    boolean canBeDisplayed = mActiveCallback != null &&
+                             mInactiveCallback != null && mHasAssignedViews;
 
-    if(canBeDisplayed) {
+    if (canBeDisplayed) {
       mActionButton.setOnClickListener(v -> {
-        if(!mIsActive) {
+        if (!mIsActive) {
           mInactiveCallback.onClick(v);
         } else {
           mActiveCallback.onClick(v);
