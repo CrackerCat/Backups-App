@@ -45,5 +45,6 @@
     <string name="search_hint">Search for an app</string>
     <string name="fetching_data_message">Fetching apk data…</string>
     <string name="no_matches_found">Could not find a match…</string>
+    <string name="search_label_text">Search</string>
     <!-- SearchView Related End -->
 </resources>
