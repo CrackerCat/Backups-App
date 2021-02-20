@@ -3,8 +3,6 @@ package com.backups.app.data;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,13 +12,12 @@ import java.util.concurrent.Executor;
 public class APKFileRepository implements IAPKFileRepository {
 
   private final Executor mExecutor;
-  private boolean mDisplaySystemApps = false;
+  private boolean mDisplaySystemApps;
 
   public APKFileRepository(final Executor executor) { mExecutor = executor; }
 
   private boolean isSystemApp(final ApplicationInfo applicationInfo) {
-    return ((applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) !=
-            0);
+    return ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0);
   }
 
   public void displaySystemApps(boolean choice) { mDisplaySystemApps = choice; }
