@@ -108,9 +108,7 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   @Override
   public void onItemClick(View view, int position) {
     APKFile selected = mAppListAdapter.getItem(position);
-    mAppQueueViewModel.addApp(new APKFile(
-        selected.getName(), selected.getPackageName(),
-        selected.getPackagePath(), selected.getAppSize(), selected.getIcon()));
+    mAppQueueViewModel.addApp(selected);
     mListener.onCall();
   }
 
