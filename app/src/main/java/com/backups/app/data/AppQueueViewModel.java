@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppQueueViewModel extends ViewModel {
+  private String mBackupCountLabel = null;
+
   private final List<APKFile> mSelectedApps = new ArrayList<>();
 
   private final MutableLiveData<List<APKFile>> mAppQueue =
@@ -30,6 +32,10 @@ public class AppQueueViewModel extends ViewModel {
   }
 
   public int getSelectedAppCount() { return mSelectedApps.size(); }
+
+  public void setBackupCountLabel(String backupCountLabel) { mBackupCountLabel = backupCountLabel; }
+
+  public final String getBackupCountLabel() { return mBackupCountLabel; }
 
   public final LiveData<List<APKFile>> getAppQueue() { return mAppQueue; }
 }
