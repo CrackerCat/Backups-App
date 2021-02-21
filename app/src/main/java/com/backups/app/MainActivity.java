@@ -88,10 +88,7 @@ public class MainActivity
 
   private void initializeViews() {
     mBackupCounterView = findViewById(R.id.main_backup_count_label);
-    String backupCountLabel = mAppQueueViewModel.getBackupCountLabel();
-    if (backupCountLabel != null) {
-      mBackupCounterView.setText(backupCountLabel);
-    }
+    mBackupCounterView.setText(mAppQueueViewModel.getBackupCountLabel());
 
     mTabLayout = findViewById(R.id.main_tab_layout);
     mViewPager = findViewById(R.id.main_pager);
