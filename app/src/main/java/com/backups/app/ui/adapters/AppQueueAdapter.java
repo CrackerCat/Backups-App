@@ -11,18 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
-import java.util.ArrayList;
 import java.util.List;
 
 public class AppQueueAdapter
     extends RecyclerView.Adapter<AppQueueAdapter.BackupsViewHolder> {
 
-  private final List<APKFile> mDataSet = new ArrayList<>();
+  private final List<APKFile> mDataSet;
 
-  public void dataSetChanged(final List<APKFile> newDataSet) {
-    mDataSet.clear();
-    mDataSet.addAll(newDataSet);
-    notifyDataSetChanged();
+  public AppQueueAdapter(List<APKFile> dataSet) {
+    mDataSet = dataSet;
   }
 
   @NonNull
