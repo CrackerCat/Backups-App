@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppQueueViewModel extends ViewModel {
-  private String mBackupCountLabel = null;
+  private String mBackupCountLabel = "";
 
   private final List<APKFile> mSelectedApps = new ArrayList<>();
 
