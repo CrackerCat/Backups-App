@@ -48,7 +48,6 @@ public class MainActivity
     mApkListViewModel = new ViewModelProvider(this).get(ApkListViewModel.class);
     mAppQueueViewModel =
         new ViewModelProvider(this).get(AppQueueViewModel.class);
-
     mApkListViewModel.fetchInstalledApps(getPackageManager(), true);
 
     initializeViews();
@@ -89,6 +88,10 @@ public class MainActivity
 
   private void initializeViews() {
     mBackupCounterView = findViewById(R.id.main_backup_count_label);
+    String backupCountLabel = mAppQueueViewModel.getBackupCountLabel();
+    if (backupCountLabel != null) {
+      mBackupCounterView.setText(backupCountLabel);
+    }
 
     mTabLayout = findViewById(R.id.main_tab_layout);
     mViewPager = findViewById(R.id.main_pager);
@@ -139,8 +142,12 @@ public class MainActivity
   public void onCall() {
     String quantityString = getResources().getQuantityString(
         R.plurals.amount_of_backups, mAppQueueViewModel.getSelectedAppCount());
-    mBackupCounterView.setText(String.format(
-        quantityString, mAppQueueViewModel.getSelectedAppCount()));
+
+    String backupCountLabel =
+        String.format(quantityString, mAppQueueViewModel.getSelectedAppCount());
+    mBackupCounterView.setText(backupCountLabel);
+
+    mAppQueueViewModel.setBackupCountLabel(backupCountLabel);
   }
 
   @Override
