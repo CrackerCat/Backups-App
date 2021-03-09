@@ -5,7 +5,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.HashMap;
 
-public final class ActionPresenter implements IPresentor {
+public final class ActionPresenter implements IPresenter {
 
   private final FloatingActionButton mParentButton;
   private final HashMap<Integer, IAction[]> mActionSets = new HashMap<>();
@@ -19,7 +19,10 @@ public final class ActionPresenter implements IPresentor {
 
   public interface IActionAvailability {
     int totalAvailableActions();
+    int totalAvailableActionSets();
+
     void makeActionAvailable(int actionID, boolean flag);
+    void makeActionAvailable(int actionSet, int actionID, boolean flag);
   }
 
   @Override
@@ -30,22 +33,59 @@ public final class ActionPresenter implements IPresentor {
           return;
         }
       }
-
-      mActionSets.put((mActionSets.size() + 1), actions);
-      mCurrentActions = actions;
+      mActionSets.put((mActionSets.size()), actions);
     }
   }
 
   @Override
   public void swapActions(int setId) {
+    hideActions();
     mCurrentActions = mActionSets.get(setId);
   }
 
   @Override
   public void available(int action, boolean flag) {
-    if (action >= 0 && action < mCurrentActions.length) {
+    boolean canBeMadeAvailable = action >= 0 &&
+                                 action < mCurrentActions.length &&
+                                 mCurrentActions != null;
+    if (canBeMadeAvailable) {
       (mCurrentActions[action]).availability(flag);
     }
+  }
+
+  @Override
+  public void available(int actionSet, int actionID, boolean flag) {
+    IAction[] set = mActionSets.get(actionSet);
+    if (set != null) {
+      boolean canBeMadeAvailable = actionID >= 0 && actionID < set.length;
+      if (canBeMadeAvailable) {
+        set[actionID].availability(flag);
+      }
+    }
+  }
+
+  @Override
+  public boolean isActionAvailable(int actionID) {
+    boolean exists = actionID >= 0 && actionID < mCurrentActions.length &&
+                     mCurrentActions != null;
+
+    if (exists) {
+      return mCurrentActions[actionID].getAvailablitiy();
+    }
+
+    return exists;
+  }
+
+  @Override
+  public boolean isActionAvailable(int actionSet, int actionID) {
+    IAction[] set = mActionSets.get(actionSet);
+    if (set != null) {
+      boolean canBeMadeAvailable = actionID >= 0 && actionID < set.length;
+      if (canBeMadeAvailable) {
+        return set[actionID].getAvailablitiy();
+      }
+    }
+    return false;
   }
 
   @Override
@@ -72,7 +112,7 @@ public final class ActionPresenter implements IPresentor {
 
   @Override
   public void hideActions() {
-    if (mCurrentActions != null && mCurrentActions.length != 0) {
+    if (mIsShowingActions) {
       mIsShowingActions = false;
       for (IAction action : mCurrentActions) {
         action.display(mIsShowingActions);
@@ -83,5 +123,10 @@ public final class ActionPresenter implements IPresentor {
   @Override
   public int totalAvailableActions() {
     return (mCurrentActions != null ? mCurrentActions.length : 0);
+  }
+
+  @Override
+  public int totalAvailableActionSets() {
+    return mActionSets.size();
   }
 }

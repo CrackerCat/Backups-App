@@ -12,15 +12,15 @@ public class ActionButton implements IAction {
 
   private View.OnClickListener mActiveCallback = null;
   private View.OnClickListener mInactiveCallback = null;
-  private IPresentor mParent = null;
+  private IPresenter mParent = null;
   private final TextView mActionLabel;
   private final FloatingActionButton mActionButton;
   private final int mActiveColor;
   private final int mInactiveColor;
-  private boolean mIsActive = false;
+  private boolean mIsActive;
   private boolean mHasAssignedViews = false;
 
-  public ActionButton(final IPresentor presenter,
+  public ActionButton(final IPresenter presenter,
                       final FragmentActivity activity,
                       final @IdRes int[] layoutIDs, final boolean active) {
 
@@ -75,6 +75,11 @@ public class ActionButton implements IAction {
   public void availability(boolean flag) {
     mIsActive = flag;
     updateState();
+  }
+
+  @Override
+  public boolean getAvailablitiy() {
+    return mIsActive;
   }
 
   @Override
