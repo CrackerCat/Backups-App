@@ -39,30 +39,27 @@ public class PackageNameUtils {
     return firstLetterOfName + appName.substring(indexAfterFirstLetter);
   }
 
-  public void resetRepeatedCountTable() {
-    Set<Map.Entry<String, Integer>> pairs = sTimesTable.entrySet();
-
-    for (Map.Entry<String, Integer> pair : pairs) {
-      pair.setValue(0);
-    }
+  public void resetCountFor(String appName) {
+      if(sTimesTable.contains(appName)) {
+        sTimesTable.put(appName, 0);
+      }
   }
 
-  public static String computeRepeatedBackupName(String name) {
+  public static String computeRepeatedBackupName(String appName) {
     String formattedName = null;
-    if (sTimesTable.containsKey(name)) {
-      int count = sTimesTable.get(name);
+    if (sTimesTable.containsKey(appName)) {
+      int count = sTimesTable.get(appName);
 
-      int updatedCount = count + 1;
-      sTimesTable.put(name, updatedCount);
+      ++count;
+      sTimesTable.put(appName, count);
 
       sBuffer.append(
-          String.format(sRepeatedBackupFormatterString, name, updatedCount));
+          String.format(sRepeatedBackupFormatterString, appName, count));
 
       formattedName = sBuffer.toString();
       sBuffer.delete(0, formattedName.length());
     } else {
-      int initialValue = 0;
-      sTimesTable.put(name, initialValue);
+      sTimesTable.put(appName, 0);
     }
     return formattedName;
   }
