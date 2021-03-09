@@ -40,11 +40,13 @@
     <string name="listener_cast_error_message" translatable="false">Unable to cast to a required listener</string>
     <!-- Class Related End -->
 
-
     <!-- SearchView Related -->
     <string name="search_hint">Search for an app</string>
     <string name="fetching_data_message">Fetching apk data…</string>
-    <string name="no_matches_found">Could not find a match…</string>
-    <string name="search_label_text">Search</string>
     <!-- SearchView Related End -->
+
+    <!-- FAB Related -->
+    <string name="search_label_text">Search</string>
+    <string name="backup_label_text">Backup</string>
+    <!-- FAB Related End -->
 </resources>
