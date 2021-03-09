@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppQueueViewModel extends ViewModel {
+  private int mPreviousSize = -1;
   private String mBackupCountLabel = "";
 
   private final List<APKFile> mSelectedApps = new ArrayList<>();
@@ -36,6 +37,16 @@ public class AppQueueViewModel extends ViewModel {
   public void setBackupCountLabel(String backupCountLabel) { mBackupCountLabel = backupCountLabel; }
 
   public final String getBackupCountLabel() { return mBackupCountLabel; }
+
+  public boolean hasBackups() { return mSelectedApps.isEmpty(); }
+
+  public void updateSelection() {
+    int updatedSize = mSelectedApps.size();
+    if (mPreviousSize < updatedSize) {
+      mAppQueue.postValue(mSelectedApps);
+      mPreviousSize = updatedSize;
+    }
+  }
 
   public final LiveData<List<APKFile>> getAppQueue() { return mAppQueue; }
 }
