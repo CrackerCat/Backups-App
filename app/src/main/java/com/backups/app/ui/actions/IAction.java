@@ -13,6 +13,8 @@ public interface IAction {
 
   void availability(boolean flag);
 
+  boolean getAvailablitiy();
+
   void display(boolean flag);
 
   boolean canBeDisplayed();
