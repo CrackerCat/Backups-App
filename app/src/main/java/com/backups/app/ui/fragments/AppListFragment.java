@@ -1,5 +1,7 @@
 package com.backups.app.ui.fragments;
 
+import static com.backups.app.ui.Constants.SEARCH_BUTTON;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,7 +29,6 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   private ApkListViewModel mAppListViewModel;
   private AppQueueViewModel mAppQueueViewModel;
 
-  private OnFragmentInteractionListener mListener;
   private ActionPresenter.IActionAvailability mActionNotifier;
   private AppListAdapter mAppListAdapter;
   private RecyclerView mAppListRecyclerView;
@@ -63,10 +64,8 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
             int available = mActionNotifier.totalAvailableActions();
             if (available != 0) {
-              int actionToMakeAvailable = 0;
-              mActionNotifier.makeActionAvailable(actionToMakeAvailable, true);
+              mActionNotifier.makeActionAvailable(SEARCH_BUTTON, true);
             }
-
           } else {
             showErrorMessage();
           }
@@ -109,15 +108,13 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   public void onItemClick(View view, int position) {
     APKFile selected = mAppListAdapter.getItem(position);
     mAppQueueViewModel.addApp(selected);
-    mListener.onCall();
+    mAppQueueViewModel.updateSelection();
   }
 
   @Override
   public void onAttach(@NonNull Context context) {
     super.onAttach(context);
-    if (context instanceof OnFragmentInteractionListener) {
-      mListener = (OnFragmentInteractionListener)context;
-    }
+
     if (context instanceof ActionPresenter.IActionAvailability) {
       mActionNotifier = (ActionPresenter.IActionAvailability)context;
     } else {
@@ -128,7 +125,6 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
   @Override
   public void onDestroy() {
-    mListener = null;
     mActionNotifier = null;
     super.onDestroy();
   }
