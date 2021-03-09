@@ -1,7 +1,9 @@
 package com.backups.app.ui.fragments;
 
+import static com.backups.app.ui.Constants.APPLIST;
+import static com.backups.app.ui.Constants.APPQUEUE;
+
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,16 +25,16 @@ import com.backups.app.ui.adapters.SearchAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.List;
 
-public class AppSearchDialogFragment
+public class SearchDialogFragment
     extends DialogFragment implements ItemClickListener {
-
+  public static final String sDataSetID = "DataSet";
   private AppQueueViewModel mAppQueueViewModel;
   private ApkListViewModel mApkListViewModel;
 
-  private OnFragmentInteractionListener mListener;
   private SearchAdapter mSearchAdapter;
   private RecyclerView mSearchResultsRecyclerView;
   private SearchView mSearchView;
+  private int mDataSetChoice = APPLIST;
 
   @NonNull
   @Override
@@ -55,33 +57,25 @@ public class AppSearchDialogFragment
     return (builder.create());
   }
 
-  @Override
-  public void onAttach(@NonNull Context context) {
-    super.onAttach(context);
-    if (context instanceof OnFragmentInteractionListener) {
-      mListener = (OnFragmentInteractionListener)context;
-    } else {
-      throw new ClassCastException(
-          context.getString(R.string.listener_cast_error_message));
-    }
-  }
-
-  @Override
-  public void onDestroyView() {
-    mListener = null;
-    super.onDestroyView();
-  }
-
   private void initializeViews(View view) {
     mSearchResultsRecyclerView = view.findViewById(R.id.search_dialog_rv);
     mSearchView = view.findViewById(R.id.search_dialog_sv);
   }
 
-  private void setupRecyclerView(FragmentActivity activity) {
-    List<APKFile> installedApps =
-        mApkListViewModel.getApkListLiveData().getValue();
+  private List<APKFile> useDataSet(int choice) {
+    List<APKFile> dataSet = null;
+    if (choice == APPLIST) {
+      dataSet = mApkListViewModel.getApkListLiveData().getValue();
+    } else if (choice == APPQUEUE) {
+      dataSet = mAppQueueViewModel.getAppQueue().getValue();
+    }
+    return dataSet;
+  }
 
-    mSearchAdapter = new SearchAdapter(installedApps);
+  private void setupRecyclerView(FragmentActivity activity) {
+    List<APKFile> data = useDataSet(mDataSetChoice);
+
+    mSearchAdapter = new SearchAdapter(data);
     mSearchAdapter.setClickListener(this);
 
     LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
@@ -109,6 +103,8 @@ public class AppSearchDialogFragment
   public void onItemClick(View view, int position) {
     APKFile selected = mSearchAdapter.getItem(position);
     mAppQueueViewModel.addApp(selected);
-    mListener.onCall();
+    mAppQueueViewModel.updateSelection();
   }
+
+  public void setDataSetID(int dataSetID) { mDataSetChoice = dataSetID; }
 }
