@@ -46,7 +46,8 @@ public class AppQueueFragment extends Fragment {
     mAppQueueRecyclerView = view.findViewById(R.id.app_queue_rv);
 
     initializeRecyclerView(parent);
-    mAppQueueViewModel.getAppQueue().observe(
+
+    mAppQueueViewModel.getAppQueueLiveData().observe(
         getViewLifecycleOwner(), appQueue -> {
           if (getLifecycle().getCurrentState() != Lifecycle.State.CREATED) {
             mAppQueueAdapter.notifyDataSetChanged();
@@ -56,7 +57,7 @@ public class AppQueueFragment extends Fragment {
 
   private void initializeRecyclerView(FragmentActivity parent) {
     LinearLayoutManager layout = new LinearLayoutManager(parent);
-    List<APKFile> queue = mAppQueueViewModel.getAppQueue().getValue();
+    List<APKFile> queue = mAppQueueViewModel.getSelectedApps();
     mAppQueueAdapter = new AppQueueAdapter(queue);
     mAppQueueRecyclerView.setLayoutManager(layout);
     mAppQueueRecyclerView.setAdapter(mAppQueueAdapter);

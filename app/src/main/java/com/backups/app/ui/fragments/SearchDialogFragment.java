@@ -1,13 +1,11 @@
 package com.backups.app.ui.fragments;
 
-import static com.backups.app.ui.Constants.APPLIST;
-import static com.backups.app.ui.Constants.APPQUEUE;
-
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
@@ -16,6 +14,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
 import com.backups.app.data.ApkListViewModel;
@@ -23,11 +22,14 @@ import com.backups.app.data.AppQueueViewModel;
 import com.backups.app.ui.adapters.ItemClickListener;
 import com.backups.app.ui.adapters.SearchAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.List;
+
+import static com.backups.app.ui.Constants.APPLIST;
+import static com.backups.app.ui.Constants.APPQUEUE;
 
 public class SearchDialogFragment
     extends DialogFragment implements ItemClickListener {
-  public static final String sDataSetID = "DataSet";
   private AppQueueViewModel mAppQueueViewModel;
   private ApkListViewModel mApkListViewModel;
 
@@ -67,7 +69,7 @@ public class SearchDialogFragment
     if (choice == APPLIST) {
       dataSet = mApkListViewModel.getApkListLiveData().getValue();
     } else if (choice == APPQUEUE) {
-      dataSet = mAppQueueViewModel.getAppQueue().getValue();
+      dataSet = mAppQueueViewModel.getAppQueueLiveData().getValue();
     }
     return dataSet;
   }
