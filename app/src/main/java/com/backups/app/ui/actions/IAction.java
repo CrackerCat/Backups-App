@@ -3,9 +3,8 @@ package com.backups.app.ui.actions;
 import android.view.View;
 
 public interface IAction {
-  void assignActiveCallback(View.OnClickListener callback);
-
-  void assignInactiveCallback(View.OnClickListener callback);
+  void assignCallBacks(View.OnClickListener activeCallback,
+                       View.OnClickListener inactiveCallback);
 
   void inactive();
 
@@ -13,7 +12,7 @@ public interface IAction {
 
   void availability(boolean flag);
 
-  boolean getAvailablitiy();
+  boolean getAvailability();
 
   void display(boolean flag);
 

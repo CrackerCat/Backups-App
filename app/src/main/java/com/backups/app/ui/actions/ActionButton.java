@@ -10,8 +10,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ActionButton implements IAction {
 
-  private View.OnClickListener mActiveCallback = null;
-  private View.OnClickListener mInactiveCallback = null;
   private IPresenter mParent = null;
   private final TextView mActionLabel;
   private final FloatingActionButton mActionButton;
@@ -45,19 +43,24 @@ public class ActionButton implements IAction {
   }
 
   @Override
-  public void assignActiveCallback(View.OnClickListener callback) {
-    mActiveCallback = callback;
-  }
-
-  @Override
-  public void assignInactiveCallback(View.OnClickListener callback) {
-    mInactiveCallback = callback;
+  public void assignCallBacks(View.OnClickListener activeCallback,
+                              View.OnClickListener inactiveCallback) {
+    if (activeCallback != null && inactiveCallback != null) {
+      mActionButton.setOnClickListener(v -> {
+        if (!mIsActive) {
+          inactiveCallback.onClick(v);
+        } else {
+          activeCallback.onClick(v);
+        }
+        mParent.hideActions();
+      });
+    }
   }
 
   @Override
   public void inactive() {
     if (mActionButton.isShown()) {
-      mActionLabel.setVisibility(View.GONE);
+      mActionLabel.setVisibility(View.INVISIBLE);
       mActionButton.setBackgroundTintList(
           ColorStateList.valueOf(mInactiveColor));
     }
@@ -78,7 +81,7 @@ public class ActionButton implements IAction {
   }
 
   @Override
-  public boolean getAvailablitiy() {
+  public boolean getAvailability() {
     return mIsActive;
   }
 
@@ -95,20 +98,6 @@ public class ActionButton implements IAction {
 
   @Override
   public boolean canBeDisplayed() {
-    boolean canBeDisplayed = mActiveCallback != null &&
-                             mInactiveCallback != null && mHasAssignedViews;
-
-    if (canBeDisplayed) {
-      mActionButton.setOnClickListener(v -> {
-        if (!mIsActive) {
-          mInactiveCallback.onClick(v);
-        } else {
-          mActiveCallback.onClick(v);
-        }
-        mParent.hideActions();
-      });
-    }
-
-    return canBeDisplayed;
+    return mActionButton.hasOnClickListeners() && mHasAssignedViews;
   }
 }
