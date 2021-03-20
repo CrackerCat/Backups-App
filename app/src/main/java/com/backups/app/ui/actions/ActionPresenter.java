@@ -45,8 +45,7 @@ public final class ActionPresenter implements IPresenter {
 
   @Override
   public void available(int action, boolean flag) {
-    boolean canBeMadeAvailable = action >= 0 &&
-                                 mCurrentActions != null &&
+    boolean canBeMadeAvailable = action >= 0 && mCurrentActions != null &&
                                  action < mCurrentActions.length;
     if (canBeMadeAvailable) {
       if (!mCurrentActions[action].getAvailability()) {
@@ -69,8 +68,7 @@ public final class ActionPresenter implements IPresenter {
 
   @Override
   public boolean isActionAvailable(int actionID) {
-    boolean exists = actionID >= 0 &&
-                     mCurrentActions != null &&
+    boolean exists = actionID >= 0 && mCurrentActions != null &&
                      actionID < mCurrentActions.length;
 
     if (exists) {
