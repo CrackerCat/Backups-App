@@ -18,9 +18,7 @@ public class AppQueueAdapter
 
   private final List<APKFile> mDataSet;
 
-  public AppQueueAdapter(List<APKFile> dataSet) {
-    mDataSet = dataSet;
-  }
+  public AppQueueAdapter(List<APKFile> dataSet) { mDataSet = dataSet; }
 
   @NonNull
   @Override
