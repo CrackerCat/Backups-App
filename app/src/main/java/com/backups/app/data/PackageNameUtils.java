@@ -1,8 +1,6 @@
 package com.backups.app.data;
 
 import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
 
 public class PackageNameUtils {
   private static final String[] sPrefixes = {"com.", "org."};
@@ -39,14 +37,15 @@ public class PackageNameUtils {
     return firstLetterOfName + appName.substring(indexAfterFirstLetter);
   }
 
-  public void resetCountFor(String appName) {
-      if(sTimesTable.contains(appName)) {
-        sTimesTable.put(appName, 0);
-      }
+  public static void resetCountFor(String appName) {
+    if (sTimesTable.contains(appName)) {
+      sTimesTable.put(appName, 0);
+    }
   }
 
   public static String computeRepeatedBackupName(String appName) {
     String formattedName = null;
+
     if (sTimesTable.containsKey(appName)) {
       int count = sTimesTable.get(appName);
 
