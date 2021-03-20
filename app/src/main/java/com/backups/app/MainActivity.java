@@ -26,7 +26,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import static com.backups.app.ui.Constants.APPLIST;
 import static com.backups.app.ui.Constants.APPQUEUE;
-import static com.backups.app.ui.Constants.BACKUP_BUTTON;
 import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 import static com.backups.app.ui.Constants.sAppListFragmentActionLayouts;
 import static com.backups.app.ui.Constants.sAppQueueFragmentActionLayouts;
@@ -169,18 +168,6 @@ public class MainActivity extends AppCompatActivity
                   getSupportFragmentManager(),
                   (mAppSearchDialogFragment.getClass().getSimpleName()));
             },
-            v
-            -> Toast
-                   .makeText(MainActivity.this, R.string.fetching_data_message,
-                             Toast.LENGTH_SHORT)
-                   .show());
-      } else if (position == BACKUP_BUTTON) {
-        action.assignCallBacks(
-            v
-            -> Toast
-                   .makeText(MainActivity.this, R.string.fetching_data_message,
-                             Toast.LENGTH_SHORT)
-                   .show(),
             v
             -> Toast
                    .makeText(MainActivity.this, R.string.fetching_data_message,
