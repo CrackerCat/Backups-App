@@ -14,8 +14,7 @@ public class Constants {
       sAppListFragmentActionLayouts.length;
 
   public static final int[][] sAppQueueFragmentActionLayouts =
-      new int[][] {{R.id.app_queue_search_label, R.id.app_queue_search_button},
-                   {R.id.app_queue_backup_label, R.id.app_queue_backup_button}};
+      new int[][] {{R.id.app_queue_search_label, R.id.app_queue_search_button}};
 
   public static final int sAppQueueFragmentTotalActions =
       sAppQueueFragmentActionLayouts.length;
