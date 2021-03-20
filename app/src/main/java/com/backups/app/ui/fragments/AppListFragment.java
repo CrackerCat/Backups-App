@@ -1,7 +1,5 @@
 package com.backups.app.ui.fragments;
 
-import static com.backups.app.ui.Constants.SEARCH_BUTTON;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -16,6 +15,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
 import com.backups.app.data.ApkListViewModel;
@@ -23,7 +23,11 @@ import com.backups.app.data.AppQueueViewModel;
 import com.backups.app.ui.actions.ActionPresenter;
 import com.backups.app.ui.adapters.AppListAdapter;
 import com.backups.app.ui.adapters.ItemClickListener;
+
 import java.util.List;
+
+import static com.backups.app.ui.Constants.APPLIST;
+import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
 public class AppListFragment extends Fragment implements ItemClickListener {
   private ApkListViewModel mAppListViewModel;
@@ -34,7 +38,9 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   private RecyclerView mAppListRecyclerView;
 
   private ProgressBar mProgressBar;
-  private TextView mTextView;
+  private TextView mErrorMessageTV;
+
+  private String sUnableToFetchAllAppsMessage;
 
   @Nullable
   @Override
@@ -49,6 +55,11 @@ public class AppListFragment extends Fragment implements ItemClickListener {
                             @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
+    if (sUnableToFetchAllAppsMessage == null) {
+      sUnableToFetchAllAppsMessage =
+          getResources().getString(R.string.unable_to_fetch_apk_data_message);
+    }
+
     FragmentActivity activity = requireActivity();
 
     initializeViews(view);
@@ -57,24 +68,29 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
     mAppListViewModel.getApkListLiveData().observe(
         getViewLifecycleOwner(), apkFiles -> {
-          if (apkFiles != null) {
-            setupRecyclerView(activity, apkFiles);
+          if (!apkFiles.isEmpty()) {
+            if (mProgressBar.getVisibility() == View.GONE) {
+              showProgressBar();
+            }
 
+            if (mAppListAdapter != null) {
+              mAppListAdapter.changeDataSet(apkFiles);
+            } else {
+              setupRecyclerView(activity, apkFiles);
+            }
+
+            mActionNotifier.makeActionAvailable(APPLIST, SEARCH_BUTTON, true);
             showCompletion();
 
-            int available = mActionNotifier.totalAvailableActions();
-            if (available != 0) {
-              mActionNotifier.makeActionAvailable(SEARCH_BUTTON, true);
-            }
           } else {
-            showErrorMessage();
+            showErrorMessage(sUnableToFetchAllAppsMessage);
           }
         });
   }
 
   private void initializeViews(View view) {
     mProgressBar = view.findViewById(R.id.app_list_pb);
-    mTextView = view.findViewById(R.id.app_list_no_apps_tv);
+    mErrorMessageTV = view.findViewById(R.id.app_list_no_apps_tv);
     mAppListRecyclerView = view.findViewById(R.id.app_list_rv);
   }
 
@@ -94,9 +110,16 @@ public class AppListFragment extends Fragment implements ItemClickListener {
     mAppListRecyclerView.setAdapter(mAppListAdapter);
   }
 
-  private void showErrorMessage() {
+  private void showErrorMessage(final String message) {
     mProgressBar.setVisibility(View.GONE);
-    mTextView.setVisibility(View.VISIBLE);
+    mAppListRecyclerView.setVisibility(View.GONE);
+    mErrorMessageTV.setVisibility(View.VISIBLE);
+    mErrorMessageTV.setText(message);
+  }
+
+  private void showProgressBar() {
+    mProgressBar.setVisibility(View.VISIBLE);
+    mAppListRecyclerView.setVisibility(View.INVISIBLE);
   }
 
   private void showCompletion() {
