@@ -46,10 +46,12 @@ public final class ActionPresenter implements IPresenter {
   @Override
   public void available(int action, boolean flag) {
     boolean canBeMadeAvailable = action >= 0 &&
-                                 action < mCurrentActions.length &&
-                                 mCurrentActions != null;
+                                 mCurrentActions != null &&
+                                 action < mCurrentActions.length;
     if (canBeMadeAvailable) {
-      (mCurrentActions[action]).availability(flag);
+      if (!mCurrentActions[action].getAvailability()) {
+        (mCurrentActions[action]).availability(flag);
+      }
     }
   }
 
@@ -57,7 +59,8 @@ public final class ActionPresenter implements IPresenter {
   public void available(int actionSet, int actionID, boolean flag) {
     IAction[] set = mActionSets.get(actionSet);
     if (set != null) {
-      boolean canBeMadeAvailable = actionID >= 0 && actionID < set.length;
+      boolean canBeMadeAvailable = actionID >= 0 && actionID < set.length &&
+                                   !set[actionID].getAvailability();
       if (canBeMadeAvailable) {
         set[actionID].availability(flag);
       }
@@ -66,11 +69,12 @@ public final class ActionPresenter implements IPresenter {
 
   @Override
   public boolean isActionAvailable(int actionID) {
-    boolean exists = actionID >= 0 && actionID < mCurrentActions.length &&
-                     mCurrentActions != null;
+    boolean exists = actionID >= 0 &&
+                     mCurrentActions != null &&
+                     actionID < mCurrentActions.length;
 
     if (exists) {
-      return mCurrentActions[actionID].getAvailablitiy();
+      return mCurrentActions[actionID].getAvailability();
     }
 
     return exists;
@@ -80,9 +84,9 @@ public final class ActionPresenter implements IPresenter {
   public boolean isActionAvailable(int actionSet, int actionID) {
     IAction[] set = mActionSets.get(actionSet);
     if (set != null) {
-      boolean canBeMadeAvailable = actionID >= 0 && actionID < set.length;
-      if (canBeMadeAvailable) {
-        return set[actionID].getAvailablitiy();
+      boolean exists = actionID >= 0 && actionID < set.length;
+      if (exists) {
+        return set[actionID].getAvailability();
       }
     }
     return false;
