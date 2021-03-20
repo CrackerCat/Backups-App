@@ -13,7 +13,7 @@ public class AppQueueViewModel extends ViewModel {
   private final List<APKFile> mSelectedApps = new ArrayList<>();
 
   private final MutableLiveData<List<APKFile>> mAppQueue =
-      new MutableLiveData<>(mSelectedApps);
+      new MutableLiveData<>();
 
   public void addApp(APKFile apkFile) {
     String selectedAPKName = apkFile.getName();
@@ -32,13 +32,13 @@ public class AppQueueViewModel extends ViewModel {
     mAppQueue.setValue(mSelectedApps);
   }
 
-  public int getSelectedAppCount() { return mSelectedApps.size(); }
-
-  public void setBackupCountLabel(String backupCountLabel) { mBackupCountLabel = backupCountLabel; }
+  public void setBackupCountLabel(String backupCountLabel) {
+    mBackupCountLabel = backupCountLabel;
+  }
 
   public final String getBackupCountLabel() { return mBackupCountLabel; }
 
-  public boolean hasBackups() { return mSelectedApps.isEmpty(); }
+  public boolean hasBackups() { return (!mSelectedApps.isEmpty()); }
 
   public void updateSelection() {
     int updatedSize = mSelectedApps.size();
@@ -48,5 +48,9 @@ public class AppQueueViewModel extends ViewModel {
     }
   }
 
-  public final LiveData<List<APKFile>> getAppQueue() { return mAppQueue; }
+  public final List<APKFile> getSelectedApps() { return mSelectedApps; }
+
+  public final LiveData<List<APKFile>> getAppQueueLiveData() {
+    return mAppQueue;
+  }
 }
