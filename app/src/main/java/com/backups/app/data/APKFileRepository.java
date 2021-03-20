@@ -26,7 +26,7 @@ public class APKFileRepository implements IAPKFileRepository {
     List<ApplicationInfo> packages =
         packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
 
-    ArrayList<APKFile> installedApps = null;
+    ArrayList<APKFile> installedApps;
 
     if (!packages.isEmpty()) {
       int totalApps = packages.size();
@@ -47,7 +47,7 @@ public class APKFileRepository implements IAPKFileRepository {
           }
 
           String apkPath = applicationInfo.sourceDir;
-          long apkSize = new File(applicationInfo.sourceDir).length();
+          long apkSize = new File(apkPath).length();
           Drawable icon = packageManager.getApplicationIcon(applicationInfo);
 
           installedApps.add(
@@ -59,6 +59,8 @@ public class APKFileRepository implements IAPKFileRepository {
                        (o1, o2)
                            -> o1.getName().toLowerCase().compareTo(
                                o2.getName().toLowerCase()));
+    } else {
+      installedApps = new ArrayList<>();
     }
 
     return installedApps;
