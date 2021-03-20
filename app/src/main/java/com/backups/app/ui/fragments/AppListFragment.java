@@ -1,5 +1,6 @@
 package com.backups.app.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,80 +18,137 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
-import com.backups.app.data.APKFileRepository;
 import com.backups.app.data.ApkListViewModel;
-import com.backups.app.data.ViewModelFactory;
+import com.backups.app.data.AppQueueViewModel;
+import com.backups.app.ui.actions.ActionPresenter;
 import com.backups.app.ui.adapters.AppListAdapter;
+import com.backups.app.ui.adapters.ItemClickListener;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 
-public class AppListFragment extends Fragment {
+import static com.backups.app.ui.Constants.APPLIST;
+import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
-    private ApkListViewModel mAppListViewModel;
+public class AppListFragment extends Fragment implements ItemClickListener {
+  private ApkListViewModel mAppListViewModel;
+  private AppQueueViewModel mAppQueueViewModel;
 
-    private LinearLayoutManager mLayoutManager;
-    private RecyclerView mAppRecyclerView;
-    private AppListAdapter mAppListAdapter;
+  private ActionPresenter.IActionAvailability mActionNotifier;
+  private AppListAdapter mAppListAdapter;
+  private RecyclerView mAppListRecyclerView;
 
-    private ProgressBar mProgressBar;
-    private TextView mTextView;
+  private ProgressBar mProgressBar;
+  private TextView mErrorMessageTV;
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.app_list_fragment, container, false);
+  private String sUnableToFetchAllAppsMessage;
+
+  @Nullable
+  @Override
+  public View onCreateView(@NonNull LayoutInflater inflater,
+                           @Nullable ViewGroup container,
+                           @Nullable Bundle savedInstanceState) {
+    return inflater.inflate(R.layout.app_list_fragment, container, false);
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view,
+                            @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
+    if (sUnableToFetchAllAppsMessage == null) {
+      sUnableToFetchAllAppsMessage =
+          getResources().getString(R.string.unable_to_fetch_apk_data_message);
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    FragmentActivity activity = requireActivity();
 
-        FragmentActivity activity = requireActivity();
-        mAppRecyclerView = view.findViewById(R.id.recyclerview);
-        mProgressBar = view.findViewById(R.id.progressbar);
-        mTextView = view.findViewById(R.id.no_apps_tv);
+    initializeViews(view);
 
-        APKFileRepository mApkFileRepository = new APKFileRepository(Executors.newSingleThreadExecutor());
-        mAppListViewModel = new ViewModelProvider(activity, new ViewModelFactory(activity.getPackageManager(), mApkFileRepository)).get(ApkListViewModel.class);
+    initializeViewModels(activity);
 
-        if (!mAppListViewModel.hasRecievedApkList()) {
-            showProgressBar();
-        }
-
-        mAppListViewModel.getApkData().observe(getViewLifecycleOwner(), apkFiles -> {
-            if (!apkFiles.isEmpty()) {
-
-                if (!mAppListViewModel.hasRecievedApkList()) {
-                    mAppListViewModel.recievedApkList(true);
-                }
-                initRecyclerView(activity, apkFiles);
-                showCompletion();
-            } else {
-                showErrorMessage();
+    mAppListViewModel.getApkListLiveData().observe(
+        getViewLifecycleOwner(), apkFiles -> {
+          if (!apkFiles.isEmpty()) {
+            if (mProgressBar.getVisibility() == View.GONE) {
+              showProgressBar();
             }
+
+            if (mAppListAdapter != null) {
+              mAppListAdapter.changeDataSet(apkFiles);
+            } else {
+              setupRecyclerView(activity, apkFiles);
+            }
+
+            mActionNotifier.makeActionAvailable(APPLIST, SEARCH_BUTTON, true);
+            showCompletion();
+
+          } else {
+            showErrorMessage(sUnableToFetchAllAppsMessage);
+          }
         });
-    }
+  }
 
-    private void initRecyclerView(FragmentActivity activity, List<APKFile> data) {
-        mLayoutManager = new LinearLayoutManager(activity);
-        mAppListAdapter = new AppListAdapter(data);
-        mAppRecyclerView.setLayoutManager(mLayoutManager);
-        mAppRecyclerView.setAdapter(mAppListAdapter);
-    }
+  private void initializeViews(View view) {
+    mProgressBar = view.findViewById(R.id.app_list_pb);
+    mErrorMessageTV = view.findViewById(R.id.app_list_no_apps_tv);
+    mAppListRecyclerView = view.findViewById(R.id.app_list_rv);
+  }
 
-    private void showProgressBar() {
-        mProgressBar.setVisibility(View.VISIBLE);
-        mAppRecyclerView.setVisibility(View.INVISIBLE);
-    }
+  private void initializeViewModels(FragmentActivity activity) {
+    mAppListViewModel =
+        new ViewModelProvider(activity).get(ApkListViewModel.class);
+    mAppQueueViewModel =
+        new ViewModelProvider(activity).get(AppQueueViewModel.class);
+  }
 
-    private void showErrorMessage() {
-        mProgressBar.setVisibility(ViewGroup.INVISIBLE);
-        mTextView.setVisibility(View.VISIBLE);
-    }
+  private void setupRecyclerView(FragmentActivity activity,
+                                 List<APKFile> data) {
+    LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+    mAppListAdapter = new AppListAdapter(data);
+    mAppListAdapter.setClickListener(this);
+    mAppListRecyclerView.setLayoutManager(layoutManager);
+    mAppListRecyclerView.setAdapter(mAppListAdapter);
+  }
 
-    private void showCompletion() {
-        mProgressBar.setVisibility(View.INVISIBLE);
-        mAppRecyclerView.setVisibility(View.VISIBLE);
+  private void showErrorMessage(final String message) {
+    mProgressBar.setVisibility(View.GONE);
+    mAppListRecyclerView.setVisibility(View.GONE);
+    mErrorMessageTV.setVisibility(View.VISIBLE);
+    mErrorMessageTV.setText(message);
+  }
+
+  private void showProgressBar() {
+    mProgressBar.setVisibility(View.VISIBLE);
+    mAppListRecyclerView.setVisibility(View.INVISIBLE);
+  }
+
+  private void showCompletion() {
+    mProgressBar.setVisibility(View.GONE);
+    mAppListRecyclerView.setVisibility(View.VISIBLE);
+  }
+
+  @Override
+  public void onItemClick(View view, int position) {
+    APKFile selected = mAppListAdapter.getItem(position);
+    mAppQueueViewModel.addApp(selected);
+    mAppQueueViewModel.updateSelection();
+  }
+
+  @Override
+  public void onAttach(@NonNull Context context) {
+    super.onAttach(context);
+
+    if (context instanceof ActionPresenter.IActionAvailability) {
+      mActionNotifier = (ActionPresenter.IActionAvailability)context;
+    } else {
+      throw new ClassCastException(
+          context.getString(R.string.listener_cast_error_message));
     }
+  }
+
+  @Override
+  public void onDestroy() {
+    mActionNotifier = null;
+    super.onDestroy();
+  }
 }

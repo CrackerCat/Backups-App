@@ -7,11 +7,11 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/app_name_header"
+        android:id="@+id/main_app_name_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="28dp"
         android:text="@string/app_name"
         android:textColor="@color/primaryTextColor"
         android:textSize="@dimen/header_text_size"
@@ -20,37 +20,68 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/apps_count_label"
+        android:id="@+id/main_backup_count_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="16dp"
         android:textSize="@dimen/label_text_size"
-        app:layout_constraintBaseline_toBaselineOf="@+id/app_name_header"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@+id/main_app_name_header"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/main_app_name_header" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
         android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_name_header">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/main_app_name_header"
+        app:layout_constraintStart_toStartOf="@+id/main_app_name_header"
+        app:layout_constraintTop_toBottomOf="@+id/main_app_name_header">
 
         <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
+            android:id="@+id/main_tab_layout"
             style="@style/Widget.App.TabLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@color/secondaryDarkColor" />
+            android:layout_height="wrap_content" />
 
         <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/pager"
+            android:id="@+id/main_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
-
-        </androidx.viewpager2.widget.ViewPager2>
+            android:layout_weight="1" />
     </LinearLayout>
+
+    <include
+        layout="@layout/main_activity_actions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/main_floating_action_button"
+        app:layout_constraintEnd_toEndOf="@+id/main_floating_action_button"
+        app:layout_constraintStart_toStartOf="@+id/main_floating_action_button" />
+
+    <include
+        layout="@layout/app_queue_actions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/main_floating_action_button"
+        app:layout_constraintEnd_toEndOf="@+id/main_floating_action_button"
+        app:layout_constraintStart_toStartOf="@+id/main_floating_action_button" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/main_floating_action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="40dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:backgroundTint="@color/dark_secondaryColor"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

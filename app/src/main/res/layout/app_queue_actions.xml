@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/app_queue_search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/app_queue_search_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:text="@string/search_label_text"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/app_queue_search_button"
+        app:layout_constraintEnd_toStartOf="@+id/app_queue_search_button"
+        app:layout_constraintTop_toTopOf="@+id/app_queue_search_button" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/app_queue_backup_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toTopOf="@+id/app_queue_search_button"
+        app:layout_constraintEnd_toEndOf="@+id/app_queue_search_button"
+        app:layout_constraintStart_toStartOf="@+id/app_queue_search_button" />
+
+    <TextView
+        android:id="@+id/app_queue_backup_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:text="@string/backup_label_text"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/app_queue_backup_button"
+        app:layout_constraintEnd_toStartOf="@+id/app_queue_backup_button"
+        app:layout_constraintTop_toTopOf="@+id/app_queue_backup_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,7 +7,7 @@
 
     <!-- Apps -->
     <string name="apps_tab_name">Apps</string>
-    <string name="no_apps_installed">Hmm… Seems like you don\'t have any applications installed</string>
+    <string name="unable_to_fetch_apk_data_message">Unable to fetch apk data</string>
     <!-- Used in case app-package does not contain label -->
     <string name="default_app_label">App</string>
     <!-- Apps End -->
@@ -20,20 +20,29 @@
     <!-- Settings -->
     <string name="settings_tab_name">Settings</string>
 
-    <string name="backup_naming_scheme_setting">Backup Name</string>
-    <string name="default_naming_scheme">%s-backup.apk</string>
-
+    <string name="show_system_apps_key" translatable="false">com.backups.app.show_system_apps</string>
     <string name="show_system_apps_setting">Show system apps</string>
+    <string name="show_system_apps_summary">Determines whether system apps will be made available to backup</string>
 
-    <string name="output_directory_setting">Backups Directory</string>
-    <string name="no_directory_selected">Click me to select a backups directory</string>
-
+    <string name="current_theme_key" translatable="false">com.backups.app.theme</string>
     <string name="current_theme_setting">Theme</string>
     <string name="light_theme">Light</string>
     <string name="dark_theme">Dark</string>
-    <string name="no_apps_installed_message">No apps installed</string>
     <!-- Settings End -->
 
     <!-- Tabs End -->
 
+    <!-- Class Related -->
+    <string name="listener_cast_error_message" translatable="false">Unable to cast to a required listener</string>
+    <!-- Class Related End -->
+
+    <!-- SearchView Related -->
+    <string name="search_hint">Search for an app</string>
+    <string name="fetching_data_message">Fetching apk data…</string>
+    <!-- SearchView Related End -->
+
+    <!-- FAB Related -->
+    <string name="search_label_text">Search</string>
+    <string name="backup_label_text">Backup</string>
+    <!-- FAB Related End -->
 </resources>

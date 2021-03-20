@@ -1,41 +1,27 @@
 package com.backups.app.data;
 
 import android.content.pm.PackageManager;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class ApkListViewModel extends ViewModel {
-    private final APKFileRepository mAPKFileRepository;
-    private final PackageManager mPackageManager;
-    private boolean mHasReceivedApbList = false;
-    private final MutableLiveData<List<APKFile>> mAppListMutableLiveData;
+  private final APKFileRepository mAPKFileRepository =
+      new APKFileRepository(Executors.newSingleThreadExecutor());
 
+  private final MutableLiveData<List<APKFile>> mAppListMutableLiveData =
+      new MutableLiveData<>();
 
-    public ApkListViewModel(PackageManager packageManager, APKFileRepository apkFileRepository) {
-        mAPKFileRepository = apkFileRepository;
-        mPackageManager = packageManager;
-        mAppListMutableLiveData = new MutableLiveData<>();
-        receiveInstalledApps();
-    }
+  public void fetchInstalledApps(final PackageManager packageManager,
+                                 boolean showSystemApps) {
+    mAPKFileRepository.displaySystemApps(showSystemApps);
+    mAPKFileRepository.fetchInstalledApps(packageManager,
+                                          mAppListMutableLiveData::postValue);
+  }
 
-    private void receiveInstalledApps() {
-        mAPKFileRepository.deliverInstalledApps(mPackageManager, mAppListMutableLiveData::postValue);
-    }
-
-
-    public boolean hasRecievedApkList() {
-        return mHasReceivedApbList;
-    }
-
-    public void recievedApkList(boolean choice) {
-        mHasReceivedApbList = choice;
-    }
-
-    public LiveData<List<APKFile>> getApkData() {
-        return mAppListMutableLiveData;
-    }
+  public final LiveData<List<APKFile>> getApkListLiveData() {
+    return mAppListMutableLiveData;
+  }
 }
