@@ -1,6 +1,7 @@
 package com.backups.app.ui.fragments;
 
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -14,15 +15,30 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
   private static final int sShowSystemAppsPrefId = 1;
   private static final int sAppThemePrefId = 2;
+  private static boolean sInitializeValues = true;
+  private static String sLightThemeSummary;
+  private static String sDarkThemeSummary;
 
   @Override
   public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
     setPreferencesFromResource(R.xml.preferences, rootKey);
 
+    initializeStringValues();
+
     loadPreferences();
 
     PreferenceManager.getDefaultSharedPreferences(requireActivity())
         .registerOnSharedPreferenceChangeListener(this);
+  }
+
+  private void initializeStringValues() {
+    if (sInitializeValues) {
+      Resources resources = getResources();
+      sLightThemeSummary = resources.getString(R.string.light_theme);
+      sDarkThemeSummary = resources.getString(R.string.dark_theme);
+
+      sInitializeValues = false;
+    }
   }
 
   private void loadPreferences() {
@@ -62,15 +78,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
     Preference preference = findPreference(key);
     if (preference != null) {
       if (preference.getOrder() == sAppThemePrefId) {
-        boolean value = sharedPreferences.getBoolean(key, false);
+        boolean useDarkTheme = sharedPreferences.getBoolean(key, false);
 
-        String themeString;
-
-        if (!value) {
-          themeString = getResources().getString(R.string.light_theme);
-        } else {
-          themeString = getResources().getString(R.string.dark_theme);
-        }
+        String themeString =
+            (!useDarkTheme ? sLightThemeSummary : sDarkThemeSummary);
 
         preference.setSummary(themeString);
       }
