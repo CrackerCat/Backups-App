@@ -14,7 +14,7 @@ import java.util.List;
 
 public class AppListAdapter
     extends RecyclerView.Adapter<AppListAdapter.ApkDataViewHolder> {
-  private final List<APKFile> mDataSet;
+  private List<APKFile> mDataSet;
   private ItemClickListener mClickListener;
 
   public AppListAdapter(List<APKFile> dataSet) { mDataSet = dataSet; }
@@ -48,6 +48,11 @@ public class AppListAdapter
 
   public final APKFile getItem(final int position) {
     return mDataSet.get(position);
+  }
+
+  public void changeDataSet(List<APKFile> apkFiles) {
+    mDataSet = apkFiles;
+    notifyDataSetChanged();
   }
 
   public void setClickListener(ItemClickListener itemClickListener) {
