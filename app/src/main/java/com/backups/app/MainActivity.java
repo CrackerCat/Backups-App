@@ -7,6 +7,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -14,6 +15,8 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.backups.app.data.ApkListViewModel;
 import com.backups.app.data.AppQueueViewModel;
+import com.backups.app.data.BackupProgress;
+import com.backups.app.data.BackupsViewModelFactory;
 import com.backups.app.ui.actions.ActionPresenter;
 import com.backups.app.ui.actions.ActionSetMaker;
 import com.backups.app.ui.adapters.TabAdapter;
@@ -21,11 +24,14 @@ import com.backups.app.ui.fragments.AppListFragment;
 import com.backups.app.ui.fragments.AppQueueFragment;
 import com.backups.app.ui.fragments.SearchDialogFragment;
 import com.backups.app.ui.fragments.SettingsFragment;
+import com.backups.app.utils.NotificationsUtils;
+import com.backups.app.utils.PackageNameUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import static com.backups.app.ui.Constants.APPLIST;
 import static com.backups.app.ui.Constants.APPQUEUE;
+import static com.backups.app.ui.Constants.BACKUP_BUTTON;
 import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 import static com.backups.app.ui.Constants.sAppListFragmentActionLayouts;
 import static com.backups.app.ui.Constants.sAppQueueFragmentActionLayouts;
@@ -37,7 +43,7 @@ public class MainActivity extends AppCompatActivity
   private ApkListViewModel mApkListViewModel;
   private AppQueueViewModel mAppQueueViewModel;
 
-  private TextView mBackupCounterView;
+  private TextView mBackupCounterTextView;
   private TabAdapter mTabAdapter;
   private TabLayout mTabLayout;
   private ViewPager2 mViewPager;
@@ -45,60 +51,109 @@ public class MainActivity extends AppCompatActivity
   private final SearchDialogFragment mAppSearchDialogFragment =
       new SearchDialogFragment();
 
-  private final static SettingsKeys sSettings = new SettingsKeys();
   private static String sShowSystemAppsKey;
   private static String sAppThemeKey;
+
+  private static boolean sInitializeValues = true;
   private static String sAppTabName;
   private static String sQueueTabName;
   private static String sSettingsTabName;
-  private static boolean sInitializeValues = true;
+  private static String sStartingBackupMessage;
+  private static String sBackupErrorMessage;
+  private static String sBackupCreatedMessage;
+  private static String sFetchingAPKDataMessage;
+  private static String sInsufficientStorageMessage;
+  private static String sNoBackupsSelectedMessage;
+  private static String sStorageLocationNotPresentMessage;
+  private static String sBackupInProgressMessage;
+
+  private static class SettingsKeys {
+    public boolean showSystemApps;
+    public boolean useDarkTheme;
+  }
+
+  private final SettingsKeys sSettings = new SettingsKeys();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    initializeStringValues();
+    if (sInitializeValues) {
+      initializeStringValues();
+    }
 
     loadSettings();
 
     mAppQueueViewModel =
-        new ViewModelProvider(this).get(AppQueueViewModel.class);
+        new ViewModelProvider(this, new BackupsViewModelFactory(this))
+            .get(AppQueueViewModel.class);
 
     mApkListViewModel = new ViewModelProvider(this).get(ApkListViewModel.class);
 
-    if (mApkListViewModel.getApkListLiveData().getValue() == null) {
+    boolean hasNotScannedForAppsYet =
+        mApkListViewModel.getApkListLiveData().getValue() == null;
+    if (hasNotScannedForAppsYet) {
       mApkListViewModel.fetchInstalledApps(getPackageManager(),
                                            sSettings.showSystemApps);
     }
 
     initializeViews();
 
-    mAppQueueViewModel.getAppQueueLiveData().observe(this, selection -> {
+    // else branch is used to restore backup counter string after
+    // Activity is created
+    mAppQueueViewModel.getAppQueueLiveData().observe(this, queue -> {
       if (getLifecycle().getCurrentState() != Lifecycle.State.STARTED) {
-        updateBackupCountView(selection.size());
+        updateBackupCountView(queue.size());
       } else {
-        mBackupCounterView.setText(mAppQueueViewModel.getBackupCountLabel());
+        mBackupCounterTextView.setText(
+            mAppQueueViewModel.getBackupCountLabel());
       }
     });
 
+    mAppQueueViewModel.getBackupProgressLiveData().observe(
+        this, this::handleBackupProgress);
+
     initializeFAButton();
+
     initializeTabLayout();
   }
 
   private void initializeStringValues() {
-    if (sInitializeValues) {
-      Resources resources = getResources();
+    Resources resources = getResources();
 
-      sShowSystemAppsKey = resources.getString(R.string.show_system_apps_key);
-      sAppThemeKey = resources.getString(R.string.current_theme_key);
+    sStartingBackupMessage =
+        resources.getString(R.string.commencing_backup_message);
 
-      sAppTabName = resources.getString(R.string.apps_tab_name);
-      sQueueTabName = resources.getString(R.string.queue_tab_name);
-      sSettingsTabName = resources.getString(R.string.settings_tab_name);
+    sBackupErrorMessage =
+        resources.getString(R.string.unable_to_create_backup_message);
 
-      sInitializeValues = false;
-    }
+    sBackupCreatedMessage =
+        resources.getString(R.string.backup_created_message);
+
+    sFetchingAPKDataMessage =
+        resources.getString(R.string.fetching_data_message);
+
+    sInsufficientStorageMessage =
+        resources.getString(R.string.insufficient_storage_message);
+
+    sNoBackupsSelectedMessage =
+        resources.getString(R.string.no_backups_selected_message);
+
+    sStorageLocationNotPresentMessage =
+        resources.getString(R.string.storage_volume_not_present);
+
+    sBackupInProgressMessage =
+        resources.getString(R.string.backup_in_progress_message);
+
+    sShowSystemAppsKey = resources.getString(R.string.show_system_apps_key);
+    sAppThemeKey = resources.getString(R.string.current_theme_key);
+
+    sAppTabName = resources.getString(R.string.apps_tab_name);
+    sQueueTabName = resources.getString(R.string.queue_tab_name);
+    sSettingsTabName = resources.getString(R.string.settings_tab_name);
+
+    sInitializeValues = false;
   }
 
   private void loadSettings() {
@@ -117,7 +172,7 @@ public class MainActivity extends AppCompatActivity
   }
 
   private void initializeViews() {
-    mBackupCounterView = findViewById(R.id.main_backup_count_label);
+    mBackupCounterTextView = findViewById(R.id.main_backup_count_label);
 
     mTabLayout = findViewById(R.id.main_tab_layout);
     mViewPager = findViewById(R.id.main_pager);
@@ -137,22 +192,90 @@ public class MainActivity extends AppCompatActivity
         .attach();
   }
 
+  private void handleBackupProgress(BackupProgress callback) {
+    BackupProgress.ProgressState state = callback.state;
+
+    boolean finished = state.equals(BackupProgress.ProgressState.ERROR) ||
+                       state.equals(BackupProgress.ProgressState.FINISHED);
+
+    if (finished) {
+      int totalApps = mAppQueueViewModel.getSelectedApps().size();
+
+      updateBackupCountView(totalApps);
+
+      PackageNameUtils.resetCountFor(callback.backupName);
+
+      Toast
+          .makeText(
+              MainActivity.this,
+              String.format((state.equals(BackupProgress.ProgressState.ERROR)
+                                 ? sBackupErrorMessage
+                                 : sBackupCreatedMessage),
+                            callback.backupName),
+              Toast.LENGTH_SHORT)
+          .show();
+    }
+  }
+
+  private Pair<Boolean, String> startPreBackupChecks() {
+    boolean isBackupInProgress = mAppQueueViewModel.isBackupInProgress();
+    boolean doesNotHaveSufficientStorage =
+        !mAppQueueViewModel.hasSufficientStorage();
+
+    String outputMessage;
+
+    boolean canStartBackup = false;
+
+    // TODO: Implement setting for choosing where backups are outputted to
+    // TODO: Added check to make sure storage volume is available
+
+    if (isBackupInProgress) {
+      outputMessage = sBackupInProgressMessage;
+    } else if (doesNotHaveSufficientStorage) {
+      outputMessage = sInsufficientStorageMessage;
+    } else {
+      outputMessage = String.format(
+          sStartingBackupMessage, mAppQueueViewModel.getSelectedApps().size());
+
+      canStartBackup = true;
+    }
+
+    return (new Pair<>(canStartBackup, outputMessage));
+  }
+
+  private String startPreBackupActionChecks() {
+    String outputMessage = "";
+
+    boolean hasNotScannedForApps =
+        mApkListViewModel.getApkListLiveData().getValue() == null;
+    boolean hasNoBackups = !mAppQueueViewModel.hasBackups();
+
+    if (hasNotScannedForApps) {
+      outputMessage = sFetchingAPKDataMessage;
+    } else if (hasNoBackups) {
+      outputMessage = sNoBackupsSelectedMessage;
+    }
+
+    return outputMessage;
+  }
+
   private ActionSetMaker.CallBackSetup initializeAppListFragmentActions() {
     return (position, action) -> {
       if (position == SEARCH_BUTTON) {
+
         action.assignCallBacks(
             v
             -> {
-              mAppSearchDialogFragment.setDataSetID(APPLIST);
+              mAppSearchDialogFragment.setDataSetID(
+                  SearchDialogFragment.DataSet.APP_LIST);
+
               mAppSearchDialogFragment.show(
                   getSupportFragmentManager(),
                   (mAppSearchDialogFragment.getClass().getSimpleName()));
             },
             v
-            -> Toast
-                   .makeText(MainActivity.this, R.string.fetching_data_message,
-                             Toast.LENGTH_SHORT)
-                   .show());
+            -> NotificationsUtils.checkAndNotify(
+                MainActivity.this, this::startPreBackupActionChecks));
       }
     };
   }
@@ -160,19 +283,39 @@ public class MainActivity extends AppCompatActivity
   private ActionSetMaker.CallBackSetup initializeAppQueueFragmentActions() {
     return (position, action) -> {
       if (position == SEARCH_BUTTON) {
+
         action.assignCallBacks(
             v
             -> {
-              mAppSearchDialogFragment.setDataSetID(APPQUEUE);
+              mAppSearchDialogFragment.setDataSetID(
+                  SearchDialogFragment.DataSet.APP_QUEUE);
+
               mAppSearchDialogFragment.show(
                   getSupportFragmentManager(),
                   (mAppSearchDialogFragment.getClass().getSimpleName()));
             },
             v
-            -> Toast
-                   .makeText(MainActivity.this, R.string.fetching_data_message,
-                             Toast.LENGTH_SHORT)
-                   .show());
+            -> NotificationsUtils.checkAndNotify(
+                MainActivity.this, this::startPreBackupActionChecks));
+
+      } else if (position == BACKUP_BUTTON) {
+
+        action.assignCallBacks(
+            v
+            -> {
+              if (NotificationsUtils.checkNotifyAndGetResult(
+                      MainActivity.this, this::startPreBackupChecks)) {
+
+                makeAppListActionsAvailable(false);
+
+                makeAppQueueActionsAvailable(false);
+
+                mAppQueueViewModel.startBackup();
+              }
+            },
+            v
+            -> NotificationsUtils.checkAndNotify(
+                MainActivity.this, this::startPreBackupActionChecks));
       }
     };
   }
@@ -194,13 +337,29 @@ public class MainActivity extends AppCompatActivity
   }
 
   private void updateBackupCountView(int selectedItems) {
-    String quantityString = getResources().getQuantityString(
-        R.plurals.amount_of_backups, selectedItems);
+    String backupCountLabel = "";
 
-    String backupCountLabel = String.format(quantityString, selectedItems);
-    mBackupCounterView.setText(backupCountLabel);
+    if (selectedItems != 0) {
+      String quantityString = getResources().getQuantityString(
+          R.plurals.amount_of_backups, selectedItems);
 
-    mAppQueueViewModel.setBackupCountLabel(backupCountLabel);
+      backupCountLabel = String.format(quantityString, selectedItems);
+    }
+
+    mBackupCounterTextView.setText(backupCountLabel);
+
+    if (!backupCountLabel.isEmpty()) {
+      mAppQueueViewModel.setBackupCountLabel(backupCountLabel);
+    }
+  }
+
+  private void makeAppListActionsAvailable(boolean conditionMet) {
+    mActionPresenter.available(APPLIST, SEARCH_BUTTON, conditionMet);
+  }
+
+  private void makeAppQueueActionsAvailable(boolean conditionMet) {
+    mActionPresenter.available(APPQUEUE, SEARCH_BUTTON, conditionMet);
+    mActionPresenter.available(APPQUEUE, BACKUP_BUTTON, conditionMet);
   }
 
   @Override
@@ -227,16 +386,17 @@ public class MainActivity extends AppCompatActivity
   public void onTabSelected(TabLayout.Tab tab) {
     int position = tab.getPosition();
 
+    boolean makeActionsAvailable = mAppQueueViewModel.hasBackups() &&
+                                   !mAppQueueViewModel.isBackupInProgress();
+
     if (position == APPLIST) {
       mActionPresenter.swapActions(position);
+
+      makeAppListActionsAvailable(makeActionsAvailable);
     } else if (position == APPQUEUE) {
       mActionPresenter.swapActions(position);
 
-      if (!mActionPresenter.isActionAvailable(SEARCH_BUTTON)) {
-        if (mAppQueueViewModel.hasBackups()) {
-          mActionPresenter.available(SEARCH_BUTTON, true);
-        }
-      }
+      makeAppQueueActionsAvailable(makeActionsAvailable);
     }
   }
 
