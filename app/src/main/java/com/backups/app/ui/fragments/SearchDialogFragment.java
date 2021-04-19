@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
@@ -14,19 +13,15 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
 import com.backups.app.data.ApkListViewModel;
 import com.backups.app.data.AppQueueViewModel;
+import com.backups.app.data.BackupsViewModelFactory;
 import com.backups.app.ui.adapters.ItemClickListener;
 import com.backups.app.ui.adapters.SearchAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import java.util.List;
-
-import static com.backups.app.ui.Constants.APPLIST;
-import static com.backups.app.ui.Constants.APPQUEUE;
 
 public class SearchDialogFragment
     extends DialogFragment implements ItemClickListener {
@@ -36,7 +31,10 @@ public class SearchDialogFragment
   private SearchAdapter mSearchAdapter;
   private RecyclerView mSearchResultsRecyclerView;
   private SearchView mSearchView;
-  private int mDataSetChoice = APPLIST;
+
+  public enum DataSet { APP_LIST, APP_QUEUE }
+
+  private DataSet mDataSetChoice = DataSet.APP_LIST;
 
   @NonNull
   @Override
@@ -47,7 +45,8 @@ public class SearchDialogFragment
     mApkListViewModel =
         new ViewModelProvider(parent).get(ApkListViewModel.class);
     mAppQueueViewModel =
-        new ViewModelProvider(parent).get(AppQueueViewModel.class);
+        new ViewModelProvider(parent, new BackupsViewModelFactory(parent))
+            .get(AppQueueViewModel.class);
 
     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(parent);
     View dialogLayout = inflater.inflate(R.layout.search_dialog_fragment, null);
@@ -56,7 +55,7 @@ public class SearchDialogFragment
     initializeSearchView();
     builder.setView(dialogLayout);
 
-    return (builder.create());
+    return builder.create();
   }
 
   private void initializeViews(View view) {
@@ -64,11 +63,11 @@ public class SearchDialogFragment
     mSearchView = view.findViewById(R.id.search_dialog_sv);
   }
 
-  private List<APKFile> useDataSet(int choice) {
+  private List<APKFile> useDataSet(DataSet choice) {
     List<APKFile> dataSet = null;
-    if (choice == APPLIST) {
+    if (choice.equals(DataSet.APP_LIST)) {
       dataSet = mApkListViewModel.getApkListLiveData().getValue();
-    } else if (choice == APPQUEUE) {
+    } else if (choice.equals(DataSet.APP_QUEUE)) {
       dataSet = mAppQueueViewModel.getAppQueueLiveData().getValue();
     }
     return dataSet;
@@ -105,8 +104,7 @@ public class SearchDialogFragment
   public void onItemClick(View view, int position) {
     APKFile selected = mSearchAdapter.getItem(position);
     mAppQueueViewModel.addApp(selected);
-    mAppQueueViewModel.updateSelection();
   }
 
-  public void setDataSetID(int dataSetID) { mDataSetChoice = dataSetID; }
+  public void setDataSetID(DataSet dataSetID) { mDataSetChoice = dataSetID; }
 }
