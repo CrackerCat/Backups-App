@@ -7,11 +7,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
+
 import java.util.List;
+
+import static com.backups.app.ui.Constants.MIN_PROGRESS;
 
 public class AppQueueAdapter
     extends RecyclerView.Adapter<AppQueueAdapter.BackupsViewHolder> {
@@ -33,15 +38,16 @@ public class AppQueueAdapter
   @Override
   public void onBindViewHolder(@NonNull BackupsViewHolder holder,
                                int position) {
-    if (!mDataSet.isEmpty()) {
-      String appName = mDataSet.get(position).getName();
-      String packageName = mDataSet.get(position).getPackageName();
-      Drawable appIcon = mDataSet.get(position).getIcon();
+    APKFile item = mDataSet.get(position);
 
-      holder.setAppName(appName);
-      holder.setPackageName(packageName);
-      holder.setAppIcon(appIcon);
-    }
+    String appName = item.getName();
+    String packageName = item.getPackageName();
+    Drawable appIcon = item.getIcon();
+
+    holder.setAppName(appName);
+    holder.setPackageName(packageName);
+    holder.setAppIcon(appIcon);
+    holder.resetProgressBar();
   }
 
   @Override
@@ -49,7 +55,19 @@ public class AppQueueAdapter
     return mDataSet.size();
   }
 
-  protected class BackupsViewHolder extends RecyclerView.ViewHolder {
+  public void addedItem() {
+    int position = 0;
+    notifyItemInserted(mDataSet.size());
+    notifyItemRangeChanged(position, mDataSet.size());
+  }
+
+  public void removedItem() {
+    int position = 0;
+    notifyItemRemoved(position);
+    notifyItemRangeChanged(position, mDataSet.size());
+  }
+
+  public static class BackupsViewHolder extends RecyclerView.ViewHolder {
     private final TextView mAppName;
     private final TextView mPackageName;
     private final ImageView mAppIcon;
@@ -74,8 +92,6 @@ public class AppQueueAdapter
       mAppIcon.setImageDrawable(icon);
     }
 
-    public void updateProgressBarBy(int progress) {
-      mProgressBar.incrementProgressBy(progress);
-    }
+    public void resetProgressBar() { mProgressBar.setProgress(MIN_PROGRESS); }
   }
 }
