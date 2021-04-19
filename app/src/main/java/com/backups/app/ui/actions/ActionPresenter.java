@@ -58,8 +58,8 @@ public final class ActionPresenter implements IPresenter {
   public void available(int actionSet, int actionID, boolean flag) {
     IAction[] set = mActionSets.get(actionSet);
     if (set != null) {
-      boolean canBeMadeAvailable = actionID >= 0 && actionID < set.length &&
-                                   !set[actionID].getAvailability();
+      boolean canBeMadeAvailable = actionID >= 0 && actionID < set.length;
+
       if (canBeMadeAvailable) {
         set[actionID].availability(flag);
       }
