@@ -8,6 +8,7 @@ public class APKFile {
   private final String mPackagePath;
   private final long mAppSize;
   private final Drawable mIcon;
+  private static final String sFileNameExtension = ".apk";
 
   public APKFile(final String name, final String packageName,
                  final String packagePath, final long appSize,
@@ -20,6 +21,8 @@ public class APKFile {
   }
 
   public final String getName() { return mName; }
+
+  public final String getBackupName() { return mName + sFileNameExtension; }
 
   public final String getPackageName() { return mPackageName; }
 
