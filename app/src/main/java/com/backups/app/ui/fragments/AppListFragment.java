@@ -29,7 +29,7 @@ import com.backups.app.ui.adapters.ItemClickListener;
 
 import java.util.List;
 
-import static com.backups.app.ui.Constants.APPLIST;
+import static com.backups.app.ui.Constants.APP_LIST;
 import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
 public class AppListFragment extends Fragment implements ItemClickListener {
@@ -82,7 +82,7 @@ public class AppListFragment extends Fragment implements ItemClickListener {
               setupRecyclerView(activity, apkFiles);
             }
 
-            mActionNotifier.makeActionAvailable(APPLIST, SEARCH_BUTTON, true);
+            mActionNotifier.makeActionAvailable(APP_LIST, SEARCH_BUTTON, true);
 
             showCompletion();
 
@@ -151,7 +151,7 @@ public class AppListFragment extends Fragment implements ItemClickListener {
                            !mAppQueueViewModel.hasBackups();
 
     if (finished) {
-      mActionNotifier.makeActionAvailable(APPLIST, SEARCH_BUTTON, false);
+      mActionNotifier.makeActionAvailable(APP_LIST, SEARCH_BUTTON, false);
     }
   }
 

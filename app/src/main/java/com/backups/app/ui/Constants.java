@@ -22,8 +22,8 @@ public class Constants {
   //
 
   // Tabs
-  public static final int APPLIST = 0;
-  public static final int APPQUEUE = 1;
+  public static final int APP_LIST = 0;
+  public static final int APP_QUEUE = 1;
   //
 
   // Progress Bars
