@@ -23,7 +23,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
   public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
     setPreferencesFromResource(R.xml.preferences, rootKey);
 
-    initializeStringValues();
+    if (sInitializeValues) {
+      initializeStringValues();
+    }
 
     loadPreferences();
 
@@ -32,13 +34,11 @@ public class SettingsFragment extends PreferenceFragmentCompat
   }
 
   private void initializeStringValues() {
-    if (sInitializeValues) {
-      Resources resources = getResources();
-      sLightThemeSummary = resources.getString(R.string.light_theme);
-      sDarkThemeSummary = resources.getString(R.string.dark_theme);
+    Resources resources = getResources();
+    sLightThemeSummary = resources.getString(R.string.light_theme);
+    sDarkThemeSummary = resources.getString(R.string.dark_theme);
 
-      sInitializeValues = false;
-    }
+    sInitializeValues = false;
   }
 
   private void loadPreferences() {
@@ -60,16 +60,18 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
   @Override
   public void onResume() {
-    super.onResume();
     PreferenceManager.getDefaultSharedPreferences(requireActivity())
         .registerOnSharedPreferenceChangeListener(this);
+
+    super.onResume();
   }
 
   @Override
   public void onPause() {
-    super.onPause();
     PreferenceManager.getDefaultSharedPreferences(requireActivity())
         .unregisterOnSharedPreferenceChangeListener(this);
+
+    super.onPause();
   }
 
   @Override
