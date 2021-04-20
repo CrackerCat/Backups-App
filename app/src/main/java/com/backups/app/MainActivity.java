@@ -29,8 +29,8 @@ import com.backups.app.utils.PackageNameUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import static com.backups.app.ui.Constants.APPLIST;
-import static com.backups.app.ui.Constants.APPQUEUE;
+import static com.backups.app.ui.Constants.APP_LIST;
+import static com.backups.app.ui.Constants.APP_QUEUE;
 import static com.backups.app.ui.Constants.BACKUP_BUTTON;
 import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 import static com.backups.app.ui.Constants.sAppListFragmentActionLayouts;
@@ -162,6 +162,7 @@ public class MainActivity extends AppCompatActivity
 
     sSettings.showSystemApps =
         sharedPreferences.getBoolean(sShowSystemAppsKey, false);
+
     sSettings.useDarkTheme = sharedPreferences.getBoolean(sAppThemeKey, false);
   }
 
@@ -332,7 +333,7 @@ public class MainActivity extends AppCompatActivity
         mActionPresenter, this, sAppQueueFragmentActionLayouts,
         initializeAppQueueFragmentActions()));
 
-    mActionPresenter.swapActions(APPLIST);
+    mActionPresenter.swapActions(APP_LIST);
     mActionPresenter.present();
   }
 
@@ -354,12 +355,12 @@ public class MainActivity extends AppCompatActivity
   }
 
   private void makeAppListActionsAvailable(boolean conditionMet) {
-    mActionPresenter.available(APPLIST, SEARCH_BUTTON, conditionMet);
+    mActionPresenter.available(APP_LIST, SEARCH_BUTTON, conditionMet);
   }
 
   private void makeAppQueueActionsAvailable(boolean conditionMet) {
-    mActionPresenter.available(APPQUEUE, SEARCH_BUTTON, conditionMet);
-    mActionPresenter.available(APPQUEUE, BACKUP_BUTTON, conditionMet);
+    mActionPresenter.available(APP_QUEUE, SEARCH_BUTTON, conditionMet);
+    mActionPresenter.available(APP_QUEUE, BACKUP_BUTTON, conditionMet);
   }
 
   @Override
@@ -389,11 +390,11 @@ public class MainActivity extends AppCompatActivity
     boolean makeActionsAvailable = mAppQueueViewModel.hasBackups() &&
                                    !mAppQueueViewModel.isBackupInProgress();
 
-    if (position == APPLIST) {
+    if (position == APP_LIST) {
       mActionPresenter.swapActions(position);
 
       makeAppListActionsAvailable(makeActionsAvailable);
-    } else if (position == APPQUEUE) {
+    } else if (position == APP_QUEUE) {
       mActionPresenter.swapActions(position);
 
       makeAppQueueActionsAvailable(makeActionsAvailable);
@@ -408,16 +409,18 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   protected void onResume() {
-    super.onResume();
     PreferenceManager.getDefaultSharedPreferences(this)
         .registerOnSharedPreferenceChangeListener(this);
+
+    super.onResume();
   }
 
   @Override
   protected void onStop() {
-    super.onStop();
     PreferenceManager.getDefaultSharedPreferences(this)
         .unregisterOnSharedPreferenceChangeListener(this);
+
+    super.onStop();
   }
 
   @Override
@@ -427,7 +430,7 @@ public class MainActivity extends AppCompatActivity
       boolean choice = sharedPreferences.getBoolean(key, false);
       sSettings.showSystemApps = choice;
 
-      mActionPresenter.available(APPLIST, SEARCH_BUTTON, false);
+      mActionPresenter.available(APP_LIST, SEARCH_BUTTON, false);
       mApkListViewModel.fetchInstalledApps(getPackageManager(), choice);
     }
   }
