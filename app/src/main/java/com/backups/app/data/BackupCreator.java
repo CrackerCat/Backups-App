@@ -26,7 +26,7 @@ public class BackupCreator implements IBackups {
 
   public final static int sExternalStorage = 1;
 
-  private final static int sBackupWaitTime = 330;
+  private final static int sBackupWaitTime = 235;
 
   // anything greater than sPrimaryStorage is considered external storage
   // (sdcard, etc)
@@ -133,9 +133,9 @@ public class BackupCreator implements IBackups {
     }
   }
 
-  private void beginBackupProcess(List<APKFile> backups, int startFrom,
+  private void beginBackupProcess(List<APKFile> backups,
                                   Callback<BackupProgress> callback) {
-    APKFile backup = backups.get(startFrom);
+    APKFile backup = backups.get(com.backups.app.ui.Constants.REMOVE_FROM);
     BackupProgress progress = new BackupProgress();
     progress.backupName = backup.getName();
 
@@ -190,12 +190,12 @@ public class BackupCreator implements IBackups {
         mExecutor.execute(() -> {
           boolean hasOnlyOneBackup = backups.size() == 1;
           if (hasOnlyOneBackup) {
-            beginBackupProcess(backups, REMOVE_FROM, callback);
+            beginBackupProcess(backups, callback);
           } else {
             int total = backups.size();
 
             while (total != 0) {
-              beginBackupProcess(backups, REMOVE_FROM, callback);
+              beginBackupProcess(backups, callback);
               --total;
             }
           }
