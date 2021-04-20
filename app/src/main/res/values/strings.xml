@@ -38,7 +38,7 @@
     <string name="backup_label_text">Backup</string>
 
     <string name="unable_to_fetch_apk_data_message">Unable to fetch apk data</string>
-    <string name="commencing_backup_message">Preparing to backup %d app(s)</string>
+    <string name="commencing_backup_message">Backing up %d app(s)</string>
     <string name="fetching_data_message">Fetching apk data…</string>
     <string name="insufficient_storage_message">Insufficient storage available to create backup</string>
     <string name="no_backups_selected_message">No backups have been selected yet</string>
