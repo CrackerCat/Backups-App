@@ -26,7 +26,7 @@ import com.backups.app.ui.adapters.AppQueueAdapter;
 
 import java.util.List;
 
-import static com.backups.app.ui.Constants.APPQUEUE;
+import static com.backups.app.ui.Constants.APP_QUEUE;
 import static com.backups.app.ui.Constants.BACKUP_BUTTON;
 import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
@@ -96,8 +96,8 @@ public class AppQueueFragment extends Fragment {
       mAppQueueAdapter.removedItem();
 
       if (!mAppQueueViewModel.hasBackups()) {
-        mActionNotifier.makeActionAvailable(APPQUEUE, SEARCH_BUTTON, false);
-        mActionNotifier.makeActionAvailable(APPQUEUE, BACKUP_BUTTON, false);
+        mActionNotifier.makeActionAvailable(APP_QUEUE, SEARCH_BUTTON, false);
+        mActionNotifier.makeActionAvailable(APP_QUEUE, BACKUP_BUTTON, false);
       }
 
     } else {
