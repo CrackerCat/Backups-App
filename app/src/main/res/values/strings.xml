@@ -16,6 +16,12 @@
 
     <!-- Settings -->
     <string name="settings_tab_name">Settings</string>
+    <string name="internal_storage_selection">Internal Storage</string>
+    <string name="external_storage_selection">SD Card %d</string>
+
+    <string name="output_directory_key" translatable="false">com.backups.app.output_dir_key</string>
+    <string name="output_directory_setting" translatable="false">Backups directory</string>
+    <string name="output_directory_summary" translatable="false">Select where backups should be stored</string>
 
     <string name="show_system_apps_key" translatable="false">com.backups.app.show_system_apps</string>
     <string name="show_system_apps_setting">Show system apps</string>
