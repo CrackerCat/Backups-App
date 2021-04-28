@@ -19,10 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
-import com.backups.app.data.ApkListViewModel;
-import com.backups.app.data.AppQueueViewModel;
 import com.backups.app.data.BackupProgress;
-import com.backups.app.data.BackupsViewModelFactory;
+import com.backups.app.data.viewmodels.ApkListViewModel;
+import com.backups.app.data.viewmodels.AppQueueViewModel;
+import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 import com.backups.app.ui.actions.ActionPresenter;
 import com.backups.app.ui.adapters.AppListAdapter;
 import com.backups.app.ui.adapters.ItemClickListener;
@@ -43,8 +43,6 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   private ProgressBar mProgressBar;
   private TextView mErrorMessageTV;
 
-  private String sUnableToFetchAllAppsMessage;
-
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater,
@@ -57,11 +55,6 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   public void onViewCreated(@NonNull View view,
                             @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-
-    if (sUnableToFetchAllAppsMessage == null) {
-      sUnableToFetchAllAppsMessage =
-          getResources().getString(R.string.unable_to_fetch_apk_data_message);
-    }
 
     FragmentActivity activity = requireActivity();
 
@@ -87,7 +80,8 @@ public class AppListFragment extends Fragment implements ItemClickListener {
             showCompletion();
 
           } else {
-            showErrorMessage(sUnableToFetchAllAppsMessage);
+            showErrorMessage(getResources().getString(
+                R.string.unable_to_fetch_apk_data_message));
           }
         });
 
@@ -148,7 +142,7 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
     boolean finished = status.equals(BackupProgress.ProgressState.FINISHED) ||
                        status.equals(BackupProgress.ProgressState.ERROR) &&
-                           !mAppQueueViewModel.hasBackups();
+                           mAppQueueViewModel.doesNotHaveBackups();
 
     if (finished) {
       mActionNotifier.makeActionAvailable(APP_LIST, SEARCH_BUTTON, false);
@@ -157,8 +151,13 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
   @Override
   public void onItemClick(View view, int position) {
-    APKFile selected = mAppListAdapter.getItem(position);
-    mAppQueueViewModel.addApp(selected);
+    if (!mAppQueueViewModel.isBackupInProgress()) {
+      APKFile selected = mAppListAdapter.getItem(position);
+
+      mAppQueueViewModel.addApp(selected);
+      mAppQueueViewModel.updateSelection(
+          AppQueueViewModel.DataEvent.ITEM_ADDED);
+    }
   }
 
   @Override
