@@ -12,21 +12,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
-import com.backups.app.data.ApkListViewModel;
-import com.backups.app.data.AppQueueViewModel;
+import com.backups.app.data.BackupProgress;
+import com.backups.app.data.viewmodels.ApkListViewModel;
+import com.backups.app.data.viewmodels.AppQueueViewModel;
+import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 import com.backups.app.ui.actions.ActionPresenter;
 import com.backups.app.ui.adapters.AppListAdapter;
 import com.backups.app.ui.adapters.ItemClickListener;
 
 import java.util.List;
 
-import static com.backups.app.ui.Constants.APPLIST;
+import static com.backups.app.ui.Constants.APP_LIST;
 import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
 public class AppListFragment extends Fragment implements ItemClickListener {
@@ -40,8 +43,6 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   private ProgressBar mProgressBar;
   private TextView mErrorMessageTV;
 
-  private String sUnableToFetchAllAppsMessage;
-
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater,
@@ -54,11 +55,6 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   public void onViewCreated(@NonNull View view,
                             @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-
-    if (sUnableToFetchAllAppsMessage == null) {
-      sUnableToFetchAllAppsMessage =
-          getResources().getString(R.string.unable_to_fetch_apk_data_message);
-    }
 
     FragmentActivity activity = requireActivity();
 
@@ -79,11 +75,20 @@ public class AppListFragment extends Fragment implements ItemClickListener {
               setupRecyclerView(activity, apkFiles);
             }
 
-            mActionNotifier.makeActionAvailable(APPLIST, SEARCH_BUTTON, true);
+            mActionNotifier.makeActionAvailable(APP_LIST, SEARCH_BUTTON, true);
+
             showCompletion();
 
           } else {
-            showErrorMessage(sUnableToFetchAllAppsMessage);
+            showErrorMessage(getResources().getString(
+                R.string.unable_to_fetch_apk_data_message));
+          }
+        });
+
+    mAppQueueViewModel.getBackupProgressLiveData().observe(
+        getViewLifecycleOwner(), progress -> {
+          if (getLifecycle().getCurrentState() != Lifecycle.State.CREATED) {
+            handleBackupProgress(progress);
           }
         });
   }
@@ -98,15 +103,20 @@ public class AppListFragment extends Fragment implements ItemClickListener {
     mAppListViewModel =
         new ViewModelProvider(activity).get(ApkListViewModel.class);
     mAppQueueViewModel =
-        new ViewModelProvider(activity).get(AppQueueViewModel.class);
+        new ViewModelProvider(activity, new BackupsViewModelFactory(activity))
+            .get(AppQueueViewModel.class);
   }
 
   private void setupRecyclerView(FragmentActivity activity,
                                  List<APKFile> data) {
     LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+
     mAppListAdapter = new AppListAdapter(data);
+
     mAppListAdapter.setClickListener(this);
+
     mAppListRecyclerView.setLayoutManager(layoutManager);
+
     mAppListRecyclerView.setAdapter(mAppListAdapter);
   }
 
@@ -127,11 +137,27 @@ public class AppListFragment extends Fragment implements ItemClickListener {
     mAppListRecyclerView.setVisibility(View.VISIBLE);
   }
 
+  private void handleBackupProgress(BackupProgress progress) {
+    BackupProgress.ProgressState status = progress.state;
+
+    boolean finished = status.equals(BackupProgress.ProgressState.FINISHED) ||
+                       status.equals(BackupProgress.ProgressState.ERROR) &&
+                           mAppQueueViewModel.doesNotHaveBackups();
+
+    if (finished) {
+      mActionNotifier.makeActionAvailable(APP_LIST, SEARCH_BUTTON, false);
+    }
+  }
+
   @Override
   public void onItemClick(View view, int position) {
-    APKFile selected = mAppListAdapter.getItem(position);
-    mAppQueueViewModel.addApp(selected);
-    mAppQueueViewModel.updateSelection();
+    if (!mAppQueueViewModel.isBackupInProgress()) {
+      APKFile selected = mAppListAdapter.getItem(position);
+
+      mAppQueueViewModel.addApp(selected);
+      mAppQueueViewModel.updateSelection(
+          AppQueueViewModel.DataEvent.ITEM_ADDED);
+    }
   }
 
   @Override
@@ -141,8 +167,9 @@ public class AppListFragment extends Fragment implements ItemClickListener {
     if (context instanceof ActionPresenter.IActionAvailability) {
       mActionNotifier = (ActionPresenter.IActionAvailability)context;
     } else {
-      throw new ClassCastException(
-          context.getString(R.string.listener_cast_error_message));
+      String listenerCastErrorMessage =
+          "[AppListFragment]: Unable to cast to required class";
+      throw new ClassCastException(listenerCastErrorMessage);
     }
   }
 

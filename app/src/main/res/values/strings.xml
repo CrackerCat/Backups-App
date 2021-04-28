@@ -1,15 +1,12 @@
 <resources>
     <!-- Greeting Section -->
-    <string name="app_name">Backups</string>
+    <string name="app_name" translatable="false">Backups</string>
     <!-- Greeting Section End -->
 
     <!-- Tabs -->
 
     <!-- Apps -->
     <string name="apps_tab_name">Apps</string>
-    <string name="unable_to_fetch_apk_data_message">Unable to fetch apk data</string>
-    <!-- Used in case app-package does not contain label -->
-    <string name="default_app_label">App</string>
     <!-- Apps End -->
 
     <!-- Queue -->
@@ -19,6 +16,12 @@
 
     <!-- Settings -->
     <string name="settings_tab_name">Settings</string>
+    <string name="internal_storage_selection">Internal Storage</string>
+    <string name="external_storage_selection">SD Card %d</string>
+
+    <string name="output_directory_key" translatable="false">com.backups.app.output_dir_key</string>
+    <string name="output_directory_setting" translatable="false">Backups directory</string>
+    <string name="output_directory_summary" translatable="false">Select where backups should be stored</string>
 
     <string name="show_system_apps_key" translatable="false">com.backups.app.show_system_apps</string>
     <string name="show_system_apps_setting">Show system apps</string>
@@ -32,17 +35,22 @@
 
     <!-- Tabs End -->
 
-    <!-- Class Related -->
-    <string name="listener_cast_error_message" translatable="false">Unable to cast to a required listener</string>
-    <!-- Class Related End -->
-
     <!-- SearchView Related -->
     <string name="search_hint">Search for an app</string>
-    <string name="fetching_data_message">Fetching apk data…</string>
     <!-- SearchView Related End -->
 
     <!-- FAB Related -->
     <string name="search_label_text">Search</string>
     <string name="backup_label_text">Backup</string>
+
+    <string name="unable_to_fetch_apk_data_message">Unable to fetch apk data</string>
+    <string name="commencing_backup_message">Backing up %d app(s)</string>
+    <string name="fetching_data_message">Fetching apk data…</string>
+    <string name="insufficient_storage_message">Insufficient storage available to create backup</string>
+    <string name="no_backups_selected_message">No backups have been selected yet</string>
+    <string name="storage_volume_not_present">Storage location unavailable…\ndefaulting to internal storage</string>
+    <string name="backup_in_progress_message">A backup is already in progress</string>
+    <string name="unable_to_create_backup_message">Unable to create backup of:\n %s</string>
+    <string name="backup_created_message">Backup of %s created!</string>
     <!-- FAB Related End -->
 </resources>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:defaultValue="0"
+        android:key="@string/output_directory_key"
+        android:summary="@string/output_directory_summary"
+        android:title="@string/output_directory_setting" />
     <SwitchPreference
         android:defaultValue="false"
         android:key="@string/show_system_apps_key"

@@ -1,5 +1,7 @@
 package com.backups.app.ui.adapters;
 
+import static com.backups.app.ui.Constants.MIN_PROGRESS;
+
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,15 +35,16 @@ public class AppQueueAdapter
   @Override
   public void onBindViewHolder(@NonNull BackupsViewHolder holder,
                                int position) {
-    if (!mDataSet.isEmpty()) {
-      String appName = mDataSet.get(position).getName();
-      String packageName = mDataSet.get(position).getPackageName();
-      Drawable appIcon = mDataSet.get(position).getIcon();
+    APKFile item = mDataSet.get(position);
 
-      holder.setAppName(appName);
-      holder.setPackageName(packageName);
-      holder.setAppIcon(appIcon);
-    }
+    String appName = item.getName();
+    String packageName = item.getPackageName();
+    Drawable appIcon = item.getIcon();
+
+    holder.setAppName(appName);
+    holder.setPackageName(packageName);
+    holder.setAppIcon(appIcon);
+    holder.resetProgressBar();
   }
 
   @Override
@@ -49,7 +52,7 @@ public class AppQueueAdapter
     return mDataSet.size();
   }
 
-  protected class BackupsViewHolder extends RecyclerView.ViewHolder {
+  public static class BackupsViewHolder extends RecyclerView.ViewHolder {
     private final TextView mAppName;
     private final TextView mPackageName;
     private final ImageView mAppIcon;
@@ -74,8 +77,10 @@ public class AppQueueAdapter
       mAppIcon.setImageDrawable(icon);
     }
 
-    public void updateProgressBarBy(int progress) {
+    public void updateProgressBy(final int progress) {
       mProgressBar.incrementProgressBy(progress);
     }
+
+    public void resetProgressBar() { mProgressBar.setProgress(MIN_PROGRESS); }
   }
 }

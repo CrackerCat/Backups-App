@@ -1,4 +1,4 @@
-package com.backups.app.data;
+package com.backups.app.utils;
 
 import java.util.Hashtable;
 
@@ -6,7 +6,7 @@ public class PackageNameUtils {
   private static final String[] sPrefixes = {"com.", "org."};
   private static final String sRepeatedBackupFormatterString = "%s (%d)";
   private static final StringBuilder sBuffer = new StringBuilder();
-  private static final Hashtable<String, Integer> sTimesTable =
+  private static final Hashtable<Integer, Integer> sTimesTable =
       new Hashtable<>();
 
   public static boolean containsPackageNamePrefix(final String appName) {
@@ -38,19 +38,18 @@ public class PackageNameUtils {
   }
 
   public static void resetCountFor(String appName) {
-    if (sTimesTable.contains(appName)) {
-      sTimesTable.put(appName, 0);
-    }
+    int hash = appName.hashCode();
+    sTimesTable.remove(hash);
   }
 
   public static String computeRepeatedBackupName(String appName) {
     String formattedName = null;
+    int hash = appName.hashCode();
 
-    if (sTimesTable.containsKey(appName)) {
-      int count = sTimesTable.get(appName);
+    if (sTimesTable.containsKey(hash)) {
+      int count = sTimesTable.get(hash);
 
-      ++count;
-      sTimesTable.put(appName, count);
+      sTimesTable.put(hash, ++count);
 
       sBuffer.append(
           String.format(sRepeatedBackupFormatterString, appName, count));
@@ -58,8 +57,9 @@ public class PackageNameUtils {
       formattedName = sBuffer.toString();
       sBuffer.delete(0, formattedName.length());
     } else {
-      sTimesTable.put(appName, 0);
+      sTimesTable.put(hash, 0);
     }
+
     return formattedName;
   }
 }
