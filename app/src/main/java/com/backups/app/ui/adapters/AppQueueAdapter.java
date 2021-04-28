@@ -1,5 +1,7 @@
 package com.backups.app.ui.adapters;
 
+import static com.backups.app.ui.Constants.MIN_PROGRESS;
+
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,16 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.backups.app.R;
 import com.backups.app.data.APKFile;
-
 import java.util.List;
-
-import static com.backups.app.ui.Constants.MIN_PROGRESS;
 
 public class AppQueueAdapter
     extends RecyclerView.Adapter<AppQueueAdapter.BackupsViewHolder> {
@@ -55,18 +52,6 @@ public class AppQueueAdapter
     return mDataSet.size();
   }
 
-  public void addedItem() {
-    int position = 0;
-    notifyItemInserted(mDataSet.size());
-    notifyItemRangeChanged(position, mDataSet.size());
-  }
-
-  public void removedItem() {
-    int position = 0;
-    notifyItemRemoved(position);
-    notifyItemRangeChanged(position, mDataSet.size());
-  }
-
   public static class BackupsViewHolder extends RecyclerView.ViewHolder {
     private final TextView mAppName;
     private final TextView mPackageName;
@@ -90,6 +75,10 @@ public class AppQueueAdapter
 
     public void setAppIcon(final Drawable icon) {
       mAppIcon.setImageDrawable(icon);
+    }
+
+    public void updateProgressBy(final int progress) {
+      mProgressBar.incrementProgressBy(progress);
     }
 
     public void resetProgressBar() { mProgressBar.setProgress(MIN_PROGRESS); }
