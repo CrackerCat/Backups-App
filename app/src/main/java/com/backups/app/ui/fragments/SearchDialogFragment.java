@@ -14,13 +14,15 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.backups.app.R;
+
 import com.backups.app.data.APKFile;
-import com.backups.app.data.ApkListViewModel;
-import com.backups.app.data.AppQueueViewModel;
-import com.backups.app.data.BackupsViewModelFactory;
+import com.backups.app.data.viewmodels.ApkListViewModel;
+import com.backups.app.data.viewmodels.AppQueueViewModel;
+import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 import com.backups.app.ui.adapters.ItemClickListener;
 import com.backups.app.ui.adapters.SearchAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.List;
 
 public class SearchDialogFragment

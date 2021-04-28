@@ -1,4 +1,4 @@
-package com.backups.app.data;
+package com.backups.app.data.viewmodels;
 
 import android.content.Context;
 import androidx.lifecycle.ViewModel;

@@ -1,8 +1,9 @@
-package com.backups.app.data;
+package com.backups.app.data.repositories;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import com.backups.app.data.APKFile;
 import com.backups.app.utils.Callback;
 import com.backups.app.utils.PackageNameUtils;
 import java.io.File;
@@ -11,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-public class APKFileRepository implements IAPKFileRepository {
+public class APKFileRepository {
 
   private final Executor mExecutor;
   private boolean mDisplaySystemApps;
@@ -68,9 +69,8 @@ public class APKFileRepository implements IAPKFileRepository {
     return installedApps;
   }
 
-  @Override
-  public void fetchInstalledApps(final PackageManager packageManager,
-                                 final Callback<List<APKFile>> callback) {
+  public void fetchInstalledApps(PackageManager packageManager,
+                                 Callback<List<APKFile>> callback) {
     mExecutor.execute(() -> {
       List<APKFile> apkFiles = getInstalledApps(packageManager);
       callback.onComplete(apkFiles);

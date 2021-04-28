@@ -1,9 +1,11 @@
-package com.backups.app.data;
+package com.backups.app.data.viewmodels;
 
 import android.content.pm.PackageManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import com.backups.app.data.APKFile;
+import com.backups.app.data.repositories.APKFileRepository;
 import java.util.List;
 import java.util.concurrent.Executors;
 

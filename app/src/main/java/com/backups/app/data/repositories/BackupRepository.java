@@ -1,10 +1,12 @@
-package com.backups.app.data;
+package com.backups.app.data.repositories;
 
 import android.content.Context;
 import android.os.Environment;
 
 import androidx.core.content.ContextCompat;
 
+import com.backups.app.data.APKFile;
+import com.backups.app.data.BackupProgress;
 import com.backups.app.utils.Callback;
 
 import java.io.File;
@@ -21,12 +23,11 @@ import static com.backups.app.ui.Constants.MIN_PROGRESS;
 import static com.backups.app.ui.Constants.PROGRESS_RATE;
 import static com.backups.app.ui.Constants.REMOVE_FROM;
 
-public class BackupCreator implements IBackups {
+public class BackupRepository {
   public final static int sPrimaryStorage = 0;
+  private final static int sErrorCode = -1;
 
-  public final static int sExternalStorage = 1;
-
-  private final static int sBackupWaitTime = 235;
+  private final static int sBackupWaitTime = 225;
 
   // anything greater than sPrimaryStorage is considered external storage
   // (sdcard, etc)
@@ -46,12 +47,12 @@ public class BackupCreator implements IBackups {
 
   private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
-  public BackupCreator(Context context) {
+  public BackupRepository(Context context) {
     mExternalStorageVolumes = ContextCompat.getExternalFilesDirs(context, null);
     mAvailableStorageVolumes =
         availableOutputDirectories(mExternalStorageVolumes);
 
-    boolean storageVolumesAreAvailable = mAvailableStorageVolumes != -1;
+    boolean storageVolumesAreAvailable = mAvailableStorageVolumes != sErrorCode;
     if (storageVolumesAreAvailable) {
       mStorageVolumesAvailable = true;
       mOutputDirectory = mExternalStorageVolumes[sPrimaryStorage];
@@ -61,21 +62,18 @@ public class BackupCreator implements IBackups {
     }
   }
 
-  private boolean isExternalStorageWritable(File directory) {
-    // used to check if storage is available
-    return Environment.getExternalStorageState(directory).equals(
-        Environment.MEDIA_MOUNTED);
-  }
-
   private int availableOutputDirectories(File[] externalStorageVolumes) {
     int availableVolumes = 0;
     if (externalStorageVolumes == null) {
-      availableVolumes = -1;
+      availableVolumes = sErrorCode;
     } else if (externalStorageVolumes.length == 1) {
       availableVolumes = 1;
     } else {
+
       for (File volume : externalStorageVolumes) {
-        if (isExternalStorageWritable(volume)) {
+        boolean mounted = Environment.getExternalStorageState(volume).equals(
+            Environment.MEDIA_MOUNTED);
+        if (mounted) {
           ++availableVolumes;
         }
       }
@@ -83,31 +81,31 @@ public class BackupCreator implements IBackups {
     return availableVolumes;
   }
 
-  public int setStorageVolume(int selection) {
-    File outputTo = null;
-    if (selection == sPrimaryStorage) {
-      return selection;
-    } else {
-      if (selection < mExternalStorageVolumes.length) {
-        outputTo = mExternalStorageVolumes[selection];
-      }
+  public boolean setStorageVolume(int selection) {
+    boolean guard =
+        !mStorageVolumesAvailable && selection > mExternalStorageVolumes.length;
+    if (guard) {
+      return false;
     }
 
-    if (outputTo != null) {
-      if (!isExternalStorageWritable(outputTo)) {
-        selection = -1;
-      } else {
-        mStorageVolume = selection;
-        mOutputDirectory = outputTo;
-      }
-    } else {
-      selection = -1;
+    File outputTo = mExternalStorageVolumes[selection];
+
+    boolean mounted = Environment.getExternalStorageState(outputTo).equals(
+        Environment.MEDIA_MOUNTED);
+
+    if (mounted) {
+      mStorageVolume = selection;
+      mOutputDirectory = outputTo;
     }
 
-    return selection;
+    return true;
   }
 
   public int getStorageVolumeIndex() { return mStorageVolume; }
+
+  public String getStorageVolumePath() {
+    return (mStorageVolumesAvailable ? mOutputDirectory.getAbsolutePath() : "");
+  }
 
   public int getAvailableStorageVolumeCount() {
     return mAvailableStorageVolumes;
@@ -152,11 +150,12 @@ public class BackupCreator implements IBackups {
     callback.onComplete(progress);
   }
 
-  @Override
   public boolean hasSufficientStorage(long backupSize) {
     mHasSufficientStorage = mOutputDirectory.getUsableSpace() > backupSize;
     return mHasSufficientStorage;
   }
+
+  public boolean isBackupInProgress() { return mIsBackupInProgress; }
 
   private boolean createBackup(final String src, final String dest) {
     boolean wasAbleToBackup = true;
@@ -178,8 +177,9 @@ public class BackupCreator implements IBackups {
     return wasAbleToBackup;
   }
 
-  @Override
   public void backup(List<APKFile> backups, Callback<BackupProgress> callback) {
+    mIsBackupInProgress = true;
+
     synchronized (this) {
 
       boolean canBackup = mHasSufficientStorage && mStorageVolumesAvailable &&
@@ -189,6 +189,7 @@ public class BackupCreator implements IBackups {
 
         mExecutor.execute(() -> {
           boolean hasOnlyOneBackup = backups.size() == 1;
+
           if (hasOnlyOneBackup) {
             beginBackupProcess(backups, callback);
           } else {
@@ -202,5 +203,7 @@ public class BackupCreator implements IBackups {
         });
       }
     }
+
+    mIsBackupInProgress = false;
   }
 }
