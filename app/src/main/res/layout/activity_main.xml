@@ -6,39 +6,40 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/main_app_name_header"
-        android:layout_width="wrap_content"
+    <include
+        android:id="@+id/welcome_view"
+        layout="@layout/main_welcome_view"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="28dp"
-        android:text="@string/app_name"
-        android:textColor="@color/primaryTextColor"
-        android:textSize="@dimen/header_text_size"
-        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <include
+        android:id="@+id/app_queue_item_sv"
+        layout="@layout/app_queue_item_selection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/main_backup_count_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:textSize="@dimen/label_text_size"
-        app:layout_constraintBottom_toBottomOf="@+id/main_app_name_header"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/main_app_name_header" />
-
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="24dp"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/main_app_name_header"
-        app:layout_constraintStart_toStartOf="@+id/main_app_name_header"
-        app:layout_constraintTop_toBottomOf="@+id/main_app_name_header">
+        app:layout_constraintEnd_toEndOf="@+id/welcome_view"
+        app:layout_constraintStart_toStartOf="@+id/welcome_view"
+        app:layout_constraintTop_toBottomOf="@+id/welcome_view">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/main_tab_layout"
@@ -54,7 +55,7 @@
     </LinearLayout>
 
     <include
-        layout="@layout/main_activity_actions"
+        layout="@layout/app_list_actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="visible"
@@ -79,7 +80,7 @@
         android:layout_marginBottom="40dp"
         android:clickable="true"
         android:focusable="true"
-        app:backgroundTint="@color/dark_secondaryColor"
+        app:backgroundTint="@color/secondaryDarkColor"
         app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
