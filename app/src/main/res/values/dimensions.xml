@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- MainActivity -->
-    <dimen name="header_text_size">26sp</dimen>
-    <dimen name="label_text_size">20sp</dimen>
+    <!-- Font Sizes -->
+    <dimen name="h1">26sp</dimen>
+    <dimen name="h2">20sp</dimen>
+    <dimen name="h3">18sp</dimen>
+    <dimen name="h4">16sp</dimen>
+    <dimen name="h5">14sp</dimen>
+    <dimen name="h6">12sp</dimen>
 
-    <!-- AppList Fragment -->
+    <!-- Main Activity -->
     <dimen name="tab_indicator_height">4dp</dimen>
-    <dimen name="tab_item_text_size">20sp</dimen>
 
     <!-- RecyclerView -->
-    <dimen name="view_holder_header_text_size">24</dimen>
+    <dimen name="view_holder_image_size">48dip</dimen>
+    <dimen name="view_holder_image_size2">35dip</dimen>
 </resources>
