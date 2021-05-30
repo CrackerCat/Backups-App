@@ -4,128 +4,178 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import com.backups.app.data.APKFile;
-import com.backups.app.data.BackupProgress;
+import com.backups.app.data.pojos.APKFile;
+import com.backups.app.data.pojos.BackupProgress;
+import com.backups.app.data.repositories.AppQueueRepository;
 import com.backups.app.data.repositories.BackupRepository;
-import com.backups.app.utils.PackageNameUtils;
-import java.util.ArrayList;
 import java.util.List;
 
 public class AppQueueViewModel extends ViewModel {
-  public enum DataEvent { NONE, ITEM_ADDED, ITEM_REMOVED }
-
   private boolean mIsBackupInProgress = false;
+
+  private boolean mAutomaticallySelectedAll = false;
+
+  private boolean mManuallySelectedAll = false;
+
+  private ItemSelectionState mSelectionState = ItemSelectionState.NONE;
 
   private String mBackupCountLabel = "";
 
-  private long mBackupSize = 0L;
-
-  private final BackupRepository mBackupRepository;
-
-  private final List<APKFile> mSelectedApps = new ArrayList<>();
+  private final MutableLiveData<ItemSelectionState> mSelectionStateLiveData =
+      new MutableLiveData<>();
 
   private final MutableLiveData<BackupProgress> mProgressState =
       new MutableLiveData<>();
 
-  private final MutableLiveData<List<APKFile>> mAppQueue =
-      new MutableLiveData<>();
+  private final AppQueueRepository mAppQueueRepository =
+      new AppQueueRepository();
 
-  private DataEvent mLastDataEvent = DataEvent.NONE;
+  private final BackupRepository mBackupRepository;
 
   public AppQueueViewModel(Context context) {
     mBackupRepository = new BackupRepository(context);
   }
 
-  public boolean doesNotHaveBackups() { return mSelectedApps.isEmpty(); }
+  public LiveData<BackupProgress> getBackupProgressLiveData() {
+    return mProgressState;
+  }
 
-  public boolean hasSufficientStorage() {
-    return (mBackupSize == 0 ||
-            mBackupRepository.hasSufficientStorage(mBackupSize));
+  public LiveData<DataEvent> getDataEventLiveData() {
+    return mAppQueueRepository.getDataEventLiveData();
+  }
+
+  public LiveData<ItemSelectionState> getSelectionStateLiveData() {
+    return mSelectionStateLiveData;
+  }
+
+  public DataEvent getLastDataEvent() {
+    return mAppQueueRepository.getLastDataEvent();
+  }
+
+  public ItemSelectionState getCurrentSelectionState() {
+    return mSelectionState;
+  }
+
+  public String getBackupCountLabel() { return mBackupCountLabel; }
+
+  public boolean doesNotHaveBackups() {
+    return mAppQueueRepository.getAppsInQueue().isEmpty();
   }
 
   public boolean isBackupInProgress() { return mIsBackupInProgress; }
 
-  public final String getBackupCountLabel() { return mBackupCountLabel; }
-
-  public final List<APKFile> getSelectedApps() { return mSelectedApps; }
-
-  public final LiveData<List<APKFile>> getAppQueueLiveData() {
-    return mAppQueue;
+  public boolean hasSelectedItems() {
+    return !mAppQueueRepository.getSelectedItems().isEmpty();
   }
 
-  public final LiveData<BackupProgress> getBackupProgressLiveData() {
-    return mProgressState;
+  public boolean hasAutomaticallySelectedAll() {
+    return mAutomaticallySelectedAll;
+  }
+
+  public boolean hasManuallySelectedAll() { return mManuallySelectedAll; }
+
+  public List<APKFile> getAppsInQueue() {
+    return mAppQueueRepository.getAppsInQueue();
+  }
+
+  public int getSelectionSize() {
+    return mAppQueueRepository.getSelectedItems().size();
+  }
+
+  public boolean hasSufficientStorage() {
+    return mBackupRepository.hasSufficientStorage();
   }
 
   public int getCurrentStorageVolumeIndex() {
     return mBackupRepository.getStorageVolumeIndex();
   }
 
-  public final int getAvailableStorageVolumes() {
+  public int getAvailableStorageVolumes() {
     return mBackupRepository.getAvailableStorageVolumeCount();
   }
 
-  public final String getStorageVolumePath() {
+  public String getStorageVolumePath() {
     return mBackupRepository.getStorageVolumePath();
   }
 
-  public DataEvent getLastDataEvent() {
-    DataEvent lastDataEvent = mLastDataEvent;
-
-    mLastDataEvent = DataEvent.NONE;
-
-    return lastDataEvent;
+  public void hasAutomaticallySelectedAll(final boolean has) {
+    mAutomaticallySelectedAll = has;
   }
 
-  public void setBackupCountLabel(String backupCountLabel) {
-    mBackupCountLabel = backupCountLabel;
+  public void hasManuallySelectedAll(final boolean has) {
+    mManuallySelectedAll = has;
+  }
+
+  public void setBackupCountLabel(String backupCount) {
+    mBackupCountLabel = backupCount;
   }
 
   public boolean setStorageVolumeIndex(final int index) {
     return mBackupRepository.setStorageVolume(index);
   }
 
-  public void updateSelection(final DataEvent currentEvent) {
-    mLastDataEvent = currentEvent;
-    mAppQueue.setValue(mSelectedApps);
+  public void setItemSelectionStateTo(final ItemSelectionState state) {
+    mSelectionStateLiveData.setValue((mSelectionState = state));
+
+    if (state.equals(ItemSelectionState.SELECTION_ENDED)) {
+      mSelectionState = ItemSelectionState.NONE;
+    }
+  }
+
+  public void emptyQueue() {
+    mAutomaticallySelectedAll = false;
+    mManuallySelectedAll = false;
+
+    mAppQueueRepository.emptyQueue();
+  }
+
+  public void addOrRemoveSelection(final APKFile backup) {
+    mAppQueueRepository.addOrRemoveSelection(backup);
+  }
+
+  public void selectAll() {
+    mAutomaticallySelectedAll = true;
+
+    mAppQueueRepository.selectAll();
+  }
+
+  public void clearAndEmptySelection() {
+    mAutomaticallySelectedAll = false;
+
+    mManuallySelectedAll = false;
+
+    mAppQueueRepository.clearAndEmptySelection();
+
+    mSelectionStateLiveData.setValue(
+        (mSelectionState = ItemSelectionState.SELECTION_ENDED));
+
+    mSelectionState = ItemSelectionState.NONE;
+  }
+
+  public void clearSelection() {
+    mAutomaticallySelectedAll = false;
+
+    mAppQueueRepository.clearSelection();
   }
 
   public void addApp(APKFile apkFile) {
-    String selectedAPKName = apkFile.getName();
+    mAppQueueRepository.addAppToQueue(apkFile);
 
-    String repeatedBackupName =
-        PackageNameUtils.computeRepeatedBackupName(selectedAPKName);
-
-    if (repeatedBackupName != null) {
-      APKFile repeat = new APKFile(repeatedBackupName, apkFile.getPackageName(),
-                                   apkFile.getPackagePath(),
-                                   apkFile.getAppSize(), apkFile.getIcon());
-      mSelectedApps.add(repeat);
-    } else {
-      mSelectedApps.add(apkFile);
-    }
-
-    mBackupSize += apkFile.getAppSize();
-  }
-
-  private void resetProgressState() {
-    BackupProgress result = mProgressState.getValue();
-
-    if (result != null) {
-      result.state = BackupProgress.ProgressState.NONE;
-      result.backupName = "";
-      result.progress = 0;
-    }
+    mBackupRepository.incrementBackupSize(apkFile.getAppSize());
   }
 
   public void startBackup() {
     mIsBackupInProgress = true;
 
-    mBackupRepository.backup(mSelectedApps, mProgressState::postValue);
+    mBackupRepository.backup(mAppQueueRepository.getAppsInQueue(),
+                             mProgressState::postValue);
 
-    resetProgressState();
+    BackupProgress backupProgressLiveData = mProgressState.getValue();
+    if (backupProgressLiveData != null) {
+      backupProgressLiveData.reset();
+    }
 
-    mBackupSize = 0L;
+    mBackupRepository.zeroBackupSize();
 
     mIsBackupInProgress = false;
   }
