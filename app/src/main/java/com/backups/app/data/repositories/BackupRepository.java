@@ -1,4 +1,4 @@
-package com.backups.app.data.viewmodels.repositories;
+package com.backups.app.data.repositories;
 
 import android.content.Context;
 import android.os.Environment;
@@ -23,7 +23,7 @@ import static com.backups.app.ui.Constants.MIN_PROGRESS;
 import static com.backups.app.ui.Constants.PROGRESS_RATE;
 import static com.backups.app.ui.Constants.REMOVE_FROM;
 
-class BackupRepository {
+public class BackupRepository {
   private static class StorageVolumeState {
     // anything greater than sPrimaryStorage is considered external storage
     // (sdcard, etc)
