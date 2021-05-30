@@ -1,14 +1,14 @@
-package com.backups.app.data;
+package com.backups.app.data.pojos;
 
 import android.graphics.drawable.Drawable;
 
 public class APKFile {
+  private boolean mIsSelected = false;
   private final String mName;
   private final String mPackageName;
   private final String mPackagePath;
   private final long mAppSize;
   private final Drawable mIcon;
-  private static final String sFileNameExtension = ".apk";
 
   public APKFile(final String name, final String packageName,
                  final String packagePath, final long appSize,
@@ -20,23 +20,30 @@ public class APKFile {
     mIcon = icon;
   }
 
-  public final String getName() { return mName; }
+  public boolean marked() { return mIsSelected; }
 
-  public final String getBackupName() { return mName + sFileNameExtension; }
+  public String getName() { return mName; }
 
-  public final String getPackageName() { return mPackageName; }
+  public String getBackupName() { return mName + ".apk"; }
 
-  public final String getPackagePath() { return mPackagePath; }
+  public String getPackageName() { return mPackageName; }
+
+  public String getPackagePath() { return mPackagePath; }
 
   public long getAppSize() { return mAppSize; }
 
-  public final Drawable getIcon() { return mIcon; }
+  public Drawable getIcon() { return mIcon; }
+
+  public boolean mark(final boolean selected) {
+    mIsSelected = selected;
+    return mIsSelected;
+  }
 
   @Override
   public String toString() {
-    return "ApkFile {\n"
-        + " name: " + mName + ",\n packageName: " + mPackageName +
-        ",\n packagePath: " + mPackagePath + ",\n appSize: " + mAppSize +
-        ",\n icon: " + mIcon + "\n}";
+    return "APKFile{"
+        + "isSelected=" + mIsSelected + ", name='" + mName +
+        "'\n packageName='" + mPackageName + "'\n packagePath='" +
+        mPackagePath + "'\n appSize=" + mAppSize + "'\n icon=" + mIcon + '}';
   }
 }
