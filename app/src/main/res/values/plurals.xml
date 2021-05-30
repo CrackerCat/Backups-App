@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<plurals name="amount_of_backups">
-    <item quantity="one">%d backup</item>
-    <item quantity="other">%d backups</item>
-</plurals>
+    <plurals name="amount_of_backups">
+        <item quantity="one">%d backup</item>
+        <item quantity="other">%d backups</item>
+    </plurals>
 </resources>

@@ -15,12 +15,14 @@
         android:paddingStart="10dp"
         android:paddingEnd="0dp"
         android:textColor="@color/primaryTextColor"
-        android:textSize="14sp" />
+        android:textSize="@dimen/h5" />
 
     <ImageView
         android:id="@+id/search_item_iv"
-        android:layout_width="35dip"
-        android:layout_height="35dip"
-        android:layout_weight="0" />
+        android:layout_width="@dimen/view_holder_image_size2"
+        android:layout_height="@dimen/view_holder_image_size2"
+        android:layout_weight="0"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
 
 </LinearLayout>
