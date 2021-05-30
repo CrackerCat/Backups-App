@@ -4,7 +4,7 @@ import android.content.pm.PackageManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import com.backups.app.data.APKFile;
+import com.backups.app.data.pojos.APKFile;
 import com.backups.app.data.repositories.APKFileRepository;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -22,6 +22,8 @@ public class ApkListViewModel extends ViewModel {
     mAPKFileRepository.fetchInstalledApps(packageManager,
                                           mAppListMutableLiveData::postValue);
   }
+
+  public void pushNullList() { mAppListMutableLiveData.setValue(null); }
 
   public final LiveData<List<APKFile>> getApkListLiveData() {
     return mAppListMutableLiveData;
