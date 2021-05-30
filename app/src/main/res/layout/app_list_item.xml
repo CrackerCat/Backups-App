@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="20dp"
-    android:elevation="5dp"
-    android:gravity="center">
+    style="@style/RecyclerViewCard">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -30,7 +24,7 @@
                 android:paddingStart="0dp"
                 android:paddingEnd="48dp"
                 android:textColor="@color/primaryTextColor"
-                android:textSize="16sp" />
+                android:textSize="@dimen/h4" />
 
             <TextView
                 android:id="@+id/app_list_item_package_name_tv"
@@ -39,12 +33,12 @@
                 android:maxLength="45"
                 android:paddingStart="0dp"
                 android:paddingEnd="48dp"
-                android:textSize="12sp" />
+                android:textSize="@dimen/h6" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/app_list_item_iv"
-            android:layout_width="48dip"
+            android:layout_width="@dimen/view_holder_image_size"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:paddingStart="6dp"
