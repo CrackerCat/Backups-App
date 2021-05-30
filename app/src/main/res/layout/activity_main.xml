@@ -14,8 +14,7 @@
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <include
         android:id="@+id/app_queue_item_sv"
@@ -24,13 +23,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintBottom_toTopOf="@+id/tabs"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="24dp"
@@ -43,9 +42,7 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/main_tab_layout"
-            style="@style/Widget.App.TabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            style="@style/TabLayout" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/main_pager"
@@ -74,15 +71,12 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/main_floating_action_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/FloatingActionButtonActive"
         android:layout_marginEnd="28dp"
         android:layout_marginBottom="40dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:backgroundTint="@color/secondaryDarkColor"
-        app:fabSize="normal"
+        app:backgroundTint="@color/dark_secondaryDarkColor"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
