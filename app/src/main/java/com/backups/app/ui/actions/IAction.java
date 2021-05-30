@@ -10,11 +10,11 @@ public interface IAction {
 
   void active();
 
-  void availability(boolean flag);
+  void setAvailability(final boolean flag);
 
   boolean getAvailability();
 
-  void display(boolean flag);
+  void display(final boolean flag);
 
   boolean canBeDisplayed();
 }
