@@ -3,23 +3,30 @@ package com.backups.app;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.backups.app.data.BackupProgress;
+import com.backups.app.data.pojos.BackupProgress;
 import com.backups.app.data.repositories.BackupRepository;
 import com.backups.app.data.viewmodels.ApkListViewModel;
 import com.backups.app.data.viewmodels.AppQueueViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
+import com.backups.app.data.viewmodels.DataEvent;
+import com.backups.app.data.viewmodels.ItemSelectionState;
+import com.backups.app.ui.actions.ActionHost;
 import com.backups.app.ui.actions.ActionPresenter;
 import com.backups.app.ui.actions.ActionSetMaker;
+import com.backups.app.ui.actions.IPresenter;
 import com.backups.app.ui.adapters.TabAdapter;
 import com.backups.app.ui.fragments.AppListFragment;
 import com.backups.app.ui.fragments.AppQueueFragment;
@@ -30,41 +37,55 @@ import com.backups.app.utils.PackageNameUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.util.Locale;
+
 import static com.backups.app.ui.Constants.APP_LIST;
 import static com.backups.app.ui.Constants.APP_QUEUE;
 import static com.backups.app.ui.Constants.BACKUP_BUTTON;
+import static com.backups.app.ui.Constants.ITEM_SELECTION_BUTTON;
 import static com.backups.app.ui.Constants.SEARCH_BUTTON;
+import static com.backups.app.ui.Constants.SETTINGS;
 import static com.backups.app.ui.Constants.sAppListFragmentActionLayouts;
 import static com.backups.app.ui.Constants.sAppQueueFragmentActionLayouts;
+import static com.backups.app.ui.Constants.sItemSelectionFMT;
 
 public class MainActivity extends AppCompatActivity
-    implements ActionPresenter.IActionAvailability,
-               TabLayout.OnTabSelectedListener,
+    implements ActionHost, TabLayout.OnTabSelectedListener,
                SharedPreferences.OnSharedPreferenceChangeListener {
-  private ApkListViewModel mApkListViewModel;
-  private AppQueueViewModel mAppQueueViewModel;
 
-  private TextView mBackupCounterTextView;
-  private TabAdapter mTabAdapter;
-  private TabLayout mTabLayout;
-  private ViewPager2 mViewPager;
-  private ActionPresenter mActionPresenter;
-  private final SearchDialogFragment mAppSearchDialogFragment =
-      new SearchDialogFragment();
-
-  private static boolean sInitializeValues = true;
-  private static String sOutputDirectoryKey;
-  private static String sShowSystemAppsKey;
-  private static String sAppThemeKey;
-
-  private static String sBackupCreatedMessage;
-  private static String sBackupErrorMessage;
+  private Button mCancelSelectionButton;
 
   private static class SettingsKeys {
     public int outputDirectory;
     public boolean showSystemApps;
     public boolean useDarkTheme;
   }
+
+  private static boolean sInitializeValues = true;
+
+  private static String sOutputDirectoryKey;
+  private static String sShowSystemAppsKey;
+  private static String sAppThemeKey;
+  private static String sItemSelectionCountSuffix;
+  private static String sBackupCreatedMessage;
+  private static String sBackupErrorMessage;
+
+  private ApkListViewModel mApkListViewModel;
+  private AppQueueViewModel mAppQueueViewModel;
+
+  private TextView mAppNameTextView;
+  private TextView mBackupCounterTextView;
+
+  private TextView mItemSelectionCountTextView;
+  private CheckBox mSelectAllItemsButton;
+  private ConstraintLayout mAppQueueItemSelectionView;
+
+  private TabAdapter mTabAdapter;
+  private TabLayout mTabLayout;
+  private ViewPager2 mViewPager;
+  private IPresenter mActionPresenter;
+  private final SearchDialogFragment mAppSearchDialogFragment =
+      new SearchDialogFragment();
 
   private final SettingsKeys sSettings = new SettingsKeys();
 
@@ -96,27 +117,11 @@ public class MainActivity extends AppCompatActivity
 
     initializeViews();
 
-    // else branch is used to restore backup counter string after
-    // Activity is created
-    mAppQueueViewModel.getAppQueueLiveData().observe(this, queue -> {
-      if (getLifecycle().getCurrentState() != Lifecycle.State.STARTED) {
-        updateBackupCountView(queue.size());
-      } else {
-        mBackupCounterTextView.setText(
-            mAppQueueViewModel.getBackupCountLabel());
-      }
-    });
-
-    mAppQueueViewModel.getBackupProgressLiveData().observe(
-        this, backupProgress -> {
-          boolean backupStarted =
-              !backupProgress.state.equals(BackupProgress.ProgressState.NONE);
-          if (backupStarted) {
-            handleBackupProgress(backupProgress);
-          }
-        });
-
     initializeFAButton();
+
+    restoreViews();
+
+    registerObservers();
 
     initializeTabLayout();
   }
@@ -127,6 +132,9 @@ public class MainActivity extends AppCompatActivity
     sOutputDirectoryKey = resources.getString(R.string.output_directory_key);
     sShowSystemAppsKey = resources.getString(R.string.show_system_apps_key);
     sAppThemeKey = resources.getString(R.string.current_theme_key);
+
+    sItemSelectionCountSuffix =
+        resources.getString(R.string.app_queue_selected_items_fmt);
 
     sBackupErrorMessage =
         resources.getString(R.string.unable_to_create_backup_message);
@@ -181,7 +189,18 @@ public class MainActivity extends AppCompatActivity
   }
 
   private void initializeViews() {
+    mAppNameTextView = findViewById(R.id.main_app_name_header);
+
     mBackupCounterTextView = findViewById(R.id.main_backup_count_label);
+
+    mCancelSelectionButton = findViewById(R.id.app_queue_cancel_selection_bt);
+
+    mItemSelectionCountTextView =
+        findViewById(R.id.app_queue_selection_count_tv);
+
+    mSelectAllItemsButton = findViewById(R.id.app_queue_select_all_cb);
+
+    mAppQueueItemSelectionView = findViewById(R.id.app_queue_item_sv);
 
     mTabLayout = findViewById(R.id.main_tab_layout);
     mViewPager = findViewById(R.id.main_pager);
@@ -201,18 +220,93 @@ public class MainActivity extends AppCompatActivity
         .attach();
   }
 
-  private void handleBackupProgress(BackupProgress callback) {
-    BackupProgress.ProgressState state = callback.state;
+  private void restoreViews() {
+    if (!mAppQueueViewModel.getBackupCountLabel().isEmpty()) {
+      mBackupCounterTextView.setText(mAppQueueViewModel.getBackupCountLabel());
+    }
+
+    if (mAppQueueViewModel.hasSelectedItems()) {
+      mItemSelectionCountTextView.setText(String.format(
+          Locale.getDefault(), sItemSelectionFMT,
+          mAppQueueViewModel.getSelectionSize(), sItemSelectionCountSuffix));
+
+      mActionPresenter.available(APP_QUEUE, ITEM_SELECTION_BUTTON, true);
+    }
+
+    if (mAppQueueViewModel.hasAutomaticallySelectedAll()) {
+      mSelectAllItemsButton.setChecked(true);
+    }
+
+    mCancelSelectionButton.setOnClickListener(v -> {
+      if (mAppQueueViewModel.getCurrentSelectionState().equals(
+              ItemSelectionState.SELECTION_STARTED)) {
+        mAppQueueViewModel.clearSelection();
+
+        mAppQueueViewModel.setItemSelectionStateTo(
+            ItemSelectionState.SELECTION_ENDED);
+      }
+    });
+
+    mSelectAllItemsButton.setOnClickListener(v -> {
+      if (mSelectAllItemsButton.isChecked()) {
+
+        if (!mAppQueueViewModel.hasAutomaticallySelectedAll() &&
+            !mAppQueueViewModel.hasManuallySelectedAll()) {
+
+          mAppQueueViewModel.selectAll();
+        } else {
+          mSelectAllItemsButton.setChecked(false);
+        }
+
+      } else {
+        mAppQueueViewModel.clearSelection();
+      }
+    });
+  }
+
+  private void registerObservers() {
+    /* Any checks against DataEvent/ItemSelectionState.NONE are used only
+   to prevent the callback from being handled during Activity recreation
+   which is not needed
+   */
+    mAppQueueViewModel.getBackupProgressLiveData().observe(
+        this, backupProgress -> {
+          boolean backupStarted = !backupProgress.getState().equals(
+              BackupProgress.ProgressState.NONE);
+          if (backupStarted) {
+            handleBackupProgress(backupProgress);
+          }
+        });
+
+    mAppQueueViewModel.getDataEventLiveData().observe(this, dataEvent -> {
+      if (!mAppQueueViewModel.getLastDataEvent().equals(DataEvent.NONE)) {
+        handleDataEvents(dataEvent);
+      }
+    });
+
+    mAppQueueViewModel.getSelectionStateLiveData().observe(
+        this, itemSelectionState -> {
+          if (!mAppQueueViewModel.getCurrentSelectionState().equals(
+                  ItemSelectionState.NONE)) {
+            handleItemSelectionState(itemSelectionState);
+          }
+        });
+  }
+
+  private void handleBackupProgress(BackupProgress progress) {
+    BackupProgress.ProgressState state = progress.getState();
 
     boolean finished = state.equals(BackupProgress.ProgressState.ERROR) ||
                        state.equals(BackupProgress.ProgressState.FINISHED);
 
     if (finished) {
-      int totalApps = mAppQueueViewModel.getSelectedApps().size();
+      int totalApps = mAppQueueViewModel.getAppsInQueue().size();
 
       updateBackupCountView(totalApps);
 
-      PackageNameUtils.resetCountFor(callback.backupName);
+      final String backupName = progress.getBackupName();
+
+      PackageNameUtils.resetCountFor(backupName);
 
       Toast
           .makeText(
@@ -220,9 +314,22 @@ public class MainActivity extends AppCompatActivity
               String.format((state.equals(BackupProgress.ProgressState.ERROR)
                                  ? sBackupErrorMessage
                                  : sBackupCreatedMessage),
-                            callback.backupName),
+                            backupName),
               Toast.LENGTH_SHORT)
           .show();
+    }
+  }
+
+  private void interruptSelectionState() {
+    if (mAppQueueViewModel.getCurrentSelectionState().equals(
+            ItemSelectionState.SELECTION_STARTED)) {
+
+      if (mAppQueueViewModel.hasSelectedItems()) {
+        mAppQueueViewModel.clearSelection();
+
+        mAppQueueViewModel.setItemSelectionStateTo(
+            ItemSelectionState.SELECTION_ENDED);
+      }
     }
   }
 
@@ -236,9 +343,6 @@ public class MainActivity extends AppCompatActivity
 
     boolean canStartBackup = false;
 
-    // TODO: Implement setting for choosing where backups are outputted to
-    // TODO: Added check to make sure storage volume is available
-
     Resources resources = getResources();
 
     if (isBackupInProgress) {
@@ -247,11 +351,13 @@ public class MainActivity extends AppCompatActivity
       outputMessage =
           resources.getString(R.string.insufficient_storage_message);
     } else {
+      interruptSelectionState();
+
       String startingBackupMessage =
           resources.getString(R.string.commencing_backup_message);
 
-      outputMessage = String.format(
-          startingBackupMessage, mAppQueueViewModel.getSelectedApps().size());
+      outputMessage = String.format(startingBackupMessage,
+                                    mAppQueueViewModel.getAppsInQueue().size());
 
       canStartBackup = true;
     }
@@ -280,6 +386,83 @@ public class MainActivity extends AppCompatActivity
     }
 
     return outputMessage;
+  }
+
+  private void handleDataEvents(DataEvent dataEvent) {
+    if (dataEvent.equals(DataEvent.ITEM_ADDED_TO_QUEUE)) {
+
+      updateBackupCountView(mAppQueueViewModel.getAppsInQueue().size());
+
+    } else if (dataEvent.equals(DataEvent.ITEM_SELECTED) ||
+               dataEvent.equals(DataEvent.ALL_ITEMS_SELECTED)) {
+
+      mItemSelectionCountTextView.setText(String.format(
+          Locale.getDefault(), sItemSelectionFMT,
+          mAppQueueViewModel.getSelectionSize(), sItemSelectionCountSuffix));
+
+      if (dataEvent.equals(DataEvent.ITEM_SELECTED)) {
+        if (mAppQueueViewModel.getSelectionSize() ==
+            mAppQueueViewModel.getAppsInQueue().size()) {
+
+          mAppQueueViewModel.hasManuallySelectedAll(true);
+        }
+      }
+
+      if (!mActionPresenter.isActionAvailable(APP_QUEUE,
+                                              ITEM_SELECTION_BUTTON)) {
+
+        mActionPresenter.available(APP_QUEUE, ITEM_SELECTION_BUTTON, true);
+      }
+    } else if (dataEvent.equals(DataEvent.ITEM_DESELECTED) ||
+               dataEvent.equals(DataEvent.ALL_ITEMS_DESELECTED)) {
+      int size = mAppQueueViewModel.getSelectionSize();
+
+      if (size != 0) {
+        mItemSelectionCountTextView.setText(
+            String.format(Locale.getDefault(), sItemSelectionFMT, size,
+                          sItemSelectionCountSuffix));
+      } else {
+        mItemSelectionCountTextView.setText(sItemSelectionCountSuffix);
+      }
+
+      if (mAppQueueViewModel.hasManuallySelectedAll()) {
+
+        mAppQueueViewModel.hasManuallySelectedAll(false);
+
+      } else if (mAppQueueViewModel.hasAutomaticallySelectedAll()) {
+
+        mAppQueueViewModel.hasAutomaticallySelectedAll(false);
+
+        mSelectAllItemsButton.setChecked(false);
+      }
+
+      if (!mAppQueueViewModel.hasSelectedItems()) {
+        mActionPresenter.available(APP_QUEUE, ITEM_SELECTION_BUTTON, false);
+      }
+    }
+  }
+
+  private void handleItemSelectionState(final ItemSelectionState state) {
+    if (state.equals(ItemSelectionState.SELECTION_STARTED)) {
+      hideWelcomeView(true);
+
+      hideAppQueueItemSelectionView(false);
+
+    } else if (state.equals(ItemSelectionState.SELECTION_ENDED)) {
+      hideWelcomeView(false);
+
+      hideAppQueueItemSelectionView(true);
+
+      updateBackupCountView(mAppQueueViewModel.getAppsInQueue().size());
+
+      if (mSelectAllItemsButton.isChecked()) {
+        mSelectAllItemsButton.setChecked(false);
+      }
+
+      mItemSelectionCountTextView.setText(sItemSelectionCountSuffix);
+
+      mActionPresenter.available(APP_QUEUE, ITEM_SELECTION_BUTTON, false);
+    }
   }
 
   private ActionSetMaker.CallBackSetup initializeAppListFragmentActions() {
@@ -322,7 +505,6 @@ public class MainActivity extends AppCompatActivity
                 MainActivity.this, this::startPreBackupActionChecks));
 
       } else if (position == BACKUP_BUTTON) {
-
         action.assignCallBacks(
             v
             -> {
@@ -339,6 +521,32 @@ public class MainActivity extends AppCompatActivity
             v
             -> NotificationsUtils.checkAndNotify(
                 MainActivity.this, this::startPreBackupActionChecks));
+
+      } else if (position == ITEM_SELECTION_BUTTON) {
+        action.assignCallBacks(
+            v
+            -> {
+              if (mAppQueueViewModel.hasSelectedItems()) {
+                mAppQueueViewModel.clearAndEmptySelection();
+              }
+            },
+            v -> {
+              if (!mAppQueueViewModel.doesNotHaveBackups()) {
+                if (!mAppQueueViewModel.getCurrentSelectionState().equals(
+                        ItemSelectionState.SELECTION_STARTED)) {
+
+                  mAppQueueViewModel.setItemSelectionStateTo(
+                      ItemSelectionState.SELECTION_STARTED);
+                }
+              } else {
+                Toast
+                    .makeText(
+                        MainActivity.this,
+                        getResources().getString(R.string.no_apps_in_queue),
+                        Toast.LENGTH_SHORT)
+                    .show();
+              }
+            });
       }
     };
   }
@@ -371,9 +579,7 @@ public class MainActivity extends AppCompatActivity
 
     mBackupCounterTextView.setText(backupCountLabel);
 
-    if (!backupCountLabel.isEmpty()) {
-      mAppQueueViewModel.setBackupCountLabel(backupCountLabel);
-    }
+    mAppQueueViewModel.setBackupCountLabel(backupCountLabel);
   }
 
   private void makeAppListActionsAvailable(boolean conditionMet) {
@@ -385,23 +591,42 @@ public class MainActivity extends AppCompatActivity
     mActionPresenter.available(APP_QUEUE, BACKUP_BUTTON, conditionMet);
   }
 
-  @Override
-  public int totalAvailableActions() {
-    return mActionPresenter.totalAvailableActions();
+  private void hideWelcomeView(final boolean hide) {
+    if (hide) {
+      mBackupCounterTextView.setVisibility(View.INVISIBLE);
+      mAppNameTextView.setVisibility(View.INVISIBLE);
+    } else {
+      mAppNameTextView.setVisibility(View.VISIBLE);
+      mBackupCounterTextView.setVisibility(View.VISIBLE);
+    }
+  }
+
+  private void hideAppQueueItemSelectionView(final boolean hide) {
+    if (hide) {
+      mAppQueueItemSelectionView.setVisibility(View.INVISIBLE);
+    } else {
+      mAppQueueItemSelectionView.setVisibility(View.VISIBLE);
+    }
   }
 
   @Override
-  public int totalAvailableActionSets() {
-    return mActionPresenter.totalAvailableActionSets();
+  public boolean isActionAvailable(final int actionID) {
+    return mActionPresenter.isActionAvailable(actionID);
   }
 
   @Override
-  public void makeActionAvailable(int actionID, boolean flag) {
+  public boolean isActionAvailable(final int actionSet, final int actionID) {
+    return mActionPresenter.isActionAvailable(actionSet, actionID);
+  }
+
+  @Override
+  public void makeActionAvailable(final int actionID, final boolean flag) {
     mActionPresenter.available(actionID, flag);
   }
 
   @Override
-  public void makeActionAvailable(int actionSet, int actionID, boolean flag) {
+  public void makeActionAvailable(final int actionSet, final int actionID,
+                                  final boolean flag) {
     mActionPresenter.available(actionSet, actionID, flag);
   }
 
@@ -418,6 +643,8 @@ public class MainActivity extends AppCompatActivity
       if (hasBackups) {
         makeAppQueueActionsAvailable(true);
       }
+    } else if (position == SETTINGS) {
+      mActionPresenter.swapActions(IPresenter.NO_ACTIONS);
     }
   }
 
@@ -443,15 +670,34 @@ public class MainActivity extends AppCompatActivity
     super.onStop();
   }
 
+  public void resetQueue() {
+    mAppQueueViewModel.emptyQueue();
+
+    mAppQueueViewModel.setItemSelectionStateTo(
+        ItemSelectionState.SELECTION_ENDED);
+  }
+
+  private void updateShowSystemAppsKey(SharedPreferences sharedPreferences,
+                                       final String key) {
+    boolean choice = sharedPreferences.getBoolean(key, false);
+
+    sSettings.showSystemApps = choice;
+
+    mActionPresenter.available(APP_LIST, SEARCH_BUTTON, false);
+
+    if (!mAppQueueViewModel.getAppsInQueue().isEmpty()) {
+      resetQueue();
+    }
+
+    mApkListViewModel.pushNullList();
+    mApkListViewModel.fetchInstalledApps(getPackageManager(), choice);
+  }
+
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                         String key) {
     if (key.equals(sShowSystemAppsKey)) {
-      boolean choice = sharedPreferences.getBoolean(key, false);
-      sSettings.showSystemApps = choice;
-
-      mActionPresenter.available(APP_LIST, SEARCH_BUTTON, false);
-      mApkListViewModel.fetchInstalledApps(getPackageManager(), choice);
+      updateShowSystemAppsKey(sharedPreferences, key);
     }
   }
 }

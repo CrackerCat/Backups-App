@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.backups.app.R;
-import com.backups.app.data.APKFile;
+import com.backups.app.data.pojos.APKFile;
 import java.util.ArrayList;
 import java.util.List;
 
