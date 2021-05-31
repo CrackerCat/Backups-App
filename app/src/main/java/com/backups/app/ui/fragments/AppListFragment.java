@@ -18,12 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.backups.app.R;
-import com.backups.app.data.APKFile;
-import com.backups.app.data.BackupProgress;
+import com.backups.app.data.pojos.APKFile;
+import com.backups.app.data.pojos.BackupProgress;
 import com.backups.app.data.viewmodels.ApkListViewModel;
 import com.backups.app.data.viewmodels.AppQueueViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
-import com.backups.app.ui.actions.ActionPresenter;
+import com.backups.app.ui.actions.ActionHost;
 import com.backups.app.ui.adapters.AppListAdapter;
 import com.backups.app.ui.adapters.ItemClickListener;
 
@@ -36,7 +36,7 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   private ApkListViewModel mAppListViewModel;
   private AppQueueViewModel mAppQueueViewModel;
 
-  private ActionPresenter.IActionAvailability mActionNotifier;
+  private ActionHost mActionHost;
   private AppListAdapter mAppListAdapter;
   private RecyclerView mAppListRecyclerView;
 
@@ -64,18 +64,25 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
     mAppListViewModel.getApkListLiveData().observe(
         getViewLifecycleOwner(), apkFiles -> {
-          if (!apkFiles.isEmpty()) {
+          boolean queryingForDataSet = apkFiles == null;
+
+          if (queryingForDataSet) {
+            showProgressBar();
+
+          } else if (!apkFiles.isEmpty()) {
+
             if (mProgressBar.getVisibility() == View.GONE) {
               showProgressBar();
             }
 
             if (mAppListAdapter != null) {
               mAppListAdapter.changeDataSet(apkFiles);
+
             } else {
               setupRecyclerView(activity, apkFiles);
             }
 
-            mActionNotifier.makeActionAvailable(APP_LIST, SEARCH_BUTTON, true);
+            mActionHost.makeActionAvailable(APP_LIST, SEARCH_BUTTON, true);
 
             showCompletion();
 
@@ -113,11 +120,11 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
     mAppListAdapter = new AppListAdapter(data);
 
-    mAppListAdapter.setClickListener(this);
-
     mAppListRecyclerView.setLayoutManager(layoutManager);
 
     mAppListRecyclerView.setAdapter(mAppListAdapter);
+
+    mAppListAdapter.setClickListener(this);
   }
 
   private void showErrorMessage(final String message) {
@@ -138,14 +145,14 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   }
 
   private void handleBackupProgress(BackupProgress progress) {
-    BackupProgress.ProgressState status = progress.state;
+    BackupProgress.ProgressState status = progress.getState();
 
     boolean finished = status.equals(BackupProgress.ProgressState.FINISHED) ||
                        status.equals(BackupProgress.ProgressState.ERROR) &&
                            mAppQueueViewModel.doesNotHaveBackups();
 
     if (finished) {
-      mActionNotifier.makeActionAvailable(APP_LIST, SEARCH_BUTTON, false);
+      mActionHost.makeActionAvailable(APP_LIST, SEARCH_BUTTON, false);
     }
   }
 
@@ -155,8 +162,6 @@ public class AppListFragment extends Fragment implements ItemClickListener {
       APKFile selected = mAppListAdapter.getItem(position);
 
       mAppQueueViewModel.addApp(selected);
-      mAppQueueViewModel.updateSelection(
-          AppQueueViewModel.DataEvent.ITEM_ADDED);
     }
   }
 
@@ -164,8 +169,8 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   public void onAttach(@NonNull Context context) {
     super.onAttach(context);
 
-    if (context instanceof ActionPresenter.IActionAvailability) {
-      mActionNotifier = (ActionPresenter.IActionAvailability)context;
+    if (context instanceof ActionHost) {
+      mActionHost = (ActionHost)context;
     } else {
       String listenerCastErrorMessage =
           "[AppListFragment]: Unable to cast to required class";
@@ -175,7 +180,7 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
   @Override
   public void onDestroy() {
-    mActionNotifier = null;
+    mActionHost = null;
     super.onDestroy();
   }
 }
