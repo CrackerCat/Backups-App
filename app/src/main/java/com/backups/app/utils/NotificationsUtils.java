@@ -5,6 +5,8 @@ import android.widget.Toast;
 import androidx.core.util.Pair;
 
 public class NotificationsUtils {
+  private NotificationsUtils() {}
+
   public static boolean
   checkNotifyAndGetResult(Context context,
                           Result<Pair<Boolean, String>> checks) {

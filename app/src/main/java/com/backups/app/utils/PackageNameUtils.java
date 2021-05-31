@@ -3,9 +3,13 @@ package com.backups.app.utils;
 import java.util.Hashtable;
 
 public class PackageNameUtils {
+  private PackageNameUtils() {}
+
   private static final String[] sPrefixes = {"com.", "org."};
   private static final String sRepeatedBackupFormatterString = "%s (%d)";
+
   private static final StringBuilder sBuffer = new StringBuilder();
+
   private static final Hashtable<Integer, Integer> sTimesTable =
       new Hashtable<>();
 
@@ -62,4 +66,6 @@ public class PackageNameUtils {
 
     return formattedName;
   }
+
+  public static void clearRepeatedNameTable() { sTimesTable.clear(); }
 }

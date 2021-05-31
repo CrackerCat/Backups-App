@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/app_queue_cancel_selection_bt"
+        android:layout_width="54dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="16dp"
+        android:text="@string/app_queue_cancel_selection_fmt"
+        android:textSize="@dimen/h5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/app_queue_select_all_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="21dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/app_queue_select_all_items_fmt"
+        android:textSize="@dimen/h4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/app_queue_selection_count_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/app_queue_selected_items_fmt"
+        android:textSize="@dimen/h4"
+        app:layout_constraintBottom_toBottomOf="@+id/app_queue_select_all_cb"
+        app:layout_constraintEnd_toStartOf="@+id/app_queue_select_all_cb"
+        app:layout_constraintTop_toTopOf="@+id/app_queue_select_all_cb" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

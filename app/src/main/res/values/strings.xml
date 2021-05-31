@@ -1,7 +1,11 @@
 <resources>
-    <!-- Greeting Section -->
+    <!-- Header Section -->
     <string name="app_name" translatable="false">Backups</string>
-    <!-- Greeting Section End -->
+
+    <string name="app_queue_selected_items_fmt" translatable="true"> item(s)</string>
+    <string name="app_queue_select_all_items_fmt" translatable="true"> select all</string>
+    <string name="app_queue_cancel_selection_fmt" translatable="false">X</string>
+    <!-- Header Section End -->
 
     <!-- Tabs -->
 
@@ -42,6 +46,7 @@
     <!-- FAB Related -->
     <string name="search_label_text">Search</string>
     <string name="backup_label_text">Backup</string>
+    <string name="app_queue_item_selection_label_text">Remove items</string>
 
     <string name="unable_to_fetch_apk_data_message">Unable to fetch apk data</string>
     <string name="commencing_backup_message">Backing up %d app(s)</string>

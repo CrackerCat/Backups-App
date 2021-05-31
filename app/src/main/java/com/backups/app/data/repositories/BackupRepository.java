@@ -5,8 +5,8 @@ import android.os.Environment;
 
 import androidx.core.content.ContextCompat;
 
-import com.backups.app.data.APKFile;
-import com.backups.app.data.BackupProgress;
+import com.backups.app.data.pojos.APKFile;
+import com.backups.app.data.pojos.BackupProgress;
 import com.backups.app.utils.Callback;
 
 import java.io.File;
@@ -24,22 +24,28 @@ import static com.backups.app.ui.Constants.PROGRESS_RATE;
 import static com.backups.app.ui.Constants.REMOVE_FROM;
 
 public class BackupRepository {
+  private static class StorageVolumeState {
+    // anything greater than sPrimaryStorage is considered external storage
+    // (sdcard, etc)
+    private int storageVolume = -1;
+
+    private int availableStorageVolumes = 0;
+
+    private boolean hasSufficientStorage = false;
+
+    private boolean storageVolumesAvailable = false;
+  }
+
   public final static int sPrimaryStorage = 0;
+
   private final static int sErrorCode = -1;
 
   private final static int sBackupWaitTime = 225;
 
-  // anything greater than sPrimaryStorage is considered external storage
-  // (sdcard, etc)
-  private int mStorageVolume;
+  private long mBackupSize = 0L;
 
-  private final int mAvailableStorageVolumes;
-
-  private boolean mHasSufficientStorage = false;
-
-  private boolean mIsBackupInProgress = false;
-
-  private final boolean mStorageVolumesAvailable;
+  private final StorageVolumeState mStorageVolumeState =
+      new StorageVolumeState();
 
   private File mOutputDirectory;
 
@@ -49,16 +55,17 @@ public class BackupRepository {
 
   public BackupRepository(Context context) {
     mExternalStorageVolumes = ContextCompat.getExternalFilesDirs(context, null);
-    mAvailableStorageVolumes =
+    mStorageVolumeState.availableStorageVolumes =
         availableOutputDirectories(mExternalStorageVolumes);
 
-    boolean storageVolumesAreAvailable = mAvailableStorageVolumes != sErrorCode;
+    boolean storageVolumesAreAvailable =
+        mStorageVolumeState.availableStorageVolumes != sErrorCode;
     if (storageVolumesAreAvailable) {
-      mStorageVolumesAvailable = true;
+      mStorageVolumeState.storageVolumesAvailable = true;
       mOutputDirectory = mExternalStorageVolumes[sPrimaryStorage];
-      mStorageVolume = sPrimaryStorage;
+      mStorageVolumeState.storageVolume = sPrimaryStorage;
     } else {
-      mStorageVolumesAvailable = false;
+      mStorageVolumeState.storageVolumesAvailable = false;
     }
   }
 
@@ -82,8 +89,8 @@ public class BackupRepository {
   }
 
   public boolean setStorageVolume(int selection) {
-    boolean guard =
-        !mStorageVolumesAvailable && selection > mExternalStorageVolumes.length;
+    boolean guard = !mStorageVolumeState.storageVolumesAvailable &&
+                    selection > mExternalStorageVolumes.length;
     if (guard) {
       return false;
     }
@@ -94,29 +101,37 @@ public class BackupRepository {
         Environment.MEDIA_MOUNTED);
 
     if (mounted) {
-      mStorageVolume = selection;
+      mStorageVolumeState.storageVolume = selection;
       mOutputDirectory = outputTo;
     }
 
     return true;
   }
 
-  public int getStorageVolumeIndex() { return mStorageVolume; }
+  public int getStorageVolumeIndex() {
+    return mStorageVolumeState.storageVolume;
+  }
 
   public String getStorageVolumePath() {
-    return (mStorageVolumesAvailable ? mOutputDirectory.getAbsolutePath() : "");
+    return (mStorageVolumeState.storageVolumesAvailable
+                ? mOutputDirectory.getAbsolutePath()
+                : "");
   }
 
   public int getAvailableStorageVolumeCount() {
-    return mAvailableStorageVolumes;
+    return mStorageVolumeState.availableStorageVolumes;
   }
+
+  public void incrementBackupSize(final long by) { mBackupSize += by; }
+
+  public void zeroBackupSize() { mBackupSize = 0L; }
 
   private void publishProgress(APKFile backup, BackupProgress progressState,
                                Callback<BackupProgress> callback) {
     int progress = MIN_PROGRESS;
 
-    progressState.state = BackupProgress.ProgressState.ONGOING;
-    progressState.progress = PROGRESS_RATE;
+    progressState.setState(BackupProgress.ProgressState.ONGOING);
+    progressState.setProgress(PROGRESS_RATE);
 
     while (progress != MAX_PROGRESS) {
       progress += PROGRESS_RATE;
@@ -135,14 +150,14 @@ public class BackupRepository {
                                   Callback<BackupProgress> callback) {
     APKFile backup = backups.get(com.backups.app.ui.Constants.REMOVE_FROM);
     BackupProgress progress = new BackupProgress();
-    progress.backupName = backup.getName();
+    progress.setBackupName(backup.getName());
 
     publishProgress(backup, progress, callback);
 
     if (!createBackup(backup.getPackagePath(), backup.getBackupName())) {
-      progress.state = BackupProgress.ProgressState.ERROR;
+      progress.setState(BackupProgress.ProgressState.ERROR);
     } else {
-      progress.state = BackupProgress.ProgressState.FINISHED;
+      progress.setState(BackupProgress.ProgressState.FINISHED);
     }
 
     backups.remove(REMOVE_FROM);
@@ -150,12 +165,10 @@ public class BackupRepository {
     callback.onComplete(progress);
   }
 
-  public boolean hasSufficientStorage(long backupSize) {
-    mHasSufficientStorage = mOutputDirectory.getUsableSpace() > backupSize;
-    return mHasSufficientStorage;
+  public boolean hasSufficientStorage() {
+    return (mStorageVolumeState.hasSufficientStorage =
+                mOutputDirectory.getUsableSpace() > mBackupSize);
   }
-
-  public boolean isBackupInProgress() { return mIsBackupInProgress; }
 
   private boolean createBackup(final String src, final String dest) {
     boolean wasAbleToBackup = true;
@@ -178,11 +191,10 @@ public class BackupRepository {
   }
 
   public void backup(List<APKFile> backups, Callback<BackupProgress> callback) {
-    mIsBackupInProgress = true;
-
     synchronized (this) {
 
-      boolean canBackup = mHasSufficientStorage && mStorageVolumesAvailable &&
+      boolean canBackup = mStorageVolumeState.hasSufficientStorage &&
+                          mStorageVolumeState.storageVolumesAvailable &&
                           !backups.isEmpty();
 
       if (canBackup) {
@@ -203,7 +215,5 @@ public class BackupRepository {
         });
       }
     }
-
-    mIsBackupInProgress = false;
   }
 }

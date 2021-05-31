@@ -11,30 +11,32 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.backups.app.R;
-import com.backups.app.data.APKFile;
-import com.backups.app.data.BackupProgress;
+import com.backups.app.data.pojos.APKFile;
+import com.backups.app.data.pojos.BackupProgress;
 import com.backups.app.data.viewmodels.AppQueueViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
-import com.backups.app.ui.actions.ActionPresenter;
+import com.backups.app.data.viewmodels.DataEvent;
+import com.backups.app.data.viewmodels.ItemSelectionState;
+import com.backups.app.ui.actions.ActionHost;
 import com.backups.app.ui.adapters.AppQueueAdapter;
-import com.backups.app.utils.PackageNameUtils;
+import com.backups.app.ui.adapters.ItemClickListener;
 
 import java.util.List;
 
 import static com.backups.app.ui.Constants.APP_LIST;
 import static com.backups.app.ui.Constants.APP_QUEUE;
 import static com.backups.app.ui.Constants.BACKUP_BUTTON;
+import static com.backups.app.ui.Constants.ITEM_SELECTION_BUTTON;
 import static com.backups.app.ui.Constants.REMOVE_FROM;
 import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
-public class AppQueueFragment extends Fragment {
+public class AppQueueFragment extends Fragment implements ItemClickListener {
 
-  private ActionPresenter.IActionAvailability mActionNotifier;
+  private ActionHost mActionHost;
   private AppQueueViewModel mAppQueueViewModel;
 
   private RecyclerView mAppQueueRecyclerView;
@@ -61,23 +63,7 @@ public class AppQueueFragment extends Fragment {
 
     initializeRecyclerView(view, parent);
 
-    mAppQueueViewModel.getAppQueueLiveData().observe(
-        getViewLifecycleOwner(), appQueue -> {
-          boolean wasItemAdded = mAppQueueViewModel.getLastDataEvent().equals(
-              AppQueueViewModel.DataEvent.ITEM_ADDED);
-          if (wasItemAdded) {
-            mAppQueueAdapter.notifyItemInserted(appQueue.size());
-          }
-        });
-
-    mAppQueueViewModel.getBackupProgressLiveData().observe(
-        getViewLifecycleOwner(), backupProgress -> {
-          boolean backupStarted =
-              !backupProgress.state.equals(BackupProgress.ProgressState.NONE);
-          if (backupStarted) {
-            handleBackupProgress(backupProgress);
-          }
-        });
+    registerObservers();
   }
 
   private void initializeRecyclerView(View view, FragmentActivity parent) {
@@ -85,29 +71,88 @@ public class AppQueueFragment extends Fragment {
 
     LinearLayoutManager layout = new LinearLayoutManager(parent);
 
-    List<APKFile> queue = mAppQueueViewModel.getSelectedApps();
+    List<APKFile> queue = mAppQueueViewModel.getAppsInQueue();
 
-    mAppQueueAdapter = new AppQueueAdapter(queue);
+    mAppQueueAdapter = new AppQueueAdapter(
+        queue, getResources().getColor(R.color.secondaryColor));
 
     mAppQueueRecyclerView.setLayoutManager(layout);
 
     mAppQueueRecyclerView.setAdapter(mAppQueueAdapter);
-
-    new ItemTouchHelper(mItemTouchHelperCallback)
-        .attachToRecyclerView(mAppQueueRecyclerView);
   }
 
-  private void makeActionsAvailable(final boolean decision) {
-    mActionNotifier.makeActionAvailable(APP_QUEUE, SEARCH_BUTTON, decision);
-    mActionNotifier.makeActionAvailable(APP_QUEUE, BACKUP_BUTTON, decision);
+  private void registerObservers() {
+    /* Any checks against DataEvent/ItemSelectionState.NONE are used only
+   to prevent the callback from being handled during Activity recreation
+   which is not needed
+   **/
+
+    mAppQueueViewModel.getSelectionStateLiveData().observe(
+        getViewLifecycleOwner(), state -> {
+          if (state.equals(ItemSelectionState.SELECTION_STARTED)) {
+            mAppQueueAdapter.setClickListener(this);
+          } else if (state.equals(ItemSelectionState.SELECTION_ENDED)) {
+            mAppQueueAdapter.setClickListener(null);
+          }
+        });
+
+    mAppQueueViewModel.getDataEventLiveData().observe(
+        getViewLifecycleOwner(), dataEvent -> {
+          if (!mAppQueueViewModel.getLastDataEvent().equals(DataEvent.NONE)) {
+            if (dataEvent.equals(DataEvent.ITEM_ADDED_TO_QUEUE)) {
+
+              mAppQueueAdapter.notifyItemInserted(
+                  mAppQueueViewModel.getAppsInQueue().size());
+
+            } else if (dataEvent.equals(
+                           DataEvent.ABOUT_TO_MODIFY_ENTIRE_SELECTION)) {
+
+              mAppQueueRecyclerView.setClickable(false);
+
+            } else if (dataEvent.equals(DataEvent.ALL_ITEMS_SELECTED) ||
+                       dataEvent.equals(DataEvent.ALL_ITEMS_DESELECTED)) {
+
+              mAppQueueAdapter.notifyDataSetChanged();
+
+              mAppQueueRecyclerView.setClickable(true);
+
+            } else if (dataEvent.equals(DataEvent.ITEMS_REMOVED_FROM_QUEUE) ||
+                       dataEvent.equals(
+                           DataEvent.ITEMS_REMOVED_FROM_SELECTION)) {
+
+              if (mAppQueueViewModel.getAppsInQueue().isEmpty()) {
+                makeActionsUnavailable();
+              }
+
+              mAppQueueAdapter.notifyDataSetChanged();
+
+              mAppQueueRecyclerView.setClickable(true);
+            }
+          }
+        });
+
+    mAppQueueViewModel.getBackupProgressLiveData().observe(
+        getViewLifecycleOwner(), progress -> {
+          boolean backupStarted =
+              !progress.getState().equals(BackupProgress.ProgressState.NONE);
+          if (backupStarted) {
+            handleBackupProgress(progress);
+          }
+        });
   }
 
-  private void makeAppListActionsAvailable(final boolean decision) {
-    mActionNotifier.makeActionAvailable(APP_LIST, SEARCH_BUTTON, decision);
+  private void makeActionsUnavailable() {
+    mActionHost.makeActionAvailable(APP_QUEUE, SEARCH_BUTTON, false);
+    mActionHost.makeActionAvailable(APP_QUEUE, BACKUP_BUTTON, false);
+    mActionHost.makeActionAvailable(APP_QUEUE, ITEM_SELECTION_BUTTON, false);
+  }
+
+  private void makeAppListActionsAvailable() {
+    mActionHost.makeActionAvailable(APP_LIST, SEARCH_BUTTON, true);
   }
 
   private void handleBackupProgress(BackupProgress progress) {
-    BackupProgress.ProgressState progressState = progress.state;
+    BackupProgress.ProgressState progressState = progress.getState();
 
     boolean updateRecyclerView =
         progressState == BackupProgress.ProgressState.FINISHED ||
@@ -117,8 +162,8 @@ public class AppQueueFragment extends Fragment {
       mAppQueueAdapter.notifyItemRemoved(REMOVE_FROM);
 
       if (mAppQueueViewModel.doesNotHaveBackups()) {
-        makeActionsAvailable(false);
-        makeAppListActionsAvailable(true);
+        makeActionsUnavailable();
+        makeAppListActionsAvailable();
       }
 
     } else {
@@ -126,47 +171,16 @@ public class AppQueueFragment extends Fragment {
           (AppQueueAdapter.BackupsViewHolder)mAppQueueRecyclerView
               .findViewHolderForAdapterPosition(REMOVE_FROM);
 
-      backupsViewHolder.updateProgressBy(progress.progress);
+      backupsViewHolder.updateProgressBy(progress.getProgress());
     }
   }
-
-  ItemTouchHelper.SimpleCallback mItemTouchHelperCallback =
-      new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT |
-                                                ItemTouchHelper.RIGHT) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView,
-                              @NonNull RecyclerView.ViewHolder viewHolder,
-                              @NonNull RecyclerView.ViewHolder target) {
-          return false;
-        }
-
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder,
-                             int direction) {
-          int position = viewHolder.getAdapterPosition();
-
-          List<APKFile> selectedApps = mAppQueueViewModel.getSelectedApps();
-
-          PackageNameUtils.resetCountFor(
-              selectedApps.remove(position).getName());
-
-          mAppQueueAdapter.notifyItemRemoved(position);
-
-          if (selectedApps.isEmpty()) {
-            makeActionsAvailable(false);
-          }
-
-          mAppQueueViewModel.updateSelection(
-              AppQueueViewModel.DataEvent.ITEM_REMOVED);
-        }
-      };
 
   @Override
   public void onAttach(@NonNull Context context) {
     super.onAttach(context);
 
-    if (context instanceof ActionPresenter.IActionAvailability) {
-      mActionNotifier = (ActionPresenter.IActionAvailability)context;
+    if (context instanceof ActionHost) {
+      mActionHost = (ActionHost)context;
     } else {
       String listenerCastErrorMessage =
           "[AppQueueFragment]: Unable to cast to required class";
@@ -176,7 +190,13 @@ public class AppQueueFragment extends Fragment {
 
   @Override
   public void onDestroy() {
-    mActionNotifier = null;
+    mActionHost = null;
     super.onDestroy();
+  }
+
+  @Override
+  public void onItemClick(View view, int position) {
+    mAppQueueViewModel.addOrRemoveSelection(
+        mAppQueueAdapter.getItemAt(position));
   }
 }
