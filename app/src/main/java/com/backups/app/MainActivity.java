@@ -34,6 +34,7 @@ import com.backups.app.ui.fragments.AppListFragment;
 import com.backups.app.ui.fragments.AppQueueFragment;
 import com.backups.app.ui.fragments.SearchDialogFragment;
 import com.backups.app.ui.fragments.SettingsFragment;
+import com.backups.app.utils.IntentLauncher;
 import com.backups.app.utils.NotificationsUtils;
 import com.backups.app.utils.PackageNameUtils;
 import com.google.android.material.tabs.TabLayout;
@@ -552,17 +553,18 @@ public class MainActivity extends AppCompatActivity
                     ItemSelectionState.SELECTION_STARTED);
               }
             } else {
+              Resources resources = MainActivity.this.getResources();
+
               if (backupNotInProgress) {
                 Toast
-                    .makeText(
-                        MainActivity.this,
-                        getResources().getString(R.string.no_apps_in_queue),
-                        Toast.LENGTH_SHORT)
+                    .makeText(MainActivity.this,
+                              resources.getString(R.string.no_apps_in_queue),
+                              Toast.LENGTH_SHORT)
                     .show();
               } else {
                 Toast
                     .makeText(MainActivity.this,
-                              getResources().getString(
+                              resources.getString(
                                   R.string.backup_in_progress_message_alt),
                               Toast.LENGTH_SHORT)
                     .show();
@@ -576,6 +578,7 @@ public class MainActivity extends AppCompatActivity
                                                  final IAction action) {
     action.setAvailability(true);
     if (position == ABOUT_US_SECTION_BUTTON) {
+
       action.assignCallBacks(v -> {
         AboutUsDialogFragment aboutUsFragment = new AboutUsDialogFragment();
 
@@ -583,12 +586,27 @@ public class MainActivity extends AppCompatActivity
                              (aboutUsFragment.getClass().getSimpleName()));
       }, v -> {});
     } else if (position == RATE_APP_BUTTON) {
+
       action.assignCallBacks(v -> {
-        Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Rate me!", Toast.LENGTH_SHORT)
+            .show();
       }, v -> {});
+
     } else if (position == SHARE_APP_BUTTON) {
       action.assignCallBacks(v -> {
-        Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
+        Resources resources = MainActivity.this.getResources();
+
+        final String shareAppIntentTitle =
+            resources.getString(R.string.share_app_intent_title);
+
+        final String shareAppIntentBody =
+            resources.getString(R.string.share_app_intent_body);
+
+        final String appStoreLink = "https://playstore.link";
+
+        IntentLauncher.composeShareableMessage(
+            MainActivity.this, shareAppIntentTitle, shareAppIntentBody,
+            new String[] {appStoreLink});
       }, v -> {});
     }
   }
