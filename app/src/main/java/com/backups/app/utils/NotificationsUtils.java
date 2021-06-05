@@ -16,10 +16,4 @@ public class NotificationsUtils {
 
     return result.first;
   }
-
-  public static void checkAndNotify(Context context, Result<String> checks) {
-    String result = checks.onComplete();
-
-    Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
-  }
 }
