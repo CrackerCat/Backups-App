@@ -91,7 +91,7 @@
     <!-- FAB Related End -->
 
 
-    <!-- Contact Related End -->
+    <!-- App Related End -->
     <string name="bug_report_email_subject">BUG</string>
     <string name="feature_request_email_subject">FEATURE REQUEST</string>
 
@@ -105,5 +105,8 @@
         - What the purpose of the feature is?\n\n
         - Why you think the feature will improve the app\n\n
         - As well as a basic example of the feature\'s functionality in use\n\n</string>
+
+    <string name="share_app_intent_title">The Backups App</string>
+    <string name="share_app_intent_body">Wow this is a pretty great app!</string>
     <!-- Contact Related End -->
 </resources>

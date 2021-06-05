@@ -2,7 +2,7 @@ package com.backups.app.utils;
 
 import java.util.Hashtable;
 
-public class PackageNameUtils {
+public final class PackageNameUtils {
   private PackageNameUtils() {}
 
   private static final String[] sPrefixes = {"com.", "org."};
