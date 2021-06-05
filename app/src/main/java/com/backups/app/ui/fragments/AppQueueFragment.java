@@ -171,7 +171,9 @@ public class AppQueueFragment extends Fragment implements ItemClickListener {
           (AppQueueAdapter.BackupsViewHolder)mAppQueueRecyclerView
               .findViewHolderForAdapterPosition(REMOVE_FROM);
 
-      backupsViewHolder.updateProgressBy(progress.getProgress());
+      if (backupsViewHolder != null) {
+        backupsViewHolder.updateProgressBy(progress.getProgress());
+      }
     }
   }
 

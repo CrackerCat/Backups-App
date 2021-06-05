@@ -22,8 +22,9 @@ public class ActionSetMaker {
       IAction[] actions = new IAction[total];
 
       for (int i = 0; i < total; ++i) {
-        IAction action = new ActionButton(presenter, parentActivity,
-                                          layoutIDs[i], false);
+        IAction action =
+            new ActionButton(presenter, parentActivity, layoutIDs[i], false);
+
         callBackSetup.setup(i, action);
 
         actions[i] = action;

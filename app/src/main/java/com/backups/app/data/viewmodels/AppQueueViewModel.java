@@ -98,6 +98,10 @@ public class AppQueueViewModel extends ViewModel {
     return mBackupRepository.getStorageVolumePath();
   }
 
+  public void isBackupInProgress(final boolean inProgress) {
+    mIsBackupInProgress = inProgress;
+  }
+
   public void hasAutomaticallySelectedAll(final boolean has) {
     mAutomaticallySelectedAll = has;
   }
@@ -176,7 +180,5 @@ public class AppQueueViewModel extends ViewModel {
     }
 
     mBackupRepository.zeroBackupSize();
-
-    mIsBackupInProgress = false;
   }
 }

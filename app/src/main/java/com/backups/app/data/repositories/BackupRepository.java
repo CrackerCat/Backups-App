@@ -38,9 +38,7 @@ public class BackupRepository {
 
   public final static int sPrimaryStorage = 0;
 
-  private final static int sErrorCode = -1;
-
-  private final static int sBackupWaitTime = 225;
+  private final int mErrorCode = -1;
 
   private long mBackupSize = 0L;
 
@@ -59,7 +57,7 @@ public class BackupRepository {
         availableOutputDirectories(mExternalStorageVolumes);
 
     boolean storageVolumesAreAvailable =
-        mStorageVolumeState.availableStorageVolumes != sErrorCode;
+        mStorageVolumeState.availableStorageVolumes != mErrorCode;
     if (storageVolumesAreAvailable) {
       mStorageVolumeState.storageVolumesAvailable = true;
       mOutputDirectory = mExternalStorageVolumes[sPrimaryStorage];
@@ -72,7 +70,7 @@ public class BackupRepository {
   private int availableOutputDirectories(File[] externalStorageVolumes) {
     int availableVolumes = 0;
     if (externalStorageVolumes == null) {
-      availableVolumes = sErrorCode;
+      availableVolumes = mErrorCode;
     } else if (externalStorageVolumes.length == 1) {
       availableVolumes = 1;
     } else {
@@ -126,18 +124,20 @@ public class BackupRepository {
 
   public void zeroBackupSize() { mBackupSize = 0L; }
 
-  private void publishProgress(APKFile backup, BackupProgress progressState,
+  private void publishProgress(BackupProgress progressState,
                                Callback<BackupProgress> callback) {
     int progress = MIN_PROGRESS;
 
     progressState.setState(BackupProgress.ProgressState.ONGOING);
     progressState.setProgress(PROGRESS_RATE);
 
-    while (progress != MAX_PROGRESS) {
+    int backupWaitTime = 175;
+
+    while (MAX_PROGRESS >= progress) {
       progress += PROGRESS_RATE;
 
       try {
-        Thread.sleep(sBackupWaitTime);
+        Thread.sleep(backupWaitTime);
       } catch (InterruptedException interruptedException) {
         interruptedException.printStackTrace();
       }
@@ -149,10 +149,12 @@ public class BackupRepository {
   private void beginBackupProcess(List<APKFile> backups,
                                   Callback<BackupProgress> callback) {
     APKFile backup = backups.get(com.backups.app.ui.Constants.REMOVE_FROM);
+
     BackupProgress progress = new BackupProgress();
+
     progress.setBackupName(backup.getName());
 
-    publishProgress(backup, progress, callback);
+    publishProgress(progress, callback);
 
     if (!createBackup(backup.getPackagePath(), backup.getBackupName())) {
       progress.setState(BackupProgress.ProgressState.ERROR);
@@ -191,29 +193,26 @@ public class BackupRepository {
   }
 
   public void backup(List<APKFile> backups, Callback<BackupProgress> callback) {
-    synchronized (this) {
+    boolean canBackup = mStorageVolumeState.hasSufficientStorage &&
+                        mStorageVolumeState.storageVolumesAvailable &&
+                        !backups.isEmpty();
 
-      boolean canBackup = mStorageVolumeState.hasSufficientStorage &&
-                          mStorageVolumeState.storageVolumesAvailable &&
-                          !backups.isEmpty();
+    if (canBackup) {
 
-      if (canBackup) {
+      mExecutor.execute(() -> {
+        boolean hasOnlyOneBackup = backups.size() == 1;
 
-        mExecutor.execute(() -> {
-          boolean hasOnlyOneBackup = backups.size() == 1;
+        if (hasOnlyOneBackup) {
+          beginBackupProcess(backups, callback);
+        } else {
+          int total = backups.size();
 
-          if (hasOnlyOneBackup) {
+          while (total != 0) {
             beginBackupProcess(backups, callback);
-          } else {
-            int total = backups.size();
-
-            while (total != 0) {
-              beginBackupProcess(backups, callback);
-              --total;
-            }
+            --total;
           }
-        });
-      }
+        }
+      });
     }
   }
 }
