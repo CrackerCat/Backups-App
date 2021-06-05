@@ -20,9 +20,8 @@ import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 public class SettingsFragment extends PreferenceFragmentCompat
     implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-  private static final int sOutputDirectoryPrefId = 0;
-  private static final int sShowSystemAppsPrefId = 1;
-  private static final int sAppThemePrefId = 2;
+  private final int outputDirectoryPrefId = 0;
+  private final int appThemePrefId = 2;
 
   private AppQueueViewModel mAppQueueViewModel;
 
@@ -48,15 +47,16 @@ public class SettingsFragment extends PreferenceFragmentCompat
     SharedPreferences sharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(requireActivity());
 
+    int showSystemAppsPrefId = 1;
     for (int i = 0, total = preferenceScreen.getPreferenceCount(); i < total;
          ++i) {
       Preference preference = preferenceScreen.getPreference(i);
 
-      if (i == sOutputDirectoryPrefId) {
+      if (i == outputDirectoryPrefId) {
         initializeOutputDirectoryPreferences(
             preference, mAppQueueViewModel.getAvailableStorageVolumes());
 
-      } else if (i == sShowSystemAppsPrefId || i == sAppThemePrefId) {
+      } else if (i == showSystemAppsPrefId || i == appThemePrefId) {
         boolean value =
             sharedPreferences.getBoolean(preference.getKey(), false);
 
@@ -150,9 +150,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
     if (preference != null) {
       final int preferenceId = preference.getOrder();
 
-      if (preferenceId == sOutputDirectoryPrefId) {
+      if (preferenceId == outputDirectoryPrefId) {
         updateOutputDirectoryPreference(preference, sharedPreferences, key);
-      } else if (preferenceId == sAppThemePrefId) {
+      } else if (preferenceId == appThemePrefId) {
 
         boolean useDarkTheme = sharedPreferences.getBoolean(key, false);
 
