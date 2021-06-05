@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="TabLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/secondaryTextColor</item>
         <item name="android:textSize">@dimen/h2</item>
-        <item name="tabSelectedTextColor">@color/secondaryTextColor</item>
+        <item name="tabSelectedTextColor">@color/primaryTextColor</item>
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
         <item name="tabIndicatorColor">@color/secondaryDarkColor</item>
@@ -18,9 +17,9 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">20dp</item>
-        <item name="android:elevation">5dp</item>
-        <item name="cardElevation">5dp</item>
-        <item name="cardMaxElevation">5dp</item>
+        <item name="android:elevation">3dp</item>
+        <item name="cardElevation">3dp</item>
+        <item name="cardMaxElevation">3dp</item>
     </style>
 
     <style name="FloatingActionButtonInactive">
@@ -34,6 +33,7 @@
     </style>
 
     <style name="FloatingActionButtonActive" parent="FloatingActionButtonInactive">
+        <item name="backgroundTint">@color/secondaryDarkColor</item>
         <item name="android:visibility">visible</item>
     </style>
 
@@ -41,7 +41,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@color/secondaryLightColor</item>
-        <item name="android:padding">4dp</item>
+        <item name="android:padding">3dp</item>
         <item name="android:textColor">@color/primaryColor</item>
         <item name="android:textSize">@dimen/h3</item>
         <item name="android:visibility">invisible</item>

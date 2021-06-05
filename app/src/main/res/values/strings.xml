@@ -37,6 +37,32 @@
     <string name="dark_theme">Dark</string>
     <!-- Settings End -->
 
+    <!-- About Us -->
+    <string name="app_description">Made to backup apps on the device via a clean and simple interface</string>
+    <string name="app_version">Version: </string>
+    <string name="app_version_number" translatable="false"> 1.0.0 </string>
+    <string name="app_license"> &amp; License: </string>
+    <string name="app_license_name">GPL v3 </string>
+
+    <string name="contact_developer">Contact Developer</string>
+    <string name="contact_developer_description">found a bug?, let us know</string>
+
+    <string name="app_improvements">Suggestions</string>
+    <string name="app_improvements_description">any advice that can help us improve the app?</string>
+
+    <string name="see_source_code">See the Source Code</string>
+    <string name="see_source_code_description">check out the code for the app</string>
+
+    <string name="meet_team_heading">The Team</string>
+
+    <string name="team_member1_name" translatable="false">Flyingsl0ths</string>
+    <string name="team_member2_name" translatable="false">Mazawa</string>
+
+    <string name="team_member_occupation1">Developer</string>
+    <string name="team_member_occupation2">Designer</string>
+
+    <!-- About Us End -->
+
     <!-- Tabs End -->
 
     <!-- SearchView Related -->
@@ -46,7 +72,12 @@
     <!-- FAB Related -->
     <string name="search_label_text">Search</string>
     <string name="backup_label_text">Backup</string>
+
     <string name="app_queue_item_selection_label_text">Remove items</string>
+
+    <string name="about_us_label_text">About Us</string>
+    <string name="share_app_label_text">Share App</string>
+    <string name="rate_app_label_text">Rate Us</string>
 
     <string name="unable_to_fetch_apk_data_message">Unable to fetch apk data</string>
     <string name="commencing_backup_message">Backing up %d app(s)</string>
@@ -55,7 +86,24 @@
     <string name="no_backups_selected_message">No backups have been selected yet</string>
     <string name="storage_volume_not_present">Storage location unavailable…\ndefaulting to internal storage</string>
     <string name="backup_in_progress_message">A backup is already in progress</string>
+    <string name="backup_in_progress_message_alt">A backup is in progress please wait until it is finished</string>
     <string name="unable_to_create_backup_message">Unable to create backup of:\n %s</string>
-    <string name="backup_created_message">Backup of %s created!</string>
     <!-- FAB Related End -->
+
+
+    <!-- Contact Related End -->
+    <string name="bug_report_email_subject">BUG</string>
+    <string name="feature_request_email_subject">FEATURE REQUEST</string>
+
+    <string name="bug_report_email_body">
+        Please describe:\n
+        - The series of events leading up the bug encountered\n\n
+        - As well as describe what is it the bug does\n\n</string>
+
+    <string name="feature_request_email_body">
+        Please describe in detail:\n
+        - What the purpose of the feature is?\n\n
+        - Why you think the feature will improve the app\n\n
+        - As well as a basic example of the feature\'s functionality in use\n\n</string>
+    <!-- Contact Related End -->
 </resources>

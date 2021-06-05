@@ -13,5 +13,13 @@
 
     <!-- RecyclerView -->
     <dimen name="view_holder_image_size">48dip</dimen>
-    <dimen name="view_holder_image_size2">35dip</dimen>
+    <dimen name="view_holder_image_size2">36dip</dimen>
+
+
+    <!-- About Us Section -->
+    <dimen name="app_icon_size">64dip</dimen>
+    <dimen name="member_role_icon_sizes">36dip</dimen>
+    <dimen name="team_member_profile_size">54dip</dimen>
+    <dimen name="member_social_media_icon_sizes">32dip</dimen>
+
 </resources>
