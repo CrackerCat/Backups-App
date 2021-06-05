@@ -1,24 +1,17 @@
 package com.backups.app.ui;
 
-import com.backups.app.R;
-
 public class Constants {
   private Constants() {}
 
   // FAButtons
   public static final int SEARCH_BUTTON = 0;
   public static final int BACKUP_BUTTON = 1;
+
   public static final int ITEM_SELECTION_BUTTON = 2;
 
-  public static final int[][] sAppListFragmentActionLayouts =
-      new int[][] {{R.id.main_search_label, R.id.main_search_button}};
-
-  public static final int[][] sAppQueueFragmentActionLayouts =
-      new int[][] {{R.id.app_queue_search_label, R.id.app_queue_search_button},
-                   {R.id.app_queue_backup_label, R.id.app_queue_backup_button},
-                   {R.id.app_queue_item_selection_label,
-                    R.id.app_queue_item_selection_button}};
-
+  public static final int ABOUT_US_SECTION_BUTTON = 0;
+  public static final int RATE_APP_BUTTON = 1;
+  public static final int SHARE_APP_BUTTON = 2;
   //
 
   // Tabs
@@ -31,7 +24,7 @@ public class Constants {
   public static final int REMOVE_FROM = 0;
   public static final int MIN_PROGRESS = 0;
   public static final int MAX_PROGRESS = 100;
-  public static final int PROGRESS_RATE = 10;
+  public static final int PROGRESS_RATE = 20;
   //
 
   // Item selection
