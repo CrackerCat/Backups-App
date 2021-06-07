@@ -80,13 +80,20 @@
     <string name="rate_app_label_text">Rate Us</string>
 
     <string name="unable_to_fetch_apk_data_message">Unable to fetch apk data</string>
+
     <string name="commencing_backup_message">Backing up %d app(s)</string>
+
     <string name="fetching_data_message">Fetching apk data…</string>
+
     <string name="insufficient_storage_message">Insufficient storage available to create backup</string>
+
     <string name="no_backups_selected_message">No backups have been selected yet</string>
+
     <string name="storage_volume_not_present">Storage location unavailable…\ndefaulting to internal storage</string>
+
     <string name="backup_in_progress_message">A backup is already in progress</string>
-    <string name="backup_in_progress_message_alt">A backup is in progress please wait until it is finished</string>
+    <string name="backup_in_progress_message_alt">A backup is currently in progress\nPlease wait until it is finished and restart the app</string>
+
     <string name="unable_to_create_backup_message">Unable to create backup of:\n %s</string>
     <!-- FAB Related End -->
 
