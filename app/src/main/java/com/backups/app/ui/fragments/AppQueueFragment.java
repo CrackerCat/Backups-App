@@ -1,11 +1,11 @@
 package com.backups.app.ui.fragments;
 
-import android.content.Context;
+import static com.backups.app.ui.Constants.REMOVE_FROM;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -13,7 +13,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.backups.app.R;
 import com.backups.app.data.pojos.APKFile;
 import com.backups.app.data.pojos.BackupProgress;
@@ -21,22 +20,12 @@ import com.backups.app.data.viewmodels.AppQueueViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 import com.backups.app.data.viewmodels.DataEvent;
 import com.backups.app.data.viewmodels.ItemSelectionState;
-import com.backups.app.ui.actions.ActionHost;
 import com.backups.app.ui.adapters.AppQueueAdapter;
 import com.backups.app.ui.adapters.ItemClickListener;
-
 import java.util.List;
-
-import static com.backups.app.ui.Constants.APP_LIST;
-import static com.backups.app.ui.Constants.APP_QUEUE;
-import static com.backups.app.ui.Constants.BACKUP_BUTTON;
-import static com.backups.app.ui.Constants.ITEM_SELECTION_BUTTON;
-import static com.backups.app.ui.Constants.REMOVE_FROM;
-import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
 public class AppQueueFragment extends Fragment implements ItemClickListener {
 
-  private ActionHost mActionHost;
   private AppQueueViewModel mAppQueueViewModel;
 
   private RecyclerView mAppQueueRecyclerView;
@@ -119,11 +108,6 @@ public class AppQueueFragment extends Fragment implements ItemClickListener {
             } else if (dataEvent.equals(DataEvent.ITEMS_REMOVED_FROM_QUEUE) ||
                        dataEvent.equals(
                            DataEvent.ITEMS_REMOVED_FROM_SELECTION)) {
-
-              if (mAppQueueViewModel.getAppsInQueue().isEmpty()) {
-                makeActionsUnavailable();
-              }
-
               mAppQueueAdapter.notifyDataSetChanged();
 
               mAppQueueRecyclerView.setClickable(true);
@@ -137,18 +121,12 @@ public class AppQueueFragment extends Fragment implements ItemClickListener {
               !progress.getState().equals(BackupProgress.ProgressState.NONE);
           if (backupStarted) {
             handleBackupProgress(progress);
+
+            if (mAppQueueViewModel.doesNotHaveBackups()) {
+              mAppQueueViewModel.resetProgress();
+            }
           }
         });
-  }
-
-  private void makeActionsUnavailable() {
-    mActionHost.makeActionAvailable(APP_QUEUE, SEARCH_BUTTON, false);
-    mActionHost.makeActionAvailable(APP_QUEUE, BACKUP_BUTTON, false);
-    mActionHost.makeActionAvailable(APP_QUEUE, ITEM_SELECTION_BUTTON, false);
-  }
-
-  private void makeAppListActionsAvailable() {
-    mActionHost.makeActionAvailable(APP_LIST, SEARCH_BUTTON, true);
   }
 
   private void handleBackupProgress(BackupProgress progress) {
@@ -161,11 +139,6 @@ public class AppQueueFragment extends Fragment implements ItemClickListener {
     if (updateRecyclerView) {
       mAppQueueAdapter.notifyItemRemoved(REMOVE_FROM);
 
-      if (mAppQueueViewModel.doesNotHaveBackups()) {
-        makeActionsUnavailable();
-        makeAppListActionsAvailable();
-      }
-
     } else {
       AppQueueAdapter.BackupsViewHolder backupsViewHolder =
           (AppQueueAdapter.BackupsViewHolder)mAppQueueRecyclerView
@@ -175,25 +148,6 @@ public class AppQueueFragment extends Fragment implements ItemClickListener {
         backupsViewHolder.updateProgressBy(progress.getProgress());
       }
     }
-  }
-
-  @Override
-  public void onAttach(@NonNull Context context) {
-    super.onAttach(context);
-
-    if (context instanceof ActionHost) {
-      mActionHost = (ActionHost)context;
-    } else {
-      String listenerCastErrorMessage =
-          "[AppQueueFragment]: Unable to cast to required class";
-      throw new ClassCastException(listenerCastErrorMessage);
-    }
-  }
-
-  @Override
-  public void onDestroy() {
-    mActionHost = null;
-    super.onDestroy();
   }
 
   @Override
