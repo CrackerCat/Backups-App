@@ -11,6 +11,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:progressTint="@color/secondaryColor"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -22,13 +23,12 @@
         android:id="@+id/app_list_rv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible" />
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/app_list_no_apps_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
         android:textSize="@dimen/h2"
         android:visibility="gone" />
 

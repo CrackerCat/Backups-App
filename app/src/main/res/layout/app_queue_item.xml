@@ -12,13 +12,17 @@
             android:id="@+id/app_queue_item_iv"
             android:layout_width="@dimen/view_holder_image_size"
             android:layout_height="@dimen/view_holder_image_size"
+            android:adjustViewBounds="true"
+            android:paddingStart="6dp"
+            android:paddingEnd="0dp"
+            android:scaleType="fitCenter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="24dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="@+id/app_queue_item_iv"
             app:layout_constraintEnd_toEndOf="parent"
@@ -28,31 +32,28 @@
             <TextView
                 android:id="@+id/app_queue_item_name_tv"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textColor="@color/primaryTextColor"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:maxLength="25"
                 android:textSize="@dimen/h4" />
 
             <TextView
                 android:id="@+id/app_queue_item_package_name_tv"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:maxLength="45"
+                android:layout_height="wrap_content"
+                android:maxLength="25"
                 android:textSize="@dimen/h6" />
-
         </LinearLayout>
 
         <ProgressBar
             android:id="@+id/app_queue_item_pb"
             style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:indeterminate="false"
-            android:max="100"
-            android:progress="0"
-            android:progressTint="@color/secondaryDarkColor"
-            app:layout_constraintEnd_toEndOf="@+id/app_queue_item_iv"
-            app:layout_constraintStart_toStartOf="@+id/app_queue_item_iv"
+            android:layout_marginTop="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/app_queue_item_iv" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
