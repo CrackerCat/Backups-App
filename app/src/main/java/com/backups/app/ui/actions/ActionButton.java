@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.IdRes;
 import androidx.fragment.app.FragmentActivity;
-import com.backups.app.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ActionButton implements IAction {
@@ -24,17 +23,16 @@ public class ActionButton implements IAction {
 
   public ActionButton(final IPresenter presenter,
                       final FragmentActivity activity,
-                      final @IdRes int[] layoutIDs, final boolean active) {
+                      final @IdRes int[] layoutIDs, final int[] colors,
+                      final boolean active) {
 
     mActionLabel = activity.findViewById(layoutIDs[0]);
 
     mActionButton = activity.findViewById(layoutIDs[1]);
 
-    mInternalState.activeColor =
-        activity.getResources().getColor(R.color.secondaryDarkColor);
+    mInternalState.activeColor = colors[0];
 
-    mInternalState.inactiveColor =
-        activity.getResources().getColor(R.color.primaryDarkColor);
+    mInternalState.inactiveColor = colors[1];
 
     mInternalState.isActive = active;
 
@@ -73,9 +71,7 @@ public class ActionButton implements IAction {
 
   @Override
   public void setAvailability(final boolean flag) {
-    mInternalState.isActive = flag;
-
-    if (!mInternalState.isActive) {
+    if (!(mInternalState.isActive = flag)) {
       inactive();
     } else {
       active();
