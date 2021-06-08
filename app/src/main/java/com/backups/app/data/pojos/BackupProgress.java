@@ -4,7 +4,7 @@ public class BackupProgress {
   public enum ProgressState { NONE, ONGOING, FINISHED, ERROR }
 
   private ProgressState mState = ProgressState.NONE;
-  private String mBackupName;
+  private String mBackupName = null;
   private int mProgress = 0;
 
   public ProgressState getState() { return mState; }
@@ -20,10 +20,4 @@ public class BackupProgress {
   public int getProgress() { return mProgress; }
 
   public void setProgress(int mProgress) { this.mProgress = mProgress; }
-
-  public void reset() {
-    mState = BackupProgress.ProgressState.NONE;
-    mBackupName = null;
-    mProgress = 0;
-  }
 }
