@@ -93,7 +93,7 @@
                 android:gravity="center"
                 android:linksClickable="true"
                 android:text="@string/app_license_name"
-                android:textColorLink="@color/darkSecondaryColor"
+                android:textColorLink="@color/secondaryDarkColor"
                 android:textSize="@dimen/h4"
                 android:textStyle="italic" />
         </LinearLayout>

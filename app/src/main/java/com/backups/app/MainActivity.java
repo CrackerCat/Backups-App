@@ -1,5 +1,16 @@
 package com.backups.app;
 
+import static com.backups.app.ui.Constants.ABOUT_US_SECTION_BUTTON;
+import static com.backups.app.ui.Constants.APP_LIST;
+import static com.backups.app.ui.Constants.APP_QUEUE;
+import static com.backups.app.ui.Constants.BACKUP_BUTTON;
+import static com.backups.app.ui.Constants.ITEM_SELECTION_BUTTON;
+import static com.backups.app.ui.Constants.RATE_APP_BUTTON;
+import static com.backups.app.ui.Constants.SEARCH_BUTTON;
+import static com.backups.app.ui.Constants.SETTINGS;
+import static com.backups.app.ui.Constants.SHARE_APP_BUTTON;
+import static com.backups.app.ui.Constants.sItemSelectionFMT;
+
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -8,14 +19,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.backups.app.data.pojos.BackupProgress;
 import com.backups.app.data.repositories.BackupRepository;
 import com.backups.app.data.viewmodels.ApkListViewModel;
@@ -23,7 +33,6 @@ import com.backups.app.data.viewmodels.AppQueueViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 import com.backups.app.data.viewmodels.DataEvent;
 import com.backups.app.data.viewmodels.ItemSelectionState;
-import com.backups.app.ui.actions.ActionHost;
 import com.backups.app.ui.actions.ActionPresenter;
 import com.backups.app.ui.actions.ActionSetMaker;
 import com.backups.app.ui.actions.IAction;
@@ -39,22 +48,10 @@ import com.backups.app.utils.NotificationsUtils;
 import com.backups.app.utils.PackageNameUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-
 import java.util.Locale;
 
-import static com.backups.app.ui.Constants.ABOUT_US_SECTION_BUTTON;
-import static com.backups.app.ui.Constants.APP_LIST;
-import static com.backups.app.ui.Constants.APP_QUEUE;
-import static com.backups.app.ui.Constants.BACKUP_BUTTON;
-import static com.backups.app.ui.Constants.ITEM_SELECTION_BUTTON;
-import static com.backups.app.ui.Constants.RATE_APP_BUTTON;
-import static com.backups.app.ui.Constants.SEARCH_BUTTON;
-import static com.backups.app.ui.Constants.SETTINGS;
-import static com.backups.app.ui.Constants.SHARE_APP_BUTTON;
-import static com.backups.app.ui.Constants.sItemSelectionFMT;
-
 public class MainActivity extends AppCompatActivity
-    implements ActionHost, TabLayout.OnTabSelectedListener,
+    implements TabLayout.OnTabSelectedListener,
                SharedPreferences.OnSharedPreferenceChangeListener {
 
   private static class SettingsKeys {
@@ -70,20 +67,6 @@ public class MainActivity extends AppCompatActivity
   private static String sAppThemeKey;
   private static String sItemSelectionCountSuffix;
   private static String sBackupErrorMessage;
-
-  private final int[][] APP_LIST_FRAGMENT_ACTION_LAYOUTS =
-      new int[][] {{R.id.main_search_label, R.id.main_search_button}};
-
-  private final int[][] APP_QUEUE_FRAGMENT_ACTION_LAYOUTS =
-      new int[][] {{R.id.app_queue_search_label, R.id.app_queue_search_button},
-                   {R.id.app_queue_backup_label, R.id.app_queue_backup_button},
-                   {R.id.app_queue_item_selection_label,
-                    R.id.app_queue_item_selection_button}};
-
-  private static final int[][] SETTINGS_FRAGMENT_ACTION_LAYOUTS =
-      new int[][] {{R.id.about_us_section_label, R.id.about_us_section_button},
-                   {R.id.rate_app_label, R.id.rate_app_button},
-                   {R.id.share_app_label, R.id.share_app_button}};
 
   private ApkListViewModel mApkListViewModel;
   private AppQueueViewModel mAppQueueViewModel;
@@ -101,7 +84,7 @@ public class MainActivity extends AppCompatActivity
   private ViewPager2 mViewPager;
   private IPresenter mActionPresenter;
 
-  private final SettingsKeys sSettings = new SettingsKeys();
+  private final SettingsKeys mPreferenceKeys = new SettingsKeys();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +96,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     loadSettings();
+
+    useDarkTheme(mPreferenceKeys.useDarkTheme);
 
     mAppQueueViewModel =
         new ViewModelProvider(this, new BackupsViewModelFactory(this))
@@ -126,7 +111,7 @@ public class MainActivity extends AppCompatActivity
         mApkListViewModel.getApkListLiveData().getValue() == null;
     if (hasNotScannedForAppsYet) {
       mApkListViewModel.fetchInstalledApps(getPackageManager(),
-                                           sSettings.showSystemApps);
+                                           mPreferenceKeys.showSystemApps);
     }
 
     initializeViews();
@@ -160,25 +145,33 @@ public class MainActivity extends AppCompatActivity
     SharedPreferences sharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(this);
 
-    sSettings.outputDirectory = Integer.parseInt(sharedPreferences.getString(
-        sOutputDirectoryKey, BackupRepository.sPrimaryStorage + ""));
+    mPreferenceKeys.outputDirectory =
+        Integer.parseInt(sharedPreferences.getString(
+            sOutputDirectoryKey, BackupRepository.sPrimaryStorage + ""));
 
-    sSettings.showSystemApps =
+    mPreferenceKeys.showSystemApps =
         sharedPreferences.getBoolean(sShowSystemAppsKey, false);
 
-    sSettings.useDarkTheme = sharedPreferences.getBoolean(sAppThemeKey, false);
+    mPreferenceKeys.useDarkTheme =
+        sharedPreferences.getBoolean(sAppThemeKey, false);
+  }
+
+  private void useDarkTheme(final boolean use) {
+    AppCompatDelegate.setDefaultNightMode(
+        use ? AppCompatDelegate.MODE_NIGHT_YES
+            : AppCompatDelegate.MODE_NIGHT_NO);
   }
 
   private void verifyOutputDirectory() {
-    if (sSettings.outputDirectory != BackupRepository.sPrimaryStorage) {
-      boolean isVolumeAvailable =
-          mAppQueueViewModel.setStorageVolumeIndex(sSettings.outputDirectory);
+    if (mPreferenceKeys.outputDirectory != BackupRepository.sPrimaryStorage) {
+      boolean isVolumeAvailable = mAppQueueViewModel.setStorageVolumeIndex(
+          mPreferenceKeys.outputDirectory);
 
       if (isVolumeAvailable) {
         final int storageVolumeIndex =
             mAppQueueViewModel.getCurrentStorageVolumeIndex();
 
-        sSettings.outputDirectory = storageVolumeIndex;
+        mPreferenceKeys.outputDirectory = storageVolumeIndex;
 
         PreferenceManager.getDefaultSharedPreferences(this)
             .edit()
@@ -280,6 +273,12 @@ public class MainActivity extends AppCompatActivity
    to prevent the callback from being handled during Activity recreation
    which is not needed
    */
+    mApkListViewModel.getApkListLiveData().observe(this, apkFiles -> {
+      if (apkFiles != null && !apkFiles.isEmpty()) {
+        makeAppListActionsAvailable(true);
+      }
+    });
+
     mAppQueueViewModel.getBackupProgressLiveData().observe(
         this, backupProgress -> {
           boolean backupStarted = !backupProgress.getState().equals(
@@ -307,25 +306,17 @@ public class MainActivity extends AppCompatActivity
   private void handleBackupProgress(BackupProgress progress) {
     BackupProgress.ProgressState state = progress.getState();
 
-    boolean finished = state.equals(BackupProgress.ProgressState.ERROR) ||
-                       state.equals(BackupProgress.ProgressState.FINISHED);
+    boolean completed = state.equals(BackupProgress.ProgressState.ERROR) ||
+                        state.equals(BackupProgress.ProgressState.FINISHED);
 
-    if (finished) {
-      int totalApps = mAppQueueViewModel.getAppsInQueue().size();
-
-      if (totalApps == 0) {
-        mAppQueueViewModel.isBackupInProgress(false);
-
-        if (sSettings.showSystemApps) {
-          showSystemApps(true);
-        }
-      }
-
-      updateBackupCountView(totalApps);
+    if (completed) {
+      int totalAppsLeft = mAppQueueViewModel.getAppsInQueue().size();
 
       final String backupName = progress.getBackupName();
 
       PackageNameUtils.resetCountFor(backupName);
+
+      updateBackupCountView(totalAppsLeft);
 
       if (state.equals(BackupProgress.ProgressState.ERROR)) {
         Toast
@@ -333,6 +324,12 @@ public class MainActivity extends AppCompatActivity
                       String.format(sBackupErrorMessage, backupName),
                       Toast.LENGTH_SHORT)
             .show();
+      }
+
+      if (totalAppsLeft == 0) {
+        mAppQueueViewModel.isBackupInProgress(false);
+
+        makeAppListActionsAvailable(true);
       }
     }
   }
@@ -439,6 +436,7 @@ public class MainActivity extends AppCompatActivity
       }
     } else if (dataEvent.equals(DataEvent.ITEM_DESELECTED) ||
                dataEvent.equals(DataEvent.ALL_ITEMS_DESELECTED)) {
+
       int size = mAppQueueViewModel.getSelectionSize();
 
       if (size != 0) {
@@ -462,6 +460,12 @@ public class MainActivity extends AppCompatActivity
 
       if (!mAppQueueViewModel.hasSelectedItems()) {
         mActionPresenter.available(APP_QUEUE, ITEM_SELECTION_BUTTON, false);
+      }
+    } else if (dataEvent.equals(DataEvent.ITEMS_REMOVED_FROM_QUEUE) ||
+               dataEvent.equals(DataEvent.ITEMS_REMOVED_FROM_SELECTION)) {
+
+      if (mAppQueueViewModel.doesNotHaveBackups()) {
+        makeAppQueueActionsAvailable(false);
       }
     }
   }
@@ -587,10 +591,11 @@ public class MainActivity extends AppCompatActivity
       }, v -> {});
     } else if (position == RATE_APP_BUTTON) {
 
-      action.assignCallBacks(v -> {
-        Toast.makeText(MainActivity.this, "Rate me!", Toast.LENGTH_SHORT)
-            .show();
-      }, v -> {});
+      action.assignCallBacks(
+          v
+          -> Toast.makeText(MainActivity.this, "Rate me!", Toast.LENGTH_SHORT)
+                 .show(),
+          v -> {});
 
     } else if (position == SHARE_APP_BUTTON) {
       action.assignCallBacks(v -> {
@@ -611,23 +616,58 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
+  private int[] getFloatingActionButtonColors() {
+    Resources resources = getResources();
+
+    int[] activeColors = new int[2];
+
+    final int activeColor = 0;
+    final int inActiveColor = 1;
+
+    activeColors[activeColor] = resources.getColor(R.color.secondaryDarkColor);
+
+    activeColors[inActiveColor] =
+        (mPreferenceKeys.useDarkTheme
+             ? resources.getColor(R.color.primaryLightColor)
+             : resources.getColor(R.color.primaryDarkColor));
+
+    return activeColors;
+  }
+
   private void initializeFAButton() {
+    final int[][] APP_LIST_FRAGMENT_ACTION_LAYOUTS =
+        new int[][] {{R.id.main_search_label, R.id.main_search_button}};
+
+    final int[][] APP_QUEUE_FRAGMENT_ACTION_LAYOUTS = new int[][] {
+        {R.id.app_queue_search_label, R.id.app_queue_search_button},
+        {R.id.app_queue_backup_label, R.id.app_queue_backup_button},
+        {R.id.app_queue_item_selection_label,
+         R.id.app_queue_item_selection_button}};
+
+    final int[][] SETTINGS_FRAGMENT_ACTION_LAYOUTS = new int[][] {
+        {R.id.about_us_section_label, R.id.about_us_section_button},
+        {R.id.rate_app_label, R.id.rate_app_button},
+        {R.id.share_app_label, R.id.share_app_button}};
+
+    final int[] activeColors = getFloatingActionButtonColors();
+
     mActionPresenter =
         new ActionPresenter(this, R.id.main_floating_action_button);
 
     mActionPresenter.addActions(ActionSetMaker.makeActionSet(
-        mActionPresenter, this, APP_LIST_FRAGMENT_ACTION_LAYOUTS,
+        mActionPresenter, this, APP_LIST_FRAGMENT_ACTION_LAYOUTS, activeColors,
         this::initializeAppListFragmentActions));
 
     mActionPresenter.addActions(ActionSetMaker.makeActionSet(
-        mActionPresenter, this, APP_QUEUE_FRAGMENT_ACTION_LAYOUTS,
+        mActionPresenter, this, APP_QUEUE_FRAGMENT_ACTION_LAYOUTS, activeColors,
         this::initializeAppQueueFragmentActions));
 
     mActionPresenter.addActions(ActionSetMaker.makeActionSet(
-        mActionPresenter, this, SETTINGS_FRAGMENT_ACTION_LAYOUTS,
+        mActionPresenter, this, SETTINGS_FRAGMENT_ACTION_LAYOUTS, activeColors,
         this::initializeSettingsFragmentActions));
 
     mActionPresenter.swapActions(APP_LIST);
+
     mActionPresenter.present();
   }
 
@@ -671,27 +711,6 @@ public class MainActivity extends AppCompatActivity
     } else {
       mAppQueueItemSelectionView.setVisibility(View.VISIBLE);
     }
-  }
-
-  @Override
-  public boolean isActionAvailable(final int actionID) {
-    return mActionPresenter.isActionAvailable(actionID);
-  }
-
-  @Override
-  public boolean isActionAvailable(final int actionSet, final int actionID) {
-    return mActionPresenter.isActionAvailable(actionSet, actionID);
-  }
-
-  @Override
-  public void makeActionAvailable(final int actionID, final boolean flag) {
-    mActionPresenter.available(actionID, flag);
-  }
-
-  @Override
-  public void makeActionAvailable(final int actionSet, final int actionID,
-                                  final boolean flag) {
-    mActionPresenter.available(actionSet, actionID, flag);
   }
 
   @Override
@@ -743,7 +762,7 @@ public class MainActivity extends AppCompatActivity
     if (!mAppQueueViewModel.isBackupInProgress()) {
       mActionPresenter.available(APP_LIST, SEARCH_BUTTON, false);
 
-      if (!mAppQueueViewModel.getAppsInQueue().isEmpty()) {
+      if (!mAppQueueViewModel.doesNotHaveBackups()) {
         resetQueue();
       }
 
@@ -760,12 +779,28 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
+  private void switchTheme(final boolean yesOrNo) {
+    if (!mAppQueueViewModel.isBackupInProgress()) {
+      useDarkTheme(yesOrNo);
+    } else {
+      Toast
+          .makeText(
+              this,
+              getResources().getString(R.string.backup_in_progress_message_alt),
+              Toast.LENGTH_SHORT)
+          .show();
+    }
+  }
+
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                         String key) {
     if (key.equals(sShowSystemAppsKey)) {
-      showSystemApps((sSettings.showSystemApps =
+      showSystemApps((mPreferenceKeys.showSystemApps =
                           sharedPreferences.getBoolean(key, false)));
+    } else if (key.equals(sAppThemeKey)) {
+      switchTheme((mPreferenceKeys.useDarkTheme =
+                       sharedPreferences.getBoolean(key, false)));
     }
   }
 }

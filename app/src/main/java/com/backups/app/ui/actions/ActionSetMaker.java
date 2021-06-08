@@ -12,7 +12,8 @@ public class ActionSetMaker {
 
   public static IAction[] makeActionSet(IPresenter presenter,
                                         FragmentActivity parentActivity,
-                                        @LayoutRes int[][] layoutIDs,
+                                        @LayoutRes final int[][] layoutIDs,
+                                        final int[] colors,
                                         CallBackSetup callBackSetup) {
     boolean canSetup =
         layoutIDs != null && presenter != null && parentActivity != null;
@@ -22,8 +23,8 @@ public class ActionSetMaker {
       IAction[] actions = new IAction[total];
 
       for (int i = 0; i < total; ++i) {
-        IAction action =
-            new ActionButton(presenter, parentActivity, layoutIDs[i], false);
+        IAction action = new ActionButton(presenter, parentActivity,
+                                          layoutIDs[i], colors, false);
 
         callBackSetup.setup(i, action);
 
