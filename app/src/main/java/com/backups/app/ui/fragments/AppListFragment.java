@@ -1,42 +1,31 @@
 package com.backups.app.ui.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.backups.app.R;
 import com.backups.app.data.pojos.APKFile;
-import com.backups.app.data.pojos.BackupProgress;
 import com.backups.app.data.viewmodels.ApkListViewModel;
 import com.backups.app.data.viewmodels.AppQueueViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
-import com.backups.app.ui.actions.ActionHost;
 import com.backups.app.ui.adapters.AppListAdapter;
 import com.backups.app.ui.adapters.ItemClickListener;
-
 import java.util.List;
-
-import static com.backups.app.ui.Constants.APP_LIST;
-import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
 public class AppListFragment extends Fragment implements ItemClickListener {
   private ApkListViewModel mAppListViewModel;
   private AppQueueViewModel mAppQueueViewModel;
 
-  private ActionHost mActionHost;
   private AppListAdapter mAppListAdapter;
   private RecyclerView mAppListRecyclerView;
 
@@ -62,6 +51,10 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
     initializeViewModels(activity);
 
+    registerObservers(activity);
+  }
+
+  private void registerObservers(final FragmentActivity activity) {
     mAppListViewModel.getApkListLiveData().observe(
         getViewLifecycleOwner(), apkFiles -> {
           boolean queryingForDataSet = apkFiles == null;
@@ -82,20 +75,11 @@ public class AppListFragment extends Fragment implements ItemClickListener {
               setupRecyclerView(activity, apkFiles);
             }
 
-            mActionHost.makeActionAvailable(APP_LIST, SEARCH_BUTTON, true);
-
             showCompletion();
 
           } else {
             showErrorMessage(getResources().getString(
                 R.string.unable_to_fetch_apk_data_message));
-          }
-        });
-
-    mAppQueueViewModel.getBackupProgressLiveData().observe(
-        getViewLifecycleOwner(), progress -> {
-          if (getLifecycle().getCurrentState() != Lifecycle.State.CREATED) {
-            handleBackupProgress(progress);
           }
         });
   }
@@ -136,24 +120,12 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
   private void showProgressBar() {
     mProgressBar.setVisibility(View.VISIBLE);
-    mAppListRecyclerView.setVisibility(View.INVISIBLE);
+    mAppListRecyclerView.setVisibility(View.GONE);
   }
 
   private void showCompletion() {
     mProgressBar.setVisibility(View.GONE);
     mAppListRecyclerView.setVisibility(View.VISIBLE);
-  }
-
-  private void handleBackupProgress(BackupProgress progress) {
-    BackupProgress.ProgressState status = progress.getState();
-
-    boolean finished = status.equals(BackupProgress.ProgressState.FINISHED) ||
-                       status.equals(BackupProgress.ProgressState.ERROR) &&
-                           mAppQueueViewModel.doesNotHaveBackups();
-
-    if (finished) {
-      mActionHost.makeActionAvailable(APP_LIST, SEARCH_BUTTON, false);
-    }
   }
 
   @Override
@@ -163,24 +135,5 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
       mAppQueueViewModel.addApp(selected);
     }
-  }
-
-  @Override
-  public void onAttach(@NonNull Context context) {
-    super.onAttach(context);
-
-    if (context instanceof ActionHost) {
-      mActionHost = (ActionHost)context;
-    } else {
-      String listenerCastErrorMessage =
-          "[AppListFragment]: Unable to cast to required class";
-      throw new ClassCastException(listenerCastErrorMessage);
-    }
-  }
-
-  @Override
-  public void onDestroy() {
-    mActionHost = null;
-    super.onDestroy();
   }
 }
