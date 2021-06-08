@@ -48,6 +48,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
         PreferenceManager.getDefaultSharedPreferences(requireActivity());
 
     int showSystemAppsPrefId = 1;
+
     for (int i = 0, total = preferenceScreen.getPreferenceCount(); i < total;
          ++i) {
       Preference preference = preferenceScreen.getPreference(i);
@@ -56,9 +57,16 @@ public class SettingsFragment extends PreferenceFragmentCompat
         initializeOutputDirectoryPreferences(
             preference, mAppQueueViewModel.getAvailableStorageVolumes());
 
-      } else if (i == showSystemAppsPrefId || i == appThemePrefId) {
+      } else if (i == showSystemAppsPrefId) {
         boolean value =
             sharedPreferences.getBoolean(preference.getKey(), false);
+
+        ((SwitchPreference)preference).setChecked(value);
+      } else if (i == appThemePrefId) {
+        boolean value =
+            sharedPreferences.getBoolean(preference.getKey(), false);
+
+        preference.setSummary(updateThemeSummary(value));
 
         ((SwitchPreference)preference).setChecked(value);
       }
@@ -124,7 +132,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     String lightThemeSummary = resources.getString(R.string.light_theme);
     String darkThemeSummary = resources.getString(R.string.dark_theme);
 
-    return (!useDarkTheme ? lightThemeSummary : darkThemeSummary);
+    return (useDarkTheme ? darkThemeSummary : lightThemeSummary);
   }
 
   @Override
