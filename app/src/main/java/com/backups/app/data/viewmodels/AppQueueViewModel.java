@@ -168,16 +168,13 @@ public class AppQueueViewModel extends ViewModel {
     mBackupRepository.incrementBackupSize(apkFile.getAppSize());
   }
 
+  public void resetProgress() { mProgressState.setValue(new BackupProgress()); }
+
   public void startBackup() {
     mIsBackupInProgress = true;
 
     mBackupRepository.backup(mAppQueueRepository.getAppsInQueue(),
                              mProgressState::postValue);
-
-    BackupProgress backupProgressLiveData = mProgressState.getValue();
-    if (backupProgressLiveData != null) {
-      backupProgressLiveData.reset();
-    }
 
     mBackupRepository.zeroBackupSize();
   }
