@@ -66,9 +66,12 @@ public class AboutUsDialogFragment extends DialogFragment {
 
     mFeatureRequestTitle =
         resources.getString(R.string.feature_request_email_subject);
+
     mFeatureRequestBody =
         resources.getString(R.string.feature_request_email_body);
+
     mBugReportTitle = resources.getString(R.string.bug_report_email_subject);
+
     mBugReportBody = resources.getString(R.string.bug_report_email_body);
   }
 
