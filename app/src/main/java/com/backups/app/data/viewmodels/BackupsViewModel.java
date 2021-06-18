@@ -15,9 +15,6 @@ public final class BackupsViewModel extends ViewModel {
   private final MutableLiveData<BackupProgress> mProgressState =
       new MutableLiveData<>();
 
-  private final MutableLiveData<BackupRepository.OutputStorage>
-      mOutputDirectoryStatus = new MutableLiveData<>();
-
   private final BackupRepository mBackupRepository;
 
   public BackupsViewModel(final Context context) {

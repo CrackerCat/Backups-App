@@ -9,7 +9,7 @@ import com.backups.app.data.repositories.APKFileRepository;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class ApkListViewModel extends ViewModel {
+public final class ApkListViewModel extends ViewModel {
   private final APKFileRepository mAPKFileRepository =
       new APKFileRepository(Executors.newSingleThreadExecutor());
 
