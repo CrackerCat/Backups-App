@@ -7,7 +7,7 @@ import androidx.annotation.IdRes;
 import androidx.fragment.app.FragmentActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class ActionButton implements IAction {
+public class ActionButton implements IActionButton {
   private static class ButtonState {
     public boolean isActive;
     public boolean hasAssignedViews = false;

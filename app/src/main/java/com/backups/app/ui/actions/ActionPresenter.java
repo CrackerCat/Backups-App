@@ -9,18 +9,18 @@ public final class ActionPresenter implements IPresenter {
 
   private boolean mIsPresenting = false;
   private boolean mIsShowingActions = false;
-  private IAction[] mCurrentActions = null;
+  private IActionButton[] mCurrentActions = null;
   private final FloatingActionButton mParentButton;
-  private final ArrayList<IAction[]> mActionSets = new ArrayList<>();
+  private final ArrayList<IActionButton[]> mActionSets = new ArrayList<>();
 
   public ActionPresenter(final FragmentActivity view, final @IdRes int uiID) {
     mParentButton = view.findViewById(uiID);
   }
 
   @Override
-  public void addActions(IAction[] actions) {
+  public void addActions(IActionButton[] actions) {
     if (actions != null) {
-      for (IAction action : actions) {
+      for (IActionButton action : actions) {
         if (!action.canBeDisplayed()) {
           return;
         }
@@ -54,7 +54,7 @@ public final class ActionPresenter implements IPresenter {
   @Override
   public void available(final int actionSet, final int actionID,
                         final boolean flag) {
-    IAction[] set = mActionSets.get(actionSet);
+    IActionButton[] set = mActionSets.get(actionSet);
 
     if (set != null) {
       boolean canBeMadeAvailable = actionID >= 0 && actionID < set.length;
@@ -79,7 +79,7 @@ public final class ActionPresenter implements IPresenter {
 
   @Override
   public boolean isActionAvailable(final int actionSet, final int actionID) {
-    IAction[] set = mActionSets.get(actionSet);
+    IActionButton[] set = mActionSets.get(actionSet);
     if (set != null) {
       boolean exists = actionID >= 0 && actionID < set.length;
       if (exists) {
@@ -99,12 +99,12 @@ public final class ActionPresenter implements IPresenter {
         if (mCurrentActions != null) {
           if (!mIsShowingActions) {
             mIsShowingActions = true;
-            for (IAction action : mCurrentActions) {
+            for (IActionButton action : mCurrentActions) {
               action.display(mIsShowingActions);
             }
           } else {
             mIsShowingActions = false;
-            for (IAction action : mCurrentActions) {
+            for (IActionButton action : mCurrentActions) {
               action.display(mIsShowingActions);
             }
           }
@@ -117,7 +117,7 @@ public final class ActionPresenter implements IPresenter {
   public void hideActions() {
     if (mIsShowingActions) {
       mIsShowingActions = false;
-      for (IAction action : mCurrentActions) {
+      for (IActionButton action : mCurrentActions) {
         action.display(mIsShowingActions);
       }
     }
