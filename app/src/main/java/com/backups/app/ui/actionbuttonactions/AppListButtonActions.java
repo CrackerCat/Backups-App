@@ -1,15 +1,15 @@
 package com.backups.app.ui.actionbuttonactions;
 
-import static com.backups.app.ui.Constants.SEARCH_BUTTON;
-
 import android.view.View;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import com.backups.app.data.viewmodels.ApkListViewModel;
 import com.backups.app.ui.actions.IActionButton;
 import com.backups.app.ui.actions.IActionButtonMethods;
+import com.backups.app.ui.actions.IDefaultAction;
 import com.backups.app.ui.fragments.SearchDialogFragment;
-import com.backups.app.utils.IDefaultAction;
+
+import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
 public final class AppListButtonActions implements IActionButtonMethods {
   private final FragmentActivity mParentActivity;

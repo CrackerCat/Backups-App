@@ -1,16 +1,14 @@
 package com.backups.app.ui.actionbuttonactions;
 
-import static com.backups.app.ui.Constants.BACKUP_BUTTON;
-import static com.backups.app.ui.Constants.ITEM_SELECTION_BUTTON;
-import static com.backups.app.ui.Constants.SEARCH_BUTTON;
-
 import android.content.res.Resources;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Toast;
+
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
+
 import com.backups.app.R;
 import com.backups.app.data.pojos.PreferenceKeys;
 import com.backups.app.data.repositories.BackupRepository;
@@ -20,8 +18,12 @@ import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 import com.backups.app.data.viewmodels.ItemSelectionState;
 import com.backups.app.ui.actions.IActionButton;
 import com.backups.app.ui.actions.IActionButtonMethods;
+import com.backups.app.ui.actions.IDefaultAction;
 import com.backups.app.ui.fragments.SearchDialogFragment;
-import com.backups.app.utils.IDefaultAction;
+
+import static com.backups.app.ui.Constants.BACKUP_BUTTON;
+import static com.backups.app.ui.Constants.ITEM_SELECTION_BUTTON;
+import static com.backups.app.ui.Constants.SEARCH_BUTTON;
 
 public final class AppQueueButtonActions implements IActionButtonMethods {
   private final PreferenceKeys mPreferenceKeys;
