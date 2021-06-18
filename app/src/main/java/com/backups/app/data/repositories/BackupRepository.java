@@ -236,6 +236,12 @@ public class BackupRepository {
       mExecutor.execute(() -> {
         boolean hasOnlyOneBackup = backups.size() == 1;
 
+        BackupProgress began = new BackupProgress();
+
+        began.setState(BackupProgress.ProgressState.BEGAN);
+
+        callback.onComplete(began);
+
         if (hasOnlyOneBackup) {
           beginBackupProcess(backups, callback);
         } else {
