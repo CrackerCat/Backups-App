@@ -3,30 +3,30 @@ package com.backups.app.ui.actions;
 import androidx.annotation.LayoutRes;
 import androidx.fragment.app.FragmentActivity;
 
-public class ActionSetMaker {
+public final class ActionSetMaker {
   private ActionSetMaker() {}
 
   public interface CallBackSetup {
-    void setup(int position, IAction action);
+    void setup(int position, final IActionButton action,
+               final IDefaultAction defaultChecks);
   }
 
-  public static IAction[] makeActionSet(IPresenter presenter,
-                                        FragmentActivity parentActivity,
-                                        @LayoutRes final int[][] layoutIDs,
-                                        final int[] colors,
-                                        CallBackSetup callBackSetup) {
+  public static IActionButton[] makeActionSet(
+      final IPresenter presenter, final FragmentActivity parentActivity,
+      @LayoutRes final int[][] layoutIDs, final int[] colors,
+      final IDefaultAction defaultAction, final CallBackSetup callBackSetup) {
     boolean canSetup =
         layoutIDs != null && presenter != null && parentActivity != null;
     if (canSetup) {
       int total = layoutIDs.length;
 
-      IAction[] actions = new IAction[total];
+      IActionButton[] actions = new IActionButton[total];
 
       for (int i = 0; i < total; ++i) {
-        IAction action = new ActionButton(presenter, parentActivity,
-                                          layoutIDs[i], colors, false);
+        IActionButton action = new ActionButton(presenter, parentActivity,
+                                                layoutIDs[i], colors, false);
 
-        callBackSetup.setup(i, action);
+        callBackSetup.setup(i, action, defaultAction);
 
         actions[i] = action;
       }
