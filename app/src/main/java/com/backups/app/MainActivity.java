@@ -37,7 +37,7 @@ import com.backups.app.ui.adapters.TabAdapter;
 import com.backups.app.ui.fragments.AppListFragment;
 import com.backups.app.ui.fragments.AppQueueFragment;
 import com.backups.app.ui.fragments.SettingsFragment;
-import com.backups.app.utils.IDefaultAction;
+import com.backups.app.ui.actions.IDefaultAction;
 import com.backups.app.utils.PackageNameUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
