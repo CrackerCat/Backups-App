@@ -14,7 +14,7 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 import com.backups.app.R;
 import com.backups.app.data.repositories.BackupRepository;
-import com.backups.app.data.viewmodels.AppQueueViewModel;
+import com.backups.app.data.viewmodels.BackupsViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 
 public class SettingsFragment extends PreferenceFragmentCompat
@@ -23,7 +23,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
   private final int outputDirectoryPrefId = 0;
   private final int appThemePrefId = 2;
 
-  private AppQueueViewModel mAppQueueViewModel;
+  private BackupsViewModel mBackupsViewModel;
 
   @Override
   public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -31,17 +31,17 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     FragmentActivity parent = requireActivity();
 
-    mAppQueueViewModel =
+    mBackupsViewModel =
         new ViewModelProvider(parent, new BackupsViewModelFactory(parent))
-            .get(AppQueueViewModel.class);
+            .get(BackupsViewModel.class);
 
-    setupPreferences();
+    loadPreferences();
 
     PreferenceManager.getDefaultSharedPreferences(requireActivity())
         .registerOnSharedPreferenceChangeListener(this);
   }
 
-  private void setupPreferences() {
+  private void loadPreferences() {
     PreferenceScreen preferenceScreen = getPreferenceScreen();
 
     SharedPreferences sharedPreferences =
@@ -54,15 +54,19 @@ public class SettingsFragment extends PreferenceFragmentCompat
       Preference preference = preferenceScreen.getPreference(i);
 
       if (i == outputDirectoryPrefId) {
+
         initializeOutputDirectoryPreferences(
-            preference, mAppQueueViewModel.getAvailableStorageVolumes());
+            preference, mBackupsViewModel.getAvailableStorageVolumes());
 
       } else if (i == showSystemAppsPrefId) {
+
         boolean value =
             sharedPreferences.getBoolean(preference.getKey(), false);
 
         ((SwitchPreference)preference).setChecked(value);
+
       } else if (i == appThemePrefId) {
+
         boolean value =
             sharedPreferences.getBoolean(preference.getKey(), false);
 
@@ -83,6 +87,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     entries[BackupRepository.sPrimaryStorage] =
         resources.getString(R.string.internal_storage_selection);
+
     values[BackupRepository.sPrimaryStorage] =
         BackupRepository.sPrimaryStorage + "";
 
@@ -109,7 +114,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     outputDirectoryPreference.setEntryValues(result.second);
 
     outputDirectoryPreference.setSummary(
-        mAppQueueViewModel.getStorageVolumePath());
+        mBackupsViewModel.getStorageVolumePath());
   }
 
   private void
@@ -121,9 +126,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
     final int value = Integer.parseInt(sharedPreferences.getString(
         key, BackupRepository.sPrimaryStorage + ""));
 
-    mAppQueueViewModel.setStorageVolumeIndex(value);
+    mBackupsViewModel.setStorageVolumeIndex(value);
 
-    listPreference.setSummary(mAppQueueViewModel.getStorageVolumePath());
+    listPreference.setSummary(mBackupsViewModel.getStorageVolumePath());
   }
 
   private String updateThemeSummary(boolean useDarkTheme) {
@@ -159,7 +164,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
       final int preferenceId = preference.getOrder();
 
       if (preferenceId == outputDirectoryPrefId) {
+
         updateOutputDirectoryPreference(preference, sharedPreferences, key);
+
       } else if (preferenceId == appThemePrefId) {
 
         boolean useDarkTheme = sharedPreferences.getBoolean(key, false);

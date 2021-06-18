@@ -17,6 +17,7 @@ import com.backups.app.R;
 import com.backups.app.data.pojos.APKFile;
 import com.backups.app.data.viewmodels.ApkListViewModel;
 import com.backups.app.data.viewmodels.AppQueueViewModel;
+import com.backups.app.data.viewmodels.BackupsViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 import com.backups.app.ui.adapters.ItemClickListener;
 import com.backups.app.ui.adapters.SearchAdapter;
@@ -25,12 +26,14 @@ import java.util.List;
 
 public class SearchDialogFragment
     extends DialogFragment implements ItemClickListener {
+
   public enum DataSet { APP_LIST, APP_QUEUE }
 
   private DataSet mDataSetChoice = DataSet.APP_LIST;
 
-  private AppQueueViewModel mAppQueueViewModel;
   private ApkListViewModel mApkListViewModel;
+  private AppQueueViewModel mAppQueueViewModel;
+  private BackupsViewModel mBackupsViewModel;
 
   private SearchAdapter mSearchAdapter;
   private RecyclerView mSearchResultsRecyclerView;
@@ -40,13 +43,10 @@ public class SearchDialogFragment
   @Override
   public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
     FragmentActivity parent = requireActivity();
+
     LayoutInflater inflater = parent.getLayoutInflater();
 
-    mApkListViewModel =
-        new ViewModelProvider(parent).get(ApkListViewModel.class);
-    mAppQueueViewModel =
-        new ViewModelProvider(parent, new BackupsViewModelFactory(parent))
-            .get(AppQueueViewModel.class);
+    initializeViewModels(parent);
 
     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(parent);
 
@@ -63,6 +63,31 @@ public class SearchDialogFragment
     return builder.create();
   }
 
+  private void initializeViewModels(final FragmentActivity parent) {
+    mApkListViewModel =
+        new ViewModelProvider(parent).get(ApkListViewModel.class);
+
+    mAppQueueViewModel =
+        new ViewModelProvider(parent).get(AppQueueViewModel.class);
+
+    mBackupsViewModel =
+        new ViewModelProvider(parent, new BackupsViewModelFactory(parent))
+            .get(BackupsViewModel.class);
+  }
+
+  public void setDataSetID(DataSet dataSetID) { mDataSetChoice = dataSetID; }
+
+  @Override
+  public void onItemClick(View view, int position) {
+    if (!mBackupsViewModel.isBackupInProgress()) {
+      APKFile selected = mSearchAdapter.getItem(position);
+
+      mAppQueueViewModel.addApp(selected);
+
+      mBackupsViewModel.incrementBackupSize(selected.getAppSize());
+    }
+  }
+
   private void initializeViews(View view) {
     mSearchResultsRecyclerView = view.findViewById(R.id.search_dialog_rv);
     mSearchView = view.findViewById(R.id.search_dialog_sv);
@@ -70,11 +95,13 @@ public class SearchDialogFragment
 
   private List<APKFile> useDataSet(DataSet choice) {
     List<APKFile> dataSet = null;
+
     if (choice.equals(DataSet.APP_LIST)) {
       dataSet = mApkListViewModel.getApkListLiveData().getValue();
     } else if (choice.equals(DataSet.APP_QUEUE)) {
       dataSet = mAppQueueViewModel.getAppsInQueue();
     }
+
     return dataSet;
   }
 
@@ -108,15 +135,4 @@ public class SearchDialogFragment
       }
     });
   }
-
-  @Override
-  public void onItemClick(View view, int position) {
-    if (!mAppQueueViewModel.isBackupInProgress()) {
-      APKFile selected = mSearchAdapter.getItem(position);
-
-      mAppQueueViewModel.addApp(selected);
-    }
-  }
-
-  public void setDataSetID(DataSet dataSetID) { mDataSetChoice = dataSetID; }
 }
