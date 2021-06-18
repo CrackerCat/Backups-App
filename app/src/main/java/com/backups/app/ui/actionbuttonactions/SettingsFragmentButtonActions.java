@@ -9,7 +9,7 @@ import com.backups.app.R;
 import com.backups.app.ui.actions.IActionButton;
 import com.backups.app.ui.actions.IActionButtonMethods;
 import com.backups.app.ui.fragments.AboutUsDialogFragment;
-import com.backups.app.utils.IDefaultAction;
+import com.backups.app.ui.actions.IDefaultAction;
 import com.backups.app.utils.IntentLauncher;
 
 import static com.backups.app.ui.Constants.ABOUT_US_SECTION_BUTTON;
