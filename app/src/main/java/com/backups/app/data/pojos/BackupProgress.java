@@ -1,7 +1,7 @@
 package com.backups.app.data.pojos;
 
 public class BackupProgress {
-  public enum ProgressState { NONE, ONGOING, FINISHED, ERROR }
+  public enum ProgressState { NONE, BEGAN, ONGOING, FINISHED, ERROR, ENDED }
 
   private ProgressState mState = ProgressState.NONE;
   private String mBackupName = null;
