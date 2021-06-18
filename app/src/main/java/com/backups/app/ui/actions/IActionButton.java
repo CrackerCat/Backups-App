@@ -3,18 +3,18 @@ package com.backups.app.ui.actions;
 import android.view.View;
 
 public interface IActionButton {
-    void assignCallBacks(View.OnClickListener activeCallback,
-                         View.OnClickListener inactiveCallback);
+  void assignCallBacks(View.OnClickListener activeCallback,
+                       View.OnClickListener inactiveCallback);
 
-    void inactive();
+  void inactive();
 
-    void active();
+  void active();
 
-    void setAvailability(final boolean flag);
+  void setAvailability(final boolean flag);
 
-    boolean getAvailability();
+  boolean getAvailability();
 
-    void display(final boolean flag);
+  void display(final boolean flag);
 
-    boolean canBeDisplayed();
+  boolean canBeDisplayed();
 }
