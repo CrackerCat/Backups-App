@@ -1,5 +1,7 @@
 package com.backups.app.ui.adapters;
 
+import static com.backups.app.ui.Constants.MIN_PROGRESS;
+
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -8,16 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.backups.app.R;
 import com.backups.app.data.pojos.APKFile;
-
 import java.util.List;
-
-import static com.backups.app.ui.Constants.MIN_PROGRESS;
 
 public class AppQueueAdapter
     extends RecyclerView.Adapter<AppQueueAdapter.BackupsViewHolder> {
