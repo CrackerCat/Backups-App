@@ -1,18 +1,13 @@
 package com.backups.app.data.viewmodels;
 
-import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.backups.app.data.pojos.APKFile;
-import com.backups.app.data.pojos.BackupProgress;
 import com.backups.app.data.repositories.AppQueueRepository;
-import com.backups.app.data.repositories.BackupRepository;
 import java.util.List;
 
-public class AppQueueViewModel extends ViewModel {
-  private boolean mIsBackupInProgress = false;
-
+public final class AppQueueViewModel extends ViewModel {
   private boolean mAutomaticallySelectedAll = false;
 
   private boolean mManuallySelectedAll = false;
@@ -24,21 +19,8 @@ public class AppQueueViewModel extends ViewModel {
   private final MutableLiveData<ItemSelectionState> mSelectionStateLiveData =
       new MutableLiveData<>();
 
-  private final MutableLiveData<BackupProgress> mProgressState =
-      new MutableLiveData<>();
-
   private final AppQueueRepository mAppQueueRepository =
       new AppQueueRepository();
-
-  private final BackupRepository mBackupRepository;
-
-  public AppQueueViewModel(Context context) {
-    mBackupRepository = new BackupRepository(context);
-  }
-
-  public LiveData<BackupProgress> getBackupProgressLiveData() {
-    return mProgressState;
-  }
 
   public LiveData<DataEvent> getDataEventLiveData() {
     return mAppQueueRepository.getDataEventLiveData();
@@ -62,8 +44,6 @@ public class AppQueueViewModel extends ViewModel {
     return mAppQueueRepository.getAppsInQueue().isEmpty();
   }
 
-  public boolean isBackupInProgress() { return mIsBackupInProgress; }
-
   public boolean hasSelectedItems() {
     return !mAppQueueRepository.getSelectedItems().isEmpty();
   }
@@ -82,26 +62,6 @@ public class AppQueueViewModel extends ViewModel {
     return mAppQueueRepository.getSelectedItems().size();
   }
 
-  public boolean hasSufficientStorage() {
-    return mBackupRepository.hasSufficientStorage();
-  }
-
-  public int getCurrentStorageVolumeIndex() {
-    return mBackupRepository.getStorageVolumeIndex();
-  }
-
-  public int getAvailableStorageVolumes() {
-    return mBackupRepository.getAvailableStorageVolumeCount();
-  }
-
-  public String getStorageVolumePath() {
-    return mBackupRepository.getStorageVolumePath();
-  }
-
-  public void isBackupInProgress(final boolean inProgress) {
-    mIsBackupInProgress = inProgress;
-  }
-
   public void hasAutomaticallySelectedAll(final boolean has) {
     mAutomaticallySelectedAll = has;
   }
@@ -112,10 +72,6 @@ public class AppQueueViewModel extends ViewModel {
 
   public void setBackupCountLabel(String backupCount) {
     mBackupCountLabel = backupCount;
-  }
-
-  public boolean setStorageVolumeIndex(final int index) {
-    return mBackupRepository.setStorageVolume(index);
   }
 
   public void setItemSelectionStateTo(final ItemSelectionState state) {
@@ -164,18 +120,5 @@ public class AppQueueViewModel extends ViewModel {
 
   public void addApp(APKFile apkFile) {
     mAppQueueRepository.addAppToQueue(apkFile);
-
-    mBackupRepository.incrementBackupSize(apkFile.getAppSize());
-  }
-
-  public void resetProgress() { mProgressState.setValue(new BackupProgress()); }
-
-  public void startBackup() {
-    mIsBackupInProgress = true;
-
-    mBackupRepository.backup(mAppQueueRepository.getAppsInQueue(),
-                             mProgressState::postValue);
-
-    mBackupRepository.zeroBackupSize();
   }
 }
