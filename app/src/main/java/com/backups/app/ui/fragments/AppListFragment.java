@@ -17,6 +17,7 @@ import com.backups.app.R;
 import com.backups.app.data.pojos.APKFile;
 import com.backups.app.data.viewmodels.ApkListViewModel;
 import com.backups.app.data.viewmodels.AppQueueViewModel;
+import com.backups.app.data.viewmodels.BackupsViewModel;
 import com.backups.app.data.viewmodels.BackupsViewModelFactory;
 import com.backups.app.ui.adapters.AppListAdapter;
 import com.backups.app.ui.adapters.ItemClickListener;
@@ -25,6 +26,7 @@ import java.util.List;
 public class AppListFragment extends Fragment implements ItemClickListener {
   private ApkListViewModel mAppListViewModel;
   private AppQueueViewModel mAppQueueViewModel;
+  private BackupsViewModel mBackupsViewModel;
 
   private AppListAdapter mAppListAdapter;
   private RecyclerView mAppListRecyclerView;
@@ -93,9 +95,13 @@ public class AppListFragment extends Fragment implements ItemClickListener {
   private void initializeViewModels(FragmentActivity activity) {
     mAppListViewModel =
         new ViewModelProvider(activity).get(ApkListViewModel.class);
+
     mAppQueueViewModel =
+        new ViewModelProvider(activity).get(AppQueueViewModel.class);
+
+    mBackupsViewModel =
         new ViewModelProvider(activity, new BackupsViewModelFactory(activity))
-            .get(AppQueueViewModel.class);
+            .get(BackupsViewModel.class);
   }
 
   private void setupRecyclerView(FragmentActivity activity,
@@ -130,10 +136,12 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
   @Override
   public void onItemClick(View view, int position) {
-    if (!mAppQueueViewModel.isBackupInProgress()) {
+    if (!mBackupsViewModel.isBackupInProgress()) {
       APKFile selected = mAppListAdapter.getItem(position);
 
       mAppQueueViewModel.addApp(selected);
+
+      mBackupsViewModel.incrementBackupSize(selected.getAppSize());
     }
   }
 }
