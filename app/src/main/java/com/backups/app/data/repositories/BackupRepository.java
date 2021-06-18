@@ -24,6 +24,13 @@ import static com.backups.app.ui.Constants.PROGRESS_RATE;
 import static com.backups.app.ui.Constants.REMOVE_FROM;
 
 public class BackupRepository {
+  public enum OutputStorage {
+    MOUNTED,
+    USING_DEFAULT_STORAGE,
+    NO_MOUNTED_DEVICES,
+    UNKNOWN_STORAGE_VOLUME
+  }
+
   private static class StorageVolumeState {
     // anything greater than sPrimaryStorage is considered external storage
     // (sdcard, etc)
@@ -58,6 +65,7 @@ public class BackupRepository {
 
     boolean storageVolumesAreAvailable =
         mStorageVolumeState.availableStorageVolumes != mErrorCode;
+
     if (storageVolumesAreAvailable) {
       mStorageVolumeState.storageVolumesAvailable = true;
       mOutputDirectory = mExternalStorageVolumes[sPrimaryStorage];
@@ -118,6 +126,32 @@ public class BackupRepository {
 
   public int getAvailableStorageVolumeCount() {
     return mStorageVolumeState.availableStorageVolumes;
+  }
+
+  public BackupRepository.OutputStorage
+  isOutputDirectoryMounted(final int index) {
+    if (index < mStorageVolumeState.availableStorageVolumes) {
+      if (Environment.getExternalStorageState(mExternalStorageVolumes[index])
+              .equals(Environment.MEDIA_MOUNTED)) {
+
+        return BackupRepository.OutputStorage.MOUNTED;
+
+      } else {
+        boolean canUseDefaultStorage =
+            Environment
+                .getExternalStorageState(
+                    mExternalStorageVolumes[sPrimaryStorage])
+                .equals(Environment.MEDIA_MOUNTED);
+
+        if (canUseDefaultStorage) {
+          return BackupRepository.OutputStorage.USING_DEFAULT_STORAGE;
+        }
+      }
+
+      return BackupRepository.OutputStorage.NO_MOUNTED_DEVICES;
+    }
+
+    return OutputStorage.UNKNOWN_STORAGE_VOLUME;
   }
 
   public void incrementBackupSize(final long by) { mBackupSize += by; }
