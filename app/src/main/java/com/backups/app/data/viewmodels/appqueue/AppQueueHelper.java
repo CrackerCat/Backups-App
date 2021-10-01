@@ -1,18 +1,18 @@
-package com.backups.app.data.repositories;
+package com.backups.app.data.viewmodels.appqueue;
 
 import androidx.lifecycle.MutableLiveData;
-import com.backups.app.data.pojos.APKFile;
-import com.backups.app.data.viewmodels.DataEvent;
-import com.backups.app.utils.PackageNameUtils;
+import com.backups.app.data.events.DataEvent;
+import com.backups.app.data.pojos.ApkFile;
+import com.backups.app.utils.Callback;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AppQueueRepository {
+final class AppQueueHelper {
   private DataEvent mLastDataEvent = DataEvent.NONE;
 
-  private final List<APKFile> mSelectedItems = new ArrayList<>();
+  private final List<ApkFile> mSelectedItems = new ArrayList<>();
 
-  private final List<APKFile> mAppsToBackup = new ArrayList<>();
+  private final List<ApkFile> mAppsToBackup = new ArrayList<>();
 
   private final MutableLiveData<DataEvent> mDataEventLiveData =
       new MutableLiveData<>();
@@ -23,24 +23,12 @@ public class AppQueueRepository {
 
   public DataEvent getLastDataEvent() { return mLastDataEvent; }
 
-  public List<APKFile> getSelectedItems() { return mSelectedItems; }
+  public List<ApkFile> getSelectedItems() { return mSelectedItems; }
 
-  public List<APKFile> getAppsInQueue() { return mAppsToBackup; }
+  public List<ApkFile> getAppsInQueue() { return mAppsToBackup; }
 
-  public void addAppToQueue(final APKFile backup) {
-    String selectedAPKName = backup.getName();
-
-    String repeatedBackupName =
-        PackageNameUtils.computeRepeatedBackupName(selectedAPKName);
-
-    if (repeatedBackupName != null) {
-      APKFile repeat = new APKFile(repeatedBackupName, backup.getPackageName(),
-                                   backup.getPackagePath(), backup.getAppSize(),
-                                   backup.getIcon());
-      mAppsToBackup.add(repeat);
-    } else {
-      mAppsToBackup.add(backup);
-    }
+  public void addAppToQueue(final ApkFile backup) {
+    mAppsToBackup.add(backup);
 
     mDataEventLiveData.setValue(
         (mLastDataEvent = DataEvent.ITEM_ADDED_TO_QUEUE));
@@ -48,18 +36,27 @@ public class AppQueueRepository {
     mLastDataEvent = DataEvent.NONE;
   }
 
-  public void addOrRemoveSelection(APKFile item) {
-    if (!mSelectedItems.contains(item)) {
-      mSelectedItems.add(item);
+  public boolean addOrRemoveSelection(final ApkFile apkFile) {
+    // TODO: refactor so that the index of the removed item is returned
+    // REASON: to be able to update the RecyclerView efficiently, that is
+    // without using notifyDataSetChanged
+
+    boolean removedApk = false;
+
+    if (!mSelectedItems.contains(apkFile)) {
+      mSelectedItems.add(apkFile);
 
       mDataEventLiveData.setValue((mLastDataEvent = DataEvent.ITEM_SELECTED));
 
-    } else if (mSelectedItems.remove(item)) {
+    } else if (mSelectedItems.remove(apkFile)) {
+      removedApk = true;
 
       mDataEventLiveData.setValue((mLastDataEvent = DataEvent.ITEM_DESELECTED));
     }
 
     mLastDataEvent = DataEvent.NONE;
+
+    return removedApk;
   }
 
   public void selectAll() {
@@ -70,7 +67,7 @@ public class AppQueueRepository {
 
       mSelectedItems.clear();
 
-      for (APKFile app : mAppsToBackup) {
+      for (final ApkFile app : mAppsToBackup) {
         app.mark(true);
 
         mSelectedItems.add(app);
@@ -83,17 +80,23 @@ public class AppQueueRepository {
     mLastDataEvent = DataEvent.NONE;
   }
 
-  public void clearAndEmptySelection() {
+  public void removeSelected(final Callback<ApkFile> duplicateApkAction) {
+    // TODO: refactor so that the indices of the removed items are returned
+    // REASON: to be able to update the RecyclerView efficiently, that is
+    // without using notifyDataSetChanged
+
     if (!mSelectedItems.isEmpty()) {
 
       mDataEventLiveData.setValue(
           (mLastDataEvent = DataEvent.ABOUT_TO_MODIFY_ENTIRE_SELECTION));
 
-      for (APKFile app : mSelectedItems) {
+      for (final ApkFile app : mSelectedItems) {
         if (app.marked()) {
           app.mark(false);
 
-          PackageNameUtils.resetCountFor(app.getName());
+          if (app.isDuplicate()) {
+            duplicateApkAction.invoke(app);
+          }
 
           mAppsToBackup.remove(app);
         }
@@ -113,7 +116,7 @@ public class AppQueueRepository {
       mDataEventLiveData.setValue(
           (mLastDataEvent = DataEvent.ABOUT_TO_MODIFY_ENTIRE_SELECTION));
 
-      for (APKFile app : mSelectedItems) {
+      for (final ApkFile app : mSelectedItems) {
         app.mark(false);
       }
 
@@ -133,7 +136,7 @@ public class AppQueueRepository {
         mDataEventLiveData.setValue(
             (mLastDataEvent = DataEvent.ABOUT_TO_MODIFY_ENTIRE_SELECTION));
 
-        for (APKFile app : mSelectedItems) {
+        for (ApkFile app : mSelectedItems) {
           app.mark(false);
         }
 
@@ -141,8 +144,6 @@ public class AppQueueRepository {
       }
 
       mAppsToBackup.clear();
-
-      PackageNameUtils.clearRepeatedNameTable();
 
       mDataEventLiveData.setValue(
           (mLastDataEvent = DataEvent.ITEMS_REMOVED_FROM_QUEUE));
