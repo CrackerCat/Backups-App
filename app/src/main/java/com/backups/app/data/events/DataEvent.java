@@ -1,4 +1,4 @@
-package com.backups.app.data.viewmodels;
+package com.backups.app.data.events;
 
 public enum DataEvent {
   NONE,
