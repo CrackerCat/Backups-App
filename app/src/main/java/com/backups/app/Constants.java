@@ -1,9 +1,10 @@
-package com.backups.app.ui;
+package com.backups.app;
 
-public class Constants {
+public final class Constants {
   private Constants() {}
 
   // FAButtons
+  // TODO: transform into enums
   public static final int SEARCH_BUTTON = 0;
   public static final int BACKUP_BUTTON = 1;
 
@@ -15,6 +16,7 @@ public class Constants {
   //
 
   // Tabs
+  // TODO: transform into enums
   public static final int APP_LIST = 0;
   public static final int APP_QUEUE = 1;
   public static final int SETTINGS = 2;
@@ -28,5 +30,8 @@ public class Constants {
   //
 
   // Item selection
-  public static final String sItemSelectionFMT = "%d %s";
+  public static final String ITEM_SELECTION_FMT = "%d %s";
+
+  // Backup output directory
+  public final static int PRIMARY_STORAGE = 0;
 }
