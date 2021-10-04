@@ -11,18 +11,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.backups.app.R;
-import com.backups.app.data.pojos.APKFile;
+import com.backups.app.data.pojos.ApkFile;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchAdapter
+public final class SearchAdapter
     extends RecyclerView.Adapter<SearchAdapter.SearchResultViewHolder>
     implements Filterable {
-  private final List<APKFile> mDataSet;
-  private final List<APKFile> mSearchResults = new ArrayList<>();
+  private final List<ApkFile> mDataSet;
+  private final List<ApkFile> mSearchResults = new ArrayList<>();
   private ItemClickListener mClickListener;
 
-  public SearchAdapter(final List<APKFile> data) { mDataSet = data; }
+  private Filter mApkSearchFilter;
+
+  public SearchAdapter(final List<ApkFile> data) {
+    mDataSet = data;
+
+    initializeSearchFilter();
+  }
 
   @NonNull
   @Override
@@ -37,11 +43,11 @@ public class SearchAdapter
   @Override
   public void onBindViewHolder(@NonNull SearchResultViewHolder holder,
                                int position) {
-    String appName = mSearchResults.get(position).getName();
-    Drawable appIcon = mSearchResults.get(position).getIcon();
+    final ApkFile item = mSearchResults.get(position);
 
-    holder.setAppName(appName);
-    holder.setAppIcon(appIcon);
+    holder.setAppName(item.getName());
+
+    holder.setAppIcon(item.getIcon());
   }
 
   @Override
@@ -49,7 +55,12 @@ public class SearchAdapter
     return mSearchResults.size();
   }
 
-  public final APKFile getItem(final int position) {
+  @Override
+  public Filter getFilter() {
+    return mApkSearchFilter;
+  }
+
+  public final ApkFile getItem(final int position) {
     return mSearchResults.get(position);
   }
 
@@ -57,42 +68,43 @@ public class SearchAdapter
     mClickListener = itemClickListener;
   }
 
-  private final Filter mApkSearchFilter = new Filter() {
-    @Override
-    protected FilterResults performFiltering(CharSequence constraint) {
-      String query = constraint.toString();
+  private void initializeSearchFilter() {
+    mApkSearchFilter = new Filter() {
+      @Override
+      protected FilterResults performFiltering(CharSequence constraint) {
+        final String query = constraint.toString();
 
-      List<APKFile> results = new ArrayList<>(mSearchResults.size());
+        final List<ApkFile> results = new ArrayList<>(mSearchResults.size());
 
-      if (!query.isEmpty()) {
-        for (APKFile app : mDataSet) {
-          if (app.getName().contains(query)) {
-            results.add(app);
+        if (!query.isEmpty()) {
+          for (ApkFile app : mDataSet) {
+            if (app.getName().contains(query)) {
+              results.add(app);
+            }
           }
         }
+
+        final FilterResults filterResults = new FilterResults();
+
+        filterResults.values = results;
+
+        return filterResults;
       }
 
-      FilterResults filterResults = new FilterResults();
-      filterResults.values = results;
-      return filterResults;
-    }
+      @Override
+      protected void publishResults(CharSequence constraint,
+                                    FilterResults results) {
 
-    @Override
-    protected void publishResults(CharSequence constraint,
-                                  FilterResults results) {
-      List<APKFile> searchResults = (List<APKFile>)results.values;
+        @SuppressWarnings("unchecked") final List<ApkFile> searchResults =
+                (List<ApkFile>) results.values;
 
-      mSearchResults.clear();
-      if (!searchResults.isEmpty()) {
-        mSearchResults.addAll(searchResults);
+        mSearchResults.clear();
+        if (!searchResults.isEmpty()) {
+          mSearchResults.addAll(searchResults);
+        }
+        notifyDataSetChanged();
       }
-      notifyDataSetChanged();
-    }
-  };
-
-  @Override
-  public Filter getFilter() {
-    return mApkSearchFilter;
+    };
   }
 
   protected class SearchResultViewHolder
@@ -116,7 +128,7 @@ public class SearchAdapter
     @Override
     public void onClick(View view) {
       if (mClickListener != null) {
-        mClickListener.onItemClick(view, getAdapterPosition());
+        mClickListener.onItemClick(view, getBindingAdapterPosition());
       }
     }
   }

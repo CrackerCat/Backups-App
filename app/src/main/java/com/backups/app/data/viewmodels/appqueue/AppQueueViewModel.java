@@ -61,9 +61,7 @@ public final class AppQueueViewModel extends ViewModel {
     return mAppQueueHelper.getLastDataEvent();
   }
 
-  public SelectionState getCurrentSelectionState() {
-    return mSelectionState;
-  }
+  public SelectionState getCurrentSelectionState() { return mSelectionState; }
 
   public String getBackupCountLabel() { return mBackupCountLabel; }
 

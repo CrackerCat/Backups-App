@@ -15,31 +15,21 @@ import com.backups.app.R;
 import com.backups.app.utils.IntentLauncher;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-public class AboutUsDialogFragment extends DialogFragment {
+public final class AboutUsDialogFragment extends DialogFragment {
+
+  private static final class Message {
+    public String title;
+    public String body;
+  }
+
   private TextView mAppLicenseType;
 
   private LinearLayout mContactDevView;
   private LinearLayout mSendSuggestionView;
   private LinearLayout mViewSourceCodeView;
 
-  private ImageView mMember1GithubLink;
-  private ImageView mMember2GithubLink;
-
-  private final String mGPLLicenseURL =
-      "https://www.gnu.org/licenses/gpl-3.0.en.html";
-
-  private final String mMember1GithubURL = "https://github.com/flyingsl0ths";
-
-  private final String mMember2GithubURL = "https://github.com/hentai-chan";
-
-  private final String mProjectURL = mMember1GithubURL + "/Backups-App";
-
-  private final String mDeveloperContactEmail = "thebackupsapp@gmail.com";
-
-  private String mFeatureRequestTitle;
-  private String mFeatureRequestBody;
-  private String mBugReportTitle;
-  private String mBugReportBody;
+  private ImageView mDeveloperGithubLink;
+  private ImageView mDesignerGithubLink;
 
   @NonNull
   @Override
@@ -52,27 +42,40 @@ public class AboutUsDialogFragment extends DialogFragment {
 
     initializeViews(dialogLayout);
 
-    loadContactEmailStrings();
-
-    setupViews();
+    setupActions();
 
     builder.setView(dialogLayout);
 
     return builder.create();
   }
 
-  private void loadContactEmailStrings() {
-    Resources resources = getResources();
+  private Message buildBugReportMessage(final Resources resources) {
+    final String bugReportTitle =
+        resources.getString(R.string.bug_report_email_subject);
+    final String bugReportBody =
+        resources.getString(R.string.bug_report_email_body);
 
-    mFeatureRequestTitle =
+    final Message bugReport = new Message();
+
+    bugReport.title = bugReportTitle;
+    bugReport.body = bugReportBody;
+
+    return bugReport;
+  }
+
+  private Message buildFeatureRequestMessage(final Resources resources) {
+    final String featureRequestTitle =
         resources.getString(R.string.feature_request_email_subject);
 
-    mFeatureRequestBody =
+    final String featureRequestBody =
         resources.getString(R.string.feature_request_email_body);
 
-    mBugReportTitle = resources.getString(R.string.bug_report_email_subject);
+    final Message featureRequest = new Message();
 
-    mBugReportBody = resources.getString(R.string.bug_report_email_body);
+    featureRequest.title = featureRequestTitle;
+    featureRequest.body = featureRequestBody;
+
+    return featureRequest;
   }
 
   public void initializeViews(View parent) {
@@ -85,36 +88,60 @@ public class AboutUsDialogFragment extends DialogFragment {
 
     mViewSourceCodeView = parent.findViewById(R.id.view_source_code_view);
 
-    mMember1GithubLink = parent.findViewById(R.id.member1_github);
+    mDeveloperGithubLink = parent.findViewById(R.id.member1_github);
 
-    mMember2GithubLink = parent.findViewById(R.id.member2_github);
+    mDesignerGithubLink = parent.findViewById(R.id.member2_github);
   }
 
-  private void setupViews() {
-    FragmentActivity parent = requireActivity();
+  private void setupGithubLinks(final FragmentActivity parent) {
+    final String gplLicenseURL = "https://www.gnu.org/licenses/gpl-3.0.en.html";
+
+    final String developerGithubURL = "https://github.com/flyingsl0ths";
+
+    final String designerGithubURL = "https://github.com/hentai-chan";
+
+    final String projectURL = developerGithubURL + "/Backups-App";
 
     mAppLicenseType.setOnClickListener(
-        v -> IntentLauncher.launchWebPage(parent, mGPLLicenseURL));
+        v -> IntentLauncher.launchWebPage(parent, gplLicenseURL));
 
-    mMember1GithubLink.setOnClickListener(
-        v -> IntentLauncher.launchWebPage(parent, mMember1GithubURL));
+    mDeveloperGithubLink.setOnClickListener(
+        v -> IntentLauncher.launchWebPage(parent, developerGithubURL));
 
-    mMember2GithubLink.setOnClickListener(
-        v -> IntentLauncher.launchWebPage(parent, mMember2GithubURL));
+    mDesignerGithubLink.setOnClickListener(
+        v -> IntentLauncher.launchWebPage(parent, designerGithubURL));
+
+    mViewSourceCodeView.setOnClickListener(
+        v -> IntentLauncher.launchWebPage(parent, projectURL));
+  }
+
+  private void setupContactLinks(final FragmentActivity parent) {
+    final Resources resources = getResources();
+
+    final Message bugReport = buildBugReportMessage(resources);
+
+    final Message featureRequest = buildFeatureRequestMessage(resources);
+
+    final String developerContactEmail = "thebackupsapp@gmail.com";
 
     mContactDevView.setOnClickListener(
         v
         -> IntentLauncher.composeEmail(parent,
-                                       new String[] {mDeveloperContactEmail},
-                                       mBugReportTitle, mBugReportBody));
+                                       new String[] {developerContactEmail},
+                                       bugReport.title, bugReport.body));
 
     mSendSuggestionView.setOnClickListener(
         v
         -> IntentLauncher.composeEmail(
-            parent, new String[] {mDeveloperContactEmail}, mFeatureRequestTitle,
-            mFeatureRequestBody));
+            parent, new String[] {developerContactEmail}, featureRequest.title,
+            featureRequest.body));
+  }
 
-    mViewSourceCodeView.setOnClickListener(
-        v -> IntentLauncher.launchWebPage(parent, mProjectURL));
+  private void setupActions() {
+    final FragmentActivity parent = requireActivity();
+
+    setupGithubLinks(parent);
+
+    setupContactLinks(parent);
   }
 }
