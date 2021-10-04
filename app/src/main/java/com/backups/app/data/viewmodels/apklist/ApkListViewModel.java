@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 public final class ApkListViewModel extends ViewModel {
-  private final APKFileRepository mAPKFileRepository =
-      new APKFileRepository(Executors.newSingleThreadExecutor());
+  private final ApkFileRepository mAPKFileRepository =
+      new ApkFileRepository(Executors.newSingleThreadExecutor());
 
   private final MutableLiveData<List<ApkFile>> mAppListMutableLiveData =
       new MutableLiveData<>();
