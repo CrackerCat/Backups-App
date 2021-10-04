@@ -1,5 +1,5 @@
 package com.backups.app.ui.actions;
 
-public interface IDefaultAction {
+public interface DefaultAction {
   void invoke();
 }

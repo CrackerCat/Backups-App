@@ -2,7 +2,7 @@ package com.backups.app.ui.actions;
 
 import android.view.View;
 
-public interface IActionButton {
+public interface IAction {
   void assignCallBacks(View.OnClickListener activeCallback,
                        View.OnClickListener inactiveCallback);
 
