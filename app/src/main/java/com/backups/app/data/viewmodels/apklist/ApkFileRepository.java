@@ -12,12 +12,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-final class APKFileRepository {
+final class ApkFileRepository {
 
   private final Executor mExecutor;
   private boolean mDisplaySystemApps;
 
-  public APKFileRepository(final Executor executor) { mExecutor = executor; }
+  public ApkFileRepository(final Executor executor) { mExecutor = executor; }
 
   public void displaySystemApps(boolean choice) { mDisplaySystemApps = choice; }
 
