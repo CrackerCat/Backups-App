@@ -16,6 +16,9 @@
     <dimen name="view_holder_image_size2">36dip</dimen>
 
 
+    <!-- FABs -->
+    <dimen name="label_padding">5dp</dimen>
+
     <!-- About Us Section -->
     <dimen name="app_icon_size">64dip</dimen>
     <dimen name="member_role_icon_sizes">36dip</dimen>
