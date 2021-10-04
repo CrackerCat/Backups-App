@@ -73,7 +73,7 @@
     <string name="search_label_text">Search</string>
     <string name="backup_label_text">Backup</string>
 
-    <string name="app_queue_item_selection_label_text">Remove items</string>
+    <string name="app_queue_item_selection_label_text">Remove</string>
 
     <string name="about_us_label_text">About Us</string>
     <string name="share_app_label_text">Share App</string>
@@ -115,7 +115,7 @@
 
     <string name="feature_request_email_body">
         Please describe in detail:\n
-        - What the purpose of the feature is?\n\n
+        - What the purpose of the feature is\n\n
         - Why you think the feature will improve the app\n\n
         - As well as a basic example of the feature\'s functionality in use\n\n</string>
 
