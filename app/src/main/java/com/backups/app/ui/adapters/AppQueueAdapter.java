@@ -45,8 +45,9 @@ public final class AppQueueAdapter
                                int position) {
     final ApkFile item = mDataSet.get(position);
 
-    holder.itemView.setBackgroundColor(item.marked() ? mItemBgViewColor
-                                                     : Color.TRANSPARENT);
+    if(item.marked()) {
+      holder.itemView.setBackgroundColor(mItemBgViewColor);
+    }
 
     populateBackupViewHolder(holder, item);
   }

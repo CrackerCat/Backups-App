@@ -98,7 +98,7 @@ public final class AboutUsDialogFragment extends DialogFragment {
 
     final String developerGithubURL = "https://github.com/flyingsl0ths";
 
-    final String designerGithubURL = "https://github.com/hentai-chan";
+    final String designerGithubURL = "https://github.com/stefangreve";
 
     final String projectURL = developerGithubURL + "/Backups-App";
 
@@ -118,11 +118,11 @@ public final class AboutUsDialogFragment extends DialogFragment {
   private void setupContactLinks(final FragmentActivity parent) {
     final Resources resources = getResources();
 
+    final String developerContactEmail = "thebackupsapp@gmail.com";
+
     final Message bugReport = buildBugReportMessage(resources);
 
     final Message featureRequest = buildFeatureRequestMessage(resources);
-
-    final String developerContactEmail = "thebackupsapp@gmail.com";
 
     mContactDevView.setOnClickListener(
         v

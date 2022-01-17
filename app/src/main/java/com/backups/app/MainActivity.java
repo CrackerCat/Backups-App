@@ -78,13 +78,13 @@ public final class MainActivity extends AppCompatActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    initializeViewModels();
+
     loadSettings();
 
     switchThemes(mPreferenceKeys.useDarkTheme);
 
     verifyOutputDirectory();
-
-    initializeViewModels();
 
     fetchApkData();
 
@@ -316,20 +316,10 @@ public final class MainActivity extends AppCompatActivity
     restoreBackupSelectionView();
   }
 
-  private void onBackupComplete(final BackupProgress progress) {
+  private void onBackupComplete() {
     final int totalAppsLeft = mAppQueueViewModel.getAppsInQueue().size();
 
     updateBackupCountView(totalAppsLeft);
-
-    if (progress.finished()) {
-      Toast
-          .makeText(
-              MainActivity.this,
-              String.format(getString(R.string.unable_to_create_backup_message),
-                            progress.getBackupName()),
-              Toast.LENGTH_SHORT)
-          .show();
-    }
 
     mAppQueueViewModel.isBackupInProgress(false);
 
@@ -346,7 +336,7 @@ public final class MainActivity extends AppCompatActivity
 
   private void handleBackupProgress(final BackupProgress progress) {
     if (progress.finished()) {
-      onBackupComplete(progress);
+      onBackupComplete();
     }
   }
 
@@ -464,6 +454,8 @@ public final class MainActivity extends AppCompatActivity
     hideWelcomeView(true);
 
     hideAppQueueItemSelectionView(false);
+
+    mActionPresenter.available(APP_QUEUE, SEARCH_BUTTON, false);
   }
 
   private void onBackupSelectionEnded() {
@@ -479,6 +471,8 @@ public final class MainActivity extends AppCompatActivity
 
     mItemSelectionCountTextView.setText(
         getString(R.string.app_queue_selected_items_fmt));
+
+    mActionPresenter.available(APP_QUEUE, SEARCH_BUTTON, true);
 
     mActionPresenter.available(APP_QUEUE, ITEM_SELECTION_BUTTON, false);
   }

@@ -34,8 +34,10 @@ final class ApkFileRepository {
   }
 
   private boolean extractDataFrom(ApplicationInfo applicationInfo) {
-    return !isSystemApp(applicationInfo) && !mDisplaySystemApps ||
-        isSystemApp(applicationInfo) && mDisplaySystemApps;
+    final boolean isSystemApp = isSystemApp(applicationInfo);
+
+    return (mDisplaySystemApps && (!isSystemApp || isSystemApp)) ||
+            (!mDisplaySystemApps && !isSystemApp);
   }
 
   private Pair<String, String>

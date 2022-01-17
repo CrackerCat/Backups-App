@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-final class BackupHelper {
+final class BackupRepository {
 
   private long mBackupSize = 0L;
 
@@ -31,7 +31,7 @@ final class BackupHelper {
 
   public void zeroBackupSize() { mBackupSize = 0L; }
 
-  public BackupHelper(final String outputDirectory) {
+  public BackupRepository(final String outputDirectory) {
     mOutputDirectory = outputDirectory;
   }
 
@@ -67,7 +67,7 @@ final class BackupHelper {
 
     progressState.setProgress(PROGRESS_RATE);
 
-    int backupWaitTime = 175;
+    int backupWaitTime = 125;
 
     while (MAX_PROGRESS >= progress) {
       progress += PROGRESS_RATE;

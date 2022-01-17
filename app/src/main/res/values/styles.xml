@@ -13,6 +13,7 @@
     </style>
 
     <style name="RecyclerViewCard">
+        <item name="cardBackgroundColor">@color/primaryLightColor</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">20dp</item>
@@ -22,6 +23,7 @@
     </style>
 
     <style name="FloatingActionButtonInactive">
+        <item name="tint">@color/primaryColor</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:padding">@dimen/label_padding</item>
         <item name="android:layout_height">wrap_content</item>
@@ -38,10 +40,10 @@
     </style>
 
     <style name="FloatingActionButtonLabel">
+        <item name="android:background">@drawable/rounded_bg</item>
+        <item name="android:padding">5dp</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@color/secondaryLightColor</item>
-        <item name="android:padding">2dp</item>
         <item name="android:textColor">@color/primaryColor</item>
         <item name="android:textSize">@dimen/h3</item>
         <item name="android:visibility">invisible</item>
