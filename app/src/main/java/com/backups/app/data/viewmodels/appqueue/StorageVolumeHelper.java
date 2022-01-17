@@ -37,6 +37,9 @@ final class StorageVolumeHelper {
 
     setupInitialStorageVolume();
   }
+  public boolean isMounted(final int volume) {
+    return Environment.getExternalStorageState(mOutputDirectory).equals(Environment.MEDIA_MOUNTED);
+  }
 
   public boolean setStorageVolume(final int selection) {
     if (!mStorageVolumeState.storageVolumesAvailable &&

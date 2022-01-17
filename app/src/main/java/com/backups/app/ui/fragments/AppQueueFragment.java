@@ -120,8 +120,7 @@ public final class AppQueueFragment
 
     } else if (dataEvent == DataEvent.ITEMS_REMOVED_FROM_QUEUE ||
                dataEvent == DataEvent.ITEMS_REMOVED_FROM_SELECTION) {
-      mAppQueueAdapter.notifyItemRangeRemoved(
-          0, mAppQueueViewModel.getAppsInQueue().size());
+      mAppQueueAdapter.notifyDataSetChanged();
 
       mAppQueueRecyclerView.setClickable(true);
     }

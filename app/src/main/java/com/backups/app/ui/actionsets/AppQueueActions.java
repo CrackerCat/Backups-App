@@ -54,10 +54,10 @@ public final class AppQueueActions implements IActionSetFunctionality {
 
       if (mAppQueueViewModel.hasSelectedItems()) {
         mAppQueueViewModel.clearSelection();
-
-        mAppQueueViewModel.setItemSelectionStateTo(
-            SelectionState.SELECTION_ENDED);
       }
+
+      mAppQueueViewModel.setItemSelectionStateTo(
+              SelectionState.SELECTION_ENDED);
     }
   }
 
@@ -107,16 +107,20 @@ public final class AppQueueActions implements IActionSetFunctionality {
     final Pair<Boolean, String> status = startPreBackupChecks();
 
     if (status.first) {
-      Toast.makeText(mParentActivity, status.second, Toast.LENGTH_SHORT).show();
-
-      interruptSelectionState();
-
-      mActionPresenter.available(APP_LIST, SEARCH_BUTTON, false);
-
-      makeAppQueueActionsAvailable();
-
-      mAppQueueViewModel.startBackup();
+      beginBackupProcess(status);
     }
+  }
+
+  private void beginBackupProcess(Pair<Boolean, String> status) {
+    Toast.makeText(mParentActivity, status.second, Toast.LENGTH_SHORT).show();
+
+    interruptSelectionState();
+
+    mActionPresenter.available(APP_LIST, SEARCH_BUTTON, false);
+
+    makeAppQueueActionsAvailable();
+
+    mAppQueueViewModel.startBackup();
   }
 
   private void displayBackupErrorMessage(final boolean backupNotInProgress) {

@@ -5,6 +5,8 @@ import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.backups.app.Constants;
 import com.backups.app.data.events.DataEvent;
 import com.backups.app.data.events.SelectionState;
 import com.backups.app.data.pojos.ApkFile;
@@ -30,7 +32,7 @@ public final class AppQueueViewModel extends ViewModel {
 
   private final StorageVolumeHelper mStorageVolumeHelper;
 
-  private final BackupHelper mBackupHelper;
+  private final BackupRepository mBackupHelper;
 
   private final MutableLiveData<SelectionState> mSelectionStateLiveData =
       new MutableLiveData<>();
@@ -42,7 +44,7 @@ public final class AppQueueViewModel extends ViewModel {
     mStorageVolumeHelper = new StorageVolumeHelper(context);
 
     mBackupHelper =
-        new BackupHelper(mStorageVolumeHelper.getStorageVolumePath());
+        new BackupRepository(mStorageVolumeHelper.getStorageVolumePath());
   }
 
   public LiveData<BackupProgress> getBackupProgressLiveData() {
@@ -214,16 +216,23 @@ public final class AppQueueViewModel extends ViewModel {
     final List<ApkFile> appQueue = mAppQueueHelper.getAppsInQueue();
 
     if (mStorageVolumeHelper.canBackup(appQueue)) {
-
-      mBackupHelper.backup(appQueue, (progress) -> {
-        if (progress.finished()) {
-          mBackupHelper.zeroBackupSize();
-
-          mAppQueueEntryHelper.resetBackupCounter(progress.getBackupHash());
-        }
-
-        mProgressState.postValue(progress);
-      });
+      backup(appQueue);
     }
+  }
+
+  private void backup(List<ApkFile> appQueue) {
+    if(!mStorageVolumeHelper.isMounted(mStorageVolumeHelper.getStorageVolumeIndex())) {
+      mStorageVolumeHelper.setStorageVolume(Constants.PRIMARY_STORAGE);
+    }
+
+    mBackupHelper.backup(appQueue, (progress) -> {
+      if (progress.finished()) {
+        mBackupHelper.zeroBackupSize();
+
+        mAppQueueEntryHelper.resetBackupCounter(progress.getBackupHash());
+      }
+
+      mProgressState.postValue(progress);
+    });
   }
 }
