@@ -121,5 +121,6 @@
 
     <string name="share_app_intent_title">The Backups App</string>
     <string name="share_app_intent_body">Wow this is a pretty great app!</string>
+    <string name="rate_app_message">Give us a star on github!</string>
     <!-- Contact Related End -->
 </resources>
