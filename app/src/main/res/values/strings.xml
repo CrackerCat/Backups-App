@@ -39,7 +39,7 @@
 
     <!-- About Us -->
     <string name="app_description">Made to backup apps on the device via a clean and simple interface</string>
-    <string name="app_version">Version: </string>
+    <string name="app_version_header">Version: </string>
     <string name="app_version_number" translatable="false"> 1.0.0 </string>
     <string name="app_license"> &amp; License: </string>
     <string name="app_license_name">GPL v3 </string>
