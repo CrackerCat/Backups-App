@@ -67,7 +67,7 @@ public final class AppQueueFragment
 
     mAppQueueAdapter =
         new AppQueueAdapter(mAppQueueViewModel.getAppsInQueue(),
-                            getResources().getColor(R.color.secondaryColor));
+                            getResources().getColor(R.color.secondaryColor), getResources().getColor(R.color.primaryLightColor));
 
     mAppQueueRecyclerView.setLayoutManager(new LinearLayoutManager(parent));
 
