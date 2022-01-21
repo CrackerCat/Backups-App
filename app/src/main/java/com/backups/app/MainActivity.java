@@ -454,8 +454,6 @@ public final class MainActivity extends AppCompatActivity
     hideWelcomeView(true);
 
     hideAppQueueItemSelectionView(false);
-
-    mActionPresenter.available(APP_QUEUE, SEARCH_BUTTON, false);
   }
 
   private void onBackupSelectionEnded() {

@@ -3,7 +3,6 @@ package com.backups.app.ui.adapters;
 import static com.backups.app.Constants.MIN_PROGRESS;
 import static com.backups.app.Constants.REMOVE_FROM;
 
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,13 +20,16 @@ public final class AppQueueAdapter
     extends RecyclerView.Adapter<AppQueueAdapter.BackupsViewHolder> {
 
   private final int mItemBgViewColor;
+  private final int mUnselectedColor;
   private ItemClickListener mClickListener;
   private final List<ApkFile> mDataSet;
 
-  public AppQueueAdapter(List<ApkFile> dataSet, final int itemViewBgColor) {
+  public AppQueueAdapter(List<ApkFile> dataSet, final int itemViewBgColor, final int unSelectedColor) {
     mDataSet = dataSet;
 
     mItemBgViewColor = itemViewBgColor;
+
+    mUnselectedColor = unSelectedColor;
   }
 
   @NonNull
@@ -128,7 +130,7 @@ public final class AppQueueAdapter
         final ApkFile item = mDataSet.get(getBindingAdapterPosition());
 
         v.setBackgroundColor(
-            (item.mark(!item.marked()) ? mItemBgViewColor : Color.TRANSPARENT));
+            (item.mark(!item.marked()) ? mItemBgViewColor : mUnselectedColor));
 
         mClickListener.onItemClick(v, getBindingAdapterPosition());
       }
