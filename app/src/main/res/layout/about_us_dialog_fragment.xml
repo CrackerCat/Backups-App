@@ -61,7 +61,7 @@
                 android:layout_marginEnd="5dp"
                 android:clickable="false"
                 android:gravity="center"
-                android:text="@string/app_version"
+                android:text="@string/app_version_header"
                 android:textSize="@dimen/h4" />
 
             <TextView
