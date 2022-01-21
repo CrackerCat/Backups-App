@@ -21,24 +21,39 @@ public class ActionButton implements IAction {
   private final TextView mActionLabel;
   private final FloatingActionButton mActionButton;
 
-  public ActionButton(final IPresenter presenter,
-                      final FragmentActivity activity,
-                      final @IdRes int[] layoutIDs, final int[] colors,
-                      final boolean active) {
+  public static class Config {
+    IPresenter presenter;
+    FragmentActivity activity;
+    @IdRes int[] layoutIDs;
+    int[] colors;
+    boolean active;
 
-    mActionLabel = activity.findViewById(layoutIDs[0]);
+    public Config(final IPresenter presenter, final FragmentActivity activity,
+                  @IdRes final int[] layoutIDs, final int[] colors,
+                  final boolean active) {
+      this.activity = activity;
+      this.presenter = presenter;
+      this.layoutIDs = layoutIDs;
+      this.colors = colors;
+      this.active = active;
+    }
+  }
 
-    mActionButton = activity.findViewById(layoutIDs[1]);
+  public ActionButton(final Config config) {
 
-    mInternalState.activeColor = colors[0];
+    mActionLabel = config.activity.findViewById(config.layoutIDs[0]);
 
-    mInternalState.inactiveColor = colors[1];
+    mActionButton = config.activity.findViewById(config.layoutIDs[1]);
 
-    mInternalState.isActive = active;
+    mInternalState.activeColor = config.colors[0];
+
+    mInternalState.inactiveColor = config.colors[1];
+
+    mInternalState.isActive = config.active;
 
     if (mActionLabel != null && mActionButton != null) {
       mInternalState.hasAssignedViews = true;
-      mParent = presenter;
+      mParent = config.presenter;
     }
   }
 

@@ -1,7 +1,7 @@
 package com.backups.app.ui.actions;
 
 public interface IPresenter {
-  public static final int NO_ACTIONS = -1;
+  int NO_ACTIONS = -1;
 
   void addActions(IAction[] actions);
 

@@ -2,15 +2,16 @@ package com.backups.app.data.pojos;
 
 import android.graphics.drawable.Drawable;
 
-public class APKFile {
+public final class ApkFile {
   private boolean mIsSelected = false;
+  private int mPackageHash = 0;
   private final String mName;
   private final String mPackageName;
   private final String mPackagePath;
   private final long mAppSize;
   private final Drawable mIcon;
 
-  public APKFile(final String name, final String packageName,
+  public ApkFile(final String name, final String packageName,
                  final String packagePath, final long appSize,
                  final Drawable icon) {
     mName = name;
@@ -20,7 +21,19 @@ public class APKFile {
     mIcon = icon;
   }
 
+  @Override
+  public String toString() {
+    return "APKFile{"
+        + "Name='" + mName + '\'' + ", PackageName='" + mPackageName + '\'' +
+        ", PackagePath='" + mPackagePath + '\'' + ", AppSize=" + mAppSize +
+        ", Icon=" + mIcon + '}';
+  }
+
   public boolean marked() { return mIsSelected; }
+
+  public int getPackageHash() {
+    return (mPackageHash == 0 ? computePackageHash() : mPackageHash);
+  }
 
   public String getName() { return mName; }
 
@@ -39,11 +52,11 @@ public class APKFile {
     return mIsSelected;
   }
 
-  @Override
-  public String toString() {
-    return "APKFile{"
-        + "isSelected=" + mIsSelected + ", name='" + mName +
-        "'\n packageName='" + mPackageName + "'\n packagePath='" +
-        mPackagePath + "'\n appSize=" + mAppSize + "'\n icon=" + mIcon + '}';
+  public boolean isDuplicate() { return mName.endsWith(")"); }
+
+  private int computePackageHash() {
+    mPackageHash = mPackagePath.hashCode() + mPackageName.hashCode();
+
+    return mPackageHash;
   }
 }

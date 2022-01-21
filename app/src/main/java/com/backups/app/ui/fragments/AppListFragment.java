@@ -14,15 +14,16 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.backups.app.R;
-import com.backups.app.data.pojos.APKFile;
-import com.backups.app.data.viewmodels.ApkListViewModel;
-import com.backups.app.data.viewmodels.AppQueueViewModel;
-import com.backups.app.data.viewmodels.BackupsViewModelFactory;
+import com.backups.app.data.pojos.ApkFile;
+import com.backups.app.data.viewmodels.apklist.ApkListViewModel;
+import com.backups.app.data.viewmodels.appqueue.AppQueueViewModel;
 import com.backups.app.ui.adapters.AppListAdapter;
 import com.backups.app.ui.adapters.ItemClickListener;
+import java.util.Collections;
 import java.util.List;
 
-public class AppListFragment extends Fragment implements ItemClickListener {
+public final class AppListFragment
+    extends Fragment implements ItemClickListener {
   private ApkListViewModel mAppListViewModel;
   private AppQueueViewModel mAppQueueViewModel;
 
@@ -51,60 +52,65 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
     initializeViewModels(activity);
 
-    registerObservers(activity);
+    initializeRecyclerView(activity);
+
+    registerObservers();
   }
 
-  private void registerObservers(final FragmentActivity activity) {
+  @Override
+  public void onItemClick(View view, int position) {
+    if (!mAppQueueViewModel.isBackupInProgress()) {
+      final ApkFile selected = mAppListAdapter.getItem(position);
+
+      mAppQueueViewModel.addApp(selected);
+    }
+  }
+
+  private void registerObservers() {
     mAppListViewModel.getApkListLiveData().observe(
-        getViewLifecycleOwner(), apkFiles -> {
-          boolean queryingForDataSet = apkFiles == null;
+        getViewLifecycleOwner(), this::onApkDataFetch);
+  }
 
-          if (queryingForDataSet) {
-            showProgressBar();
+  private void onApkDataFetch(final List<ApkFile> apkFiles) {
+    final boolean queryingForDataSet = apkFiles == null;
 
-          } else if (!apkFiles.isEmpty()) {
+    if (queryingForDataSet) {
+      if (mProgressBar.getVisibility() != View.VISIBLE) {
+        showProgressBar();
+      }
 
-            if (mProgressBar.getVisibility() == View.GONE) {
-              showProgressBar();
-            }
+    } else if (!apkFiles.isEmpty()) {
 
-            if (mAppListAdapter != null) {
-              mAppListAdapter.changeDataSet(apkFiles);
+      showCompletion();
 
-            } else {
-              setupRecyclerView(activity, apkFiles);
-            }
+      mAppListAdapter.changeDataSet(apkFiles);
 
-            showCompletion();
-
-          } else {
-            showErrorMessage(getResources().getString(
-                R.string.unable_to_fetch_apk_data_message));
-          }
-        });
+    } else {
+      showErrorMessage(
+          getResources().getString(R.string.unable_to_fetch_apk_data_message));
+    }
   }
 
   private void initializeViews(View view) {
     mProgressBar = view.findViewById(R.id.app_list_pb);
+
     mErrorMessageTV = view.findViewById(R.id.app_list_no_apps_tv);
+
     mAppListRecyclerView = view.findViewById(R.id.app_list_rv);
   }
 
   private void initializeViewModels(FragmentActivity activity) {
     mAppListViewModel =
         new ViewModelProvider(activity).get(ApkListViewModel.class);
+
     mAppQueueViewModel =
-        new ViewModelProvider(activity, new BackupsViewModelFactory(activity))
-            .get(AppQueueViewModel.class);
+        new ViewModelProvider(activity).get(AppQueueViewModel.class);
   }
 
-  private void setupRecyclerView(FragmentActivity activity,
-                                 List<APKFile> data) {
-    LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+  private void initializeRecyclerView(final FragmentActivity activity) {
+    mAppListAdapter = new AppListAdapter(Collections.emptyList());
 
-    mAppListAdapter = new AppListAdapter(data);
-
-    mAppListRecyclerView.setLayoutManager(layoutManager);
+    mAppListRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
     mAppListRecyclerView.setAdapter(mAppListAdapter);
 
@@ -113,27 +119,23 @@ public class AppListFragment extends Fragment implements ItemClickListener {
 
   private void showErrorMessage(final String message) {
     mProgressBar.setVisibility(View.GONE);
+
     mAppListRecyclerView.setVisibility(View.GONE);
+
     mErrorMessageTV.setVisibility(View.VISIBLE);
+
     mErrorMessageTV.setText(message);
   }
 
   private void showProgressBar() {
     mProgressBar.setVisibility(View.VISIBLE);
+
     mAppListRecyclerView.setVisibility(View.GONE);
   }
 
   private void showCompletion() {
     mProgressBar.setVisibility(View.GONE);
+
     mAppListRecyclerView.setVisibility(View.VISIBLE);
-  }
-
-  @Override
-  public void onItemClick(View view, int position) {
-    if (!mAppQueueViewModel.isBackupInProgress()) {
-      APKFile selected = mAppListAdapter.getItem(position);
-
-      mAppQueueViewModel.addApp(selected);
-    }
   }
 }

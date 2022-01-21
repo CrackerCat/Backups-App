@@ -10,6 +10,7 @@
         android:id="@+id/search_dialog_sv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:defaultQueryHint="@string/search_hint"
         app:iconifiedByDefault="false" />
 
     <androidx.recyclerview.widget.RecyclerView

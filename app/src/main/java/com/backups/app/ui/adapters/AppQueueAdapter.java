@@ -1,6 +1,8 @@
 package com.backups.app.ui.adapters;
 
-import android.graphics.Color;
+import static com.backups.app.Constants.MIN_PROGRESS;
+import static com.backups.app.Constants.REMOVE_FROM;
+
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,28 +10,26 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.backups.app.R;
-import com.backups.app.data.pojos.APKFile;
-
+import com.backups.app.data.pojos.ApkFile;
 import java.util.List;
 
-import static com.backups.app.ui.Constants.MIN_PROGRESS;
-
-public class AppQueueAdapter
+public final class AppQueueAdapter
     extends RecyclerView.Adapter<AppQueueAdapter.BackupsViewHolder> {
 
   private final int mItemBgViewColor;
+  private final int mUnselectedColor;
   private ItemClickListener mClickListener;
-  private final List<APKFile> mDataSet;
+  private final List<ApkFile> mDataSet;
 
-  public AppQueueAdapter(List<APKFile> dataSet, final int itemViewBgColor) {
+  public AppQueueAdapter(List<ApkFile> dataSet, final int itemViewBgColor, final int unSelectedColor) {
     mDataSet = dataSet;
 
     mItemBgViewColor = itemViewBgColor;
+
+    mUnselectedColor = unSelectedColor;
   }
 
   @NonNull
@@ -45,28 +45,49 @@ public class AppQueueAdapter
   @Override
   public void onBindViewHolder(@NonNull BackupsViewHolder holder,
                                int position) {
-    APKFile item = mDataSet.get(position);
+    final ApkFile item = mDataSet.get(position);
 
-    holder.itemView.setBackgroundColor(item.marked() ? mItemBgViewColor
-                                                     : Color.TRANSPARENT);
+    if(item.marked()) {
+      holder.itemView.setBackgroundColor(mItemBgViewColor);
+    }
 
-    holder.setAppName(item.getName());
-    holder.setPackageName(item.getPackageName());
-    holder.setAppIcon(item.getIcon());
-    holder.resetProgressBar();
+    populateBackupViewHolder(holder, item);
+  }
+
+  @Override
+  public int getItemCount() {
+    return mDataSet.size();
   }
 
   public void setClickListener(ItemClickListener itemClickListener) {
     mClickListener = itemClickListener;
   }
 
-  public APKFile getItemAt(final int position) {
+  public ApkFile getItemAt(final int position) {
     return mDataSet.get(position);
   }
 
-  @Override
-  public int getItemCount() {
-    return mDataSet.size();
+  public void updateBackupViewHolder(final RecyclerView recyclerView, int by) {
+    if (recyclerView != null) {
+      final AppQueueAdapter.BackupsViewHolder backupsViewHolder =
+          (AppQueueAdapter.BackupsViewHolder)
+              recyclerView.findViewHolderForAdapterPosition(REMOVE_FROM);
+
+      if (backupsViewHolder != null) {
+        backupsViewHolder.updateProgressBy(by);
+      }
+    }
+  }
+
+  private void populateBackupViewHolder(final BackupsViewHolder holder,
+                                        final ApkFile item) {
+    holder.setAppName(item.getName());
+
+    holder.setPackageName(item.getPackageName());
+
+    holder.setAppIcon(item.getIcon());
+
+    holder.resetProgressBar();
   }
 
   public class BackupsViewHolder
@@ -106,12 +127,12 @@ public class AppQueueAdapter
     @Override
     public void onClick(View v) {
       if (mClickListener != null) {
-        final APKFile item = mDataSet.get(getAdapterPosition());
+        final ApkFile item = mDataSet.get(getBindingAdapterPosition());
 
         v.setBackgroundColor(
-            (item.mark(!item.marked()) ? mItemBgViewColor : Color.TRANSPARENT));
+            (item.mark(!item.marked()) ? mItemBgViewColor : mUnselectedColor));
 
-        mClickListener.onItemClick(v, getAdapterPosition());
+        mClickListener.onItemClick(v, getBindingAdapterPosition());
       }
     }
   }

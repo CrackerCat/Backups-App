@@ -20,7 +20,8 @@
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
             android:clickable="false"
-            app:srcCompat="@drawable/ic_launcher_foreground" />
+            app:srcCompat="@drawable/ic_logo"
+            app:tint="@color/secondaryColor" />
 
         <TextView
             android:id="@+id/app_name_tv"
@@ -57,6 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/app_version"
@@ -67,6 +69,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
                 android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
@@ -78,6 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
                 android:clickable="false"
                 android:gravity="center"
                 android:linksClickable="false"
@@ -93,7 +97,7 @@
                 android:gravity="center"
                 android:linksClickable="true"
                 android:text="@string/app_license_name"
-                android:textColorLink="@color/secondaryDarkColor"
+                android:textColor="@color/secondaryColor"
                 android:textSize="@dimen/h4"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -102,14 +106,14 @@
             android:id="@+id/contactDeveloper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
+            android:layout_gravity="start"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/contact_dev_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center|left"
+                android:layout_gravity="center|start"
                 android:layout_marginBottom="20dp"
                 android:focusable="true"
                 android:orientation="vertical">
@@ -222,7 +226,7 @@
                 android:layout_width="@dimen/member_role_icon_sizes"
                 android:layout_height="@dimen/member_role_icon_sizes"
                 android:clickable="false"
-                app:srcCompat="@drawable/ic_launcher_foreground" />
+                app:srcCompat="@drawable/ic_baseline_people_24" />
 
         </LinearLayout>
 
@@ -230,16 +234,15 @@
             android:id="@+id/members"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginStart="15dp"
+            android:layout_gravity="start"
             android:clickable="false"
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/member1View"
+                android:id="@+id/developer_vw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:layout_marginBottom="25dp"
                 android:clickable="false"
                 android:orientation="horizontal">
@@ -250,18 +253,18 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="20dp"
                     android:clickable="false"
-                    app:srcCompat="@drawable/ic_launcher_foreground" />
+                    app:srcCompat="@drawable/ic_baseline_code_24" />
 
                 <LinearLayout
                     android:id="@+id/member1_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center|left"
+                    android:layout_gravity="center|start"
                     android:clickable="false"
                     android:orientation="vertical">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
                         android:orientation="horizontal">
@@ -276,12 +279,6 @@
                             android:textColor="@color/primaryTextColor"
                             android:textSize="@dimen/h3" />
 
-                        <ImageView
-                            android:layout_width="@dimen/member_social_media_icon_sizes"
-                            android:layout_height="@dimen/member_social_media_icon_sizes"
-                            android:layout_weight="1"
-                            android:clickable="false"
-                            app:srcCompat="@drawable/ic_launcher_foreground" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -304,7 +301,7 @@
                             android:layout_width="@dimen/member_social_media_icon_sizes"
                             android:layout_height="@dimen/member_social_media_icon_sizes"
                             android:focusable="true"
-                            app:srcCompat="@drawable/ic_launcher_foreground" />
+                            app:srcCompat="@drawable/ic_github" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -312,10 +309,10 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/member2View"
+                android:id="@+id/designer_vw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:layout_marginBottom="35dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -327,17 +324,17 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="20dp"
                     android:clickable="false"
-                    app:srcCompat="@drawable/ic_launcher_foreground" />
+                    app:srcCompat="@drawable/ic_baseline_design_services_24" />
 
                 <LinearLayout
                     android:id="@+id/member2_view"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center|left"
+                    android:layout_gravity="center|start"
                     android:orientation="vertical">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
                         android:orientation="horizontal">
@@ -352,12 +349,6 @@
                             android:textColor="@color/primaryTextColor"
                             android:textSize="@dimen/h3" />
 
-                        <ImageView
-                            android:layout_width="@dimen/member_social_media_icon_sizes"
-                            android:layout_height="@dimen/member_social_media_icon_sizes"
-                            android:layout_weight="1"
-                            android:clickable="false"
-                            app:srcCompat="@drawable/ic_launcher_foreground" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -379,7 +370,7 @@
                             android:layout_width="@dimen/member_social_media_icon_sizes"
                             android:layout_height="@dimen/member_social_media_icon_sizes"
                             android:focusable="true"
-                            app:srcCompat="@drawable/ic_launcher_foreground" />
+                            app:srcCompat="@drawable/ic_github" />
                     </LinearLayout>
 
                 </LinearLayout>

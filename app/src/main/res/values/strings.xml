@@ -45,13 +45,13 @@
     <string name="app_license_name">GPL v3 </string>
 
     <string name="contact_developer">Contact Developer</string>
-    <string name="contact_developer_description">found a bug?, let us know</string>
+    <string name="contact_developer_description">Found a bug?, let us know</string>
 
     <string name="app_improvements">Suggestions</string>
-    <string name="app_improvements_description">any advice that can help us improve the app?</string>
+    <string name="app_improvements_description">Any advice that can help us improve the app?</string>
 
-    <string name="see_source_code">See the Source Code</string>
-    <string name="see_source_code_description">check out the code for the app</string>
+    <string name="see_source_code">Check Out The Code</string>
+    <string name="see_source_code_description">Check out the app\'s source code</string>
 
     <string name="meet_team_heading">The Team</string>
 
@@ -73,7 +73,7 @@
     <string name="search_label_text">Search</string>
     <string name="backup_label_text">Backup</string>
 
-    <string name="app_queue_item_selection_label_text">Remove items</string>
+    <string name="app_queue_item_selection_label_text">Remove</string>
 
     <string name="about_us_label_text">About Us</string>
     <string name="share_app_label_text">Share App</string>
@@ -89,12 +89,18 @@
 
     <string name="no_backups_selected_message">No backups have been selected yet</string>
 
-    <string name="storage_volume_not_present">Storage location unavailable…\ndefaulting to internal storage</string>
+    <string name="storage_volume_not_present">Storage location unavailable…\ndefaulting to device storage</string>
+
+    <string name="no_storage_volumes_present">Unable to locate any storage devices</string>
+
+    <string name="unknown_storage_volume">Unknown storage device</string>
 
     <string name="backup_in_progress_message">A backup is already in progress</string>
+
     <string name="backup_in_progress_message_alt">A backup is currently in progress\nPlease wait until it is finished and restart the app</string>
 
     <string name="unable_to_create_backup_message">Unable to create backup of:\n %s</string>
+
     <!-- FAB Related End -->
 
 
@@ -109,11 +115,12 @@
 
     <string name="feature_request_email_body">
         Please describe in detail:\n
-        - What the purpose of the feature is?\n\n
+        - What the purpose of the feature is\n\n
         - Why you think the feature will improve the app\n\n
         - As well as a basic example of the feature\'s functionality in use\n\n</string>
 
     <string name="share_app_intent_title">The Backups App</string>
     <string name="share_app_intent_body">Wow this is a pretty great app!</string>
+    <string name="rate_app_message">Give us a star on github!</string>
     <!-- Contact Related End -->
 </resources>

@@ -9,15 +9,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.backups.app.R;
-import com.backups.app.data.pojos.APKFile;
+import com.backups.app.data.pojos.ApkFile;
 import java.util.List;
 
-public class AppListAdapter
+public final class AppListAdapter
     extends RecyclerView.Adapter<AppListAdapter.ApkDataViewHolder> {
-  private List<APKFile> mDataSet;
+  private List<ApkFile> mDataSet;
   private ItemClickListener mClickListener;
 
-  public AppListAdapter(List<APKFile> dataSet) { mDataSet = dataSet; }
+  public AppListAdapter(List<ApkFile> dataSet) { mDataSet = dataSet; }
 
   @NonNull
   @Override
@@ -32,15 +32,13 @@ public class AppListAdapter
   @Override
   public void onBindViewHolder(@NonNull ApkDataViewHolder holder,
                                int position) {
-    APKFile item = mDataSet.get(position);
+    final ApkFile item = mDataSet.get(position);
 
-    String appName = item.getName();
-    String packageName = item.getPackageName();
-    Drawable appIcon = item.getIcon();
+    holder.setAppName(item.getName());
 
-    holder.setAppName(appName);
-    holder.setPackageName(packageName);
-    holder.setAppIcon(appIcon);
+    holder.setPackageName(item.getPackageName());
+
+    holder.setAppIcon(item.getIcon());
   }
 
   @Override
@@ -48,11 +46,11 @@ public class AppListAdapter
     return mDataSet.size();
   }
 
-  public final APKFile getItem(final int position) {
+  public final ApkFile getItem(final int position) {
     return mDataSet.get(position);
   }
 
-  public void changeDataSet(List<APKFile> apkFiles) {
+  public void changeDataSet(List<ApkFile> apkFiles) {
     mDataSet = apkFiles;
     notifyDataSetChanged();
   }

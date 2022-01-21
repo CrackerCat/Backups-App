@@ -83,8 +83,10 @@
         android:id="@+id/main_floating_action_button"
         style="@style/FloatingActionButtonActive"
         android:layout_marginEnd="28dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/ic_logo"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:maxImageSize="48dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

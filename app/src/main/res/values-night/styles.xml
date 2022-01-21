@@ -2,12 +2,24 @@
 <resources>
 
     <style name="FloatingActionButtonInactive">
+        <item name="tint">@color/primaryColor</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">@dimen/label_padding</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:visibility">gone</item>
         <item name="backgroundTint">@color/primaryLightColor</item>
         <item name="fabSize">auto</item>
+    </style>
+
+    <style name="RecyclerViewCard">
+        <item name="cardBackgroundColor">@color/primaryLightColor</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">20dp</item>
+        <item name="android:elevation">0dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
     </style>
 </resources>
