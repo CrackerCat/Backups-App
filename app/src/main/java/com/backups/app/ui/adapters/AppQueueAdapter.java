@@ -19,17 +19,17 @@ import java.util.List;
 public final class AppQueueAdapter
     extends RecyclerView.Adapter<AppQueueAdapter.BackupsViewHolder> {
 
-  private final int mItemBgViewColor;
-  private final int mUnselectedColor;
+  private final int mSelectedBgColor;
+  private final int mDeselectedBgColor;
   private ItemClickListener mClickListener;
   private final List<ApkFile> mDataSet;
 
   public AppQueueAdapter(List<ApkFile> dataSet, final int itemViewBgColor, final int unSelectedColor) {
     mDataSet = dataSet;
 
-    mItemBgViewColor = itemViewBgColor;
+    mSelectedBgColor = itemViewBgColor;
 
-    mUnselectedColor = unSelectedColor;
+    mDeselectedBgColor = unSelectedColor;
   }
 
   @NonNull
@@ -47,9 +47,7 @@ public final class AppQueueAdapter
                                int position) {
     final ApkFile item = mDataSet.get(position);
 
-    if(item.marked()) {
-      holder.itemView.setBackgroundColor(mItemBgViewColor);
-    }
+    holder.itemView.setBackgroundColor((item.marked() ? mSelectedBgColor : mDeselectedBgColor));
 
     populateBackupViewHolder(holder, item);
   }
@@ -130,7 +128,7 @@ public final class AppQueueAdapter
         final ApkFile item = mDataSet.get(getBindingAdapterPosition());
 
         v.setBackgroundColor(
-            (item.mark(!item.marked()) ? mItemBgViewColor : mUnselectedColor));
+            (item.mark(!item.marked()) ? mSelectedBgColor : mDeselectedBgColor));
 
         mClickListener.onItemClick(v, getBindingAdapterPosition());
       }
