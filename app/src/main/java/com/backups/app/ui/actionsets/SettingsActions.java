@@ -33,7 +33,7 @@ public final class SettingsActions implements IActionSetFunctionality {
 
       action.assignCallBacks(
           v
-          -> Toast.makeText(mParentActivity, "Rate me!", Toast.LENGTH_SHORT)
+          -> Toast.makeText(mParentActivity, mParentActivity.getString(R.string.rate_app_message), Toast.LENGTH_SHORT)
                  .show(),
           v -> {});
 
@@ -51,7 +51,7 @@ public final class SettingsActions implements IActionSetFunctionality {
     final String shareAppIntentBody =
         resources.getString(R.string.share_app_intent_body);
 
-    final String appStoreLink = "https://playstore.link";
+    final String appStoreLink = "https://github.com/flyingsl0ths/Backups-App";
 
     IntentLauncher.composeShareableMessage(mParentActivity, shareAppIntentTitle,
                                            shareAppIntentBody,
