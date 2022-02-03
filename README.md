@@ -1,5 +1,7 @@
 # Backups - Another apk backup app
 
+Logo by: https://github.com/StefanGreve
+
 An android app for creating backups of installed apk files
 
 ## Screenshots 📸
